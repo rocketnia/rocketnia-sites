@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title></title>
+<script type="text/plain" id="datahtml">
+application/x-rocketnia-choppascript-ext
+
+
+$cs.extendOnly( "cliBuildFoundation", function () {
+return $cs.getOne( "lathe", "$cg", function ( _, $cg ) {
+return $cs.getAll( "pages", function ( pages ) {
+return $cs.getOptional( "$path", "$util", function ( $path, $util ) {
+return $cs.extend( "cliBuildFoundation", (function () {
+
+var cliBuildFoundation = {};
+
+cliBuildFoundation.build = function ( then ) {
+    var rcPages = {};
+    _.arrEach( pages, function ( page ) {
+        $cg.definePage( rcPages, page );
+    } );
+    var site = $cg.renderPagesToText(
+        rcPages, "/", { "allowPhp": true } );
+    
+    $util.rm( "fin", function ( e ) {
+        if ( e ) return void then( e );
+    $util.cp( "osrc/static", "fin/cheapsite", function ( e ) {
+        if ( e ) return void then( e );
+    $util.cp( "csrc/static", "fin/cheapsite", function ( e ) {
+        if ( e ) return void then( e );
+    
+    $util.objOwnEachConcurrentExn( $util.defer, site,
+        function ( k, v, thro, ret ) {
+        
+        $util.writeTextFile( "fin/cheapsite" + k, "utf-8", v,
+            function ( e ) {
+            
+            if ( e ) return void thro( e );
+            ret();
+        } );
+    }, function ( e ) {
+        then( e || true );
+    }, function () {
+        then();
+    } );
+    
+    } );
+    } );
+    } );
+};
+
+cliBuildFoundation.normalize = function ( then ) {
+    $util.objOwnMapConcurrentExn( $util.defer, {
+        extOpenSource: "osrc/ext",
+        extClosedSource: "csrc/ext"
+    }, function ( k, v, thro, ret ) {
+        $util.dirDeepList( v, function ( e, paths ) {
+            if ( e ) return void thro( e );
+            ret( paths.filter( function ( path ) {
+                return /\.x\.d\.html$/.test( path );
+            } ) );
+        } );
+    }, function ( e ) {
+        then( e || true );
+    }, function ( lists ) {
+        $util.arrEachConcurrentExn( $util.defer,
+            [].concat( lists.extOpenSource, lists.extClosedSource ),
+            function ( i, path, thro, ret ) {
+            
+            $util.fetchDataHtml( path, function ( data ) {
+                if ( data === null )
+                    return void thro( "Couldn't read " + path + "." );
+                var rendered =
+                    $util.renderDataHtml( data.type, data.text );
+                if ( rendered === null )
+                    return void thro(
+                        "Couldn't render " + path + "." );
+                $util.writeTextFile( path, "utf-8", rendered,
+                    function ( e ) {
+                    
+                    if ( e ) return void thro( e );
+                    ret();
+                } );
+            } );
+        }, function ( e ) {
+            then( e || true );
+        }, function () {
+            function relPaths( fromPath, toPaths ) {
+                return _.arrMap( toPaths, function ( toPath ) {
+                    return $path.relative( fromPath, toPath ).
+                        replace( /\\/g, "/" );
+                } );
+            }
+            $util.arrEachConcurrentExn( $util.defer, [
+                { paths: relPaths( "osrc", lists.extOpenSource ),
+                    file: "osrc/ext.manifest.json.d.html" },
+                { paths: relPaths( "csrc", lists.extClosedSource ),
+                    file: "csrc/ext.manifest.json.d.html" }
+            ], function ( i, manifest, thro, ret ) {
+                var rendered =
+                    $util.renderDataHtml( "application/json",
+                        JSON.stringify( manifest.paths, null, 4 ) );
+                if ( rendered === null )
+                    return void thro(
+                        "Couldn't render " + manifest.file + "." );
+                $util.writeTextFile( manifest.file, "utf-8", rendered,
+                    function ( e ) {
+                    
+                    if ( e ) return void thro( e );
+                    ret();
+                } );
+            }, function ( e ) {
+                then( e || true );
+            }, function () {
+                then();
+            } );
+        } );
+    } );
+};
+
+return cliBuildFoundation;
+
+})() );
+} );
+} );
+} );
+} )
+
+
+</script>
+<textarea style="width: 100%; height: 300px" id="t"></textarea>
+<script>
+var m = /^\n([^\n]+)\n((?:[^\n]|\n)*)\n$/.exec(
+    document.getElementById( "datahtml" ).textContent.replace(
+        /@(@*)/g, "$1" ) );
+parent.postMessage( { hash: location.hash,
+    val: { type: m[ 1 ], text: m[ 2 ] } }, "*" );
+document.getElementById( "t" ).value = m[ 2 ];
+</script>
+</html>

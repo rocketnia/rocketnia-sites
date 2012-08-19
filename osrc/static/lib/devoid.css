@@ -1,0 +1,131 @@
+html { background-color: #135; height: 100%; }
+
+body
+{
+  font-family: arial,sans-serif;
+  background-color: white;
+  margin: 0 auto;
+  max-width: 1000px;
+  height: 100%;
+  box-shadow:          0 -200px 200px rgba( 0, 0, 0, 0.4 );
+  -moz-box-shadow:     0 -200px 200px rgba( 0, 0, 0, 0.4 );
+  -webkit-box-shadow:  0 -200px 200px rgba( 0, 0, 0, 0.4 );
+}
+
+
+/* This div works around a shadow-and-outline bug:
+ * <https://bugzilla.mozilla.org/show_bug.cgi?id=480888>.
+ */
+div.top-body-wrap { outline: 3px solid black; min-height: 100%; }
+
+div.top-head
+{
+  height: 166px;
+  background: #244760 url(devoid-back.gif) bottom left no-repeat;
+  padding: 0;
+  border-left: 34px solid black;
+}
+div.top-head-inner
+{
+  width: auto;
+  height: 100%;
+  background: url(devoid-front.png) center right no-repeat;
+  padding: 0;
+  margin-left: -34px;
+  margin-right: 10px;
+}
+
+div.top-header { background-color: black; }
+div.top-path
+{
+  font-weight: bolder;
+  font-size: medium;
+  text-align: left;
+  color: white;
+  padding: 5px;
+  padding-left: 205px;
+  float: left;
+}
+div.top-path p { margin: 0; }
+div.top-path a:link { color: white; }
+div.top-path a:visited { color: #999; }
+div.top-path a:hover,
+div.top-path a:active { color: #99C; }
+div.top-search form
+{
+  font-weight: bolder;
+  font-size: medium;
+  text-align: right;
+  color: white;
+  padding: 5px;
+  margin: 0;
+  float: right;
+}
+div.top-header-base { clear: both; }
+div.top-header form input[type~=text] { width: 200px; }
+
+
+div.top-wrapper { background-color: #CCF; }
+
+dl.top-nav
+{
+  color: black;
+  background-color: #CCF;
+  font-size: medium;
+  text-align: left;
+  float: left;
+  width: 200px;
+  margin: 0 -234px 0 0;
+  padding: 16px 0 0 0;
+  border-right: 2px solid black;
+}
+dl.top-nav dt { margin: 0 8px; }
+dl.top-nav dd { margin: 16px; margin-top: 0; }
+dl.top-nav dd ul
+{
+  font-size: medium;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  clear: right;
+}
+dl.top-nav dd ul li { margin: 0 0 3px 16px; text-indent: -16px; }
+dl.top-nav a:link { color: black; }
+dl.top-nav a:visited { color: #666; }
+dl.top-nav a:hover,
+dl.top-nav a:active { color: #66C; }
+
+
+div.top-main-wrap { width: 100%; display: block; float: right; }
+
+div.top-main
+{
+  font-size: smaller;
+  color: black;
+  background-color: white;
+  padding: 1px 15px;
+  border-left: 2px solid black;
+  margin-left: 200px;
+}
+
+
+div.top-wrapper-base { clear: right; }
+
+
+div.top-copy
+{
+  font-size: x-small;
+  text-align: center;
+  color: black;
+  background-color: white;
+  padding: 5px 0;
+  border-top: 2px solid black;
+  clear: left;
+}
+div.top-copy p { margin: 0; }
+
+
+dt { font-weight: bolder; }
+a.sub-link-external { background-color: #CFF; }
+
+h1, h2, h3 { text-shadow: 2px 2px 10px rgba( 0, 0, 0, 0.2 ); }

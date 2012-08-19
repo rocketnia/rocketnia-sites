@@ -1,0 +1,21 @@
+{
+  "private": true,
+  "name": "rocketnia-sites",
+  "version": "0.0.1",
+  "description": "Open source versions of websites maintained by Ross Angle (rocketnia).",
+  "homepage": "https://github.com/rocketnia/rocketnia-sites/",
+  "author": {
+    "name": "Ross Angle",
+    "email": "rokitna@hotmail.com",
+    "url":  "http://www.rocketnia.com/"
+  },
+  
+  "engines": {
+    "node": ">= 0.6.0",
+    "npm": ">= 1.0.0"
+  },
+  "dependencies": {
+    "argparse": "*"
+  },
+  "main": "cli-build.js"
+}

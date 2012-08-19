@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title></title>
+<script type="text/plain" id="datahtml">
+application/x-rocketnia-choppascript-ext
+
+
+$cs.extendOnly( "cliBuild", "cliBuildCandidates", function () {
+return $cs.getOne( "extutils", "cliBuildFoundation",
+    function ( $eu, cliBuildFoundation ) {
+return $cs.getAll( "pages", function ( pages ) {
+return $cs.getOptional( "argparse", "process",
+    function ( argparse, process ) {
+return $eu.extendOpenSource( "cliBuild", "cliBuildCandidates",
+    function ( then ) {
+
+
+var argParser = new argparse.ArgumentParser( {
+    version: "0.0.1",
+    addHelp: true,
+    description: "Websites maintained by Ross Angle (rocketnia)."
+} );
+argParser.addArgument( [ "-n", "--normalize" ], {
+    action: "storeTrue",
+    help: "Normalize the source tree."
+} );
+argParser.addArgument( [ "-b", "--build" ], {
+    action: "storeTrue",
+    help: "Build the project."
+} );
+var args = argParser.parseArgs();
+
+if ( !(args.normalize || args.build) ) {
+    argParser.printHelp();
+    process.exit( 1 );
+}
+
+function complain ( e ) {
+    console.log( "ERROR" );
+    console.log( e );
+    then( e );
+};
+
+function informativeResult( message ) {
+    return function ( e ) {
+        if ( e ) return void complain( e );
+        console.log( message );
+        then();
+    };
+}
+
+if ( args.normalize && args.build ) {
+    cliBuildFoundation.normalize( function ( e ) {
+        if ( e ) return void complain( e );
+        console.log( "Normalized!" );
+    cliBuildFoundation.build( function ( e ) {
+        if ( e ) return void complain( e );
+        console.log( "Built!" );
+        then();
+    } );
+    } );
+} else if ( args.normalize ) {
+    cliBuildFoundation.normalize(
+        informativeResult( "Normalized!" ) );
+} else if ( args.build ) {
+    cliBuildFoundation.build( informativeResult( "Built!" ) );
+}
+
+
+} );
+} );
+} );
+} );
+} )
+
+
+</script>
+<textarea style="width: 100%; height: 300px" id="t"></textarea>
+<script>
+var m = /^\n([^\n]+)\n((?:[^\n]|\n)*)\n$/.exec(
+    document.getElementById( "datahtml" ).textContent.replace(
+        /@(@*)/g, "$1" ) );
+parent.postMessage( { hash: location.hash,
+    val: { type: m[ 1 ], text: m[ 2 ] } }, "*" );
+document.getElementById( "t" ).value = m[ 2 ];
+</script>
+</html>

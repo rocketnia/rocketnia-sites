@@ -1,0 +1,9 @@
+# Added by external tools.
+/node_modules/
+
+# Added by the build process.
+/fin/
+
+# Uncommitted artifacts from the closed source project.
+/egos/closedsource/
+/csrc/

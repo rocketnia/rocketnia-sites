@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title></title>
+<script type="text/plain" id="datahtml">
+application/x-rocketnia-choppascript-ext
+
+
+$cs.extendOnly( "$rc", "$rcCandidates", function () {
+return $cs.getOne( "lathe", "$cg", "extutils",
+    function ( _, $cg, $eu ) {
+return $eu.extendOpenSource( "$rc", "$rcCandidates", (function () {
+
+var $rc = {};
+
+$rc.rcPage = function (
+    permalink, name, updateDate, copyrightDates, opts, content ) {
+    
+    permalink = $cg.toPath( permalink );
+    opts = _.opt( opts ).orf( {
+        "usesAbsolute": false,
+        "is404": false,
+        "title": [ name, " - RocketNIA.com" ],
+        "breadcrumbs": function () {
+            return _.arrMappend( permalink.familyDirs(),
+                function ( dir ) {
+                    return [ " > ", $cg.nameNavLink( dir ) ];
+                } ).slice( 1 );
+        }
+    } ).bam();
+    
+    return $cg.makePage( permalink,
+        opts[ "usesAbsolute" ], opts[ "is404" ],
+        name, opts[ "title" ], "/lib/devoid-favicon.ico",
+        $cg.depsWidget( {
+            css: [ { type: "external", url: "/lib/devoid.css" },
+                { type: "ie", on: "lt ie 7", use:
+                    { type: "external",
+                        url: "/lib/devoid-ie.css" } } ]
+        }, $cg.parseLocal( _.objMap( {
+            "breadcrumbs": opts[ "breadcrumbs" ],
+            "content": content,
+            "copyright-dates": copyrightDates,
+            "update-date": updateDate
+        }, _.kfn ), [str
+[cdiv top-body-wrap
+  [cdiv top-header
+    [cdiv top-head [cdiv top-head-inner]]
+    [cdiv top-path [breadcrumbs]]
+    [cdiv top-header-base]]
+  [cdiv top-wrapper
+    [cdiv top-main-wrap [cdiv top-main [content]]]
+    [cdl top-nav
+      [dt My Sites]
+      [dd [ul [li [nav / RocketN[i I]A.com]]
+              [li [out http://github.com/rocketnia Git Repositories]]
+              [li [out http://rocketnia.wordpress.com/
+                    [cite Pipe Dreams] Blog]]
+              [li [out http://www.linkedin.com/pub/ross-angle/14/270/51b
+                    [cite LinkedIn] Profile]]]]]
+    [cdiv top-wrapper-base]]
+  [cdiv top-copy
+    [copyright] [copyright-dates] Ross Angle (rocketnia)
+    
+    This page was last updated [update-date].]]
+        ] ) ) );
+};
+
+return $rc;
+
+})() );
+} );
+} )
+
+
+</script>
+<textarea style="width: 100%; height: 300px" id="t"></textarea>
+<script>
+var m = /^\n([^\n]+)\n((?:[^\n]|\n)*)\n$/.exec(
+    document.getElementById( "datahtml" ).textContent.replace(
+        /@(@*)/g, "$1" ) );
+parent.postMessage( { hash: location.hash,
+    val: { type: m[ 1 ], text: m[ 2 ] } }, "*" );
+document.getElementById( "t" ).value = m[ 2 ];
+</script>
+</html>

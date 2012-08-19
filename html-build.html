@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+<title>It's Chopsgen!</title>
+<!-- chopsgen.html -->
+<!--
+
+Copyright (c) 2011 Ross Angle
+
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+
+Permission to use this software is also granted under the
+Perl Foundation's Artistic License 2.0. You may use either license, at
+your option.
+
+-->
+<meta name="viewport" content=
+   "initial-scale = 1.0, maximum-scale = 1.0, width = device-width" />
+<script type="text/javascript" src="buildlib/lathe.js"></script>
+<script type="text/javascript" src="buildlib/chops.js"></script>
+<script type="text/javascript" src="buildlib/chopsgen.js"></script>
+<script type="text/javascript" src="buildlib/choppascript.js">
+</script>
+<script type="text/javascript" src="buildlib/jszip.js"></script>
+<script type="text/javascript" src="buildlib/jszip-deflate.js">
+</script>
+<script type="text/javascript">//"use strict";
+var _ = rocketnia.lathe, $ = rocketnia.chops;
+var $cg = rocketnia.chopsgen, $cs = rocketnia.choppascript;
+</script>
+
+<script type="text/javascript">"use strict";
+_.appendDom( window, { "load": function () {
+
+
+_.blahrepl( _.el( "repl" ) );
+
+
+// ===== General-use utils ===========================================
+
+function defer( func ) {
+    setTimeout( function () {
+        func();
+    }, 0 );
+}
+
+function arrMapConcurrent( defer, arr, asyncFunc, then ) {
+    var n = arr.length;
+    if ( n === 0 )
+        return void defer( function () {
+            then( [] );
+        } );
+    var results = [];
+    results[ n - 1 ] = void 0;
+    _.arrEach( arr, function ( item, i ) {
+        defer( function () {
+            var done = false;
+            asyncFunc( i, item, function ( r ) {
+                if ( done ) return;
+                done = true;
+                results[ i ] = r;
+                n--;
+                if ( n === 0 )
+                    then( results );
+            } );
+        } );
+    } );
+}
+
+
+// ===== Lathe-specific utils ========================================
+
+function arrFetchDataHtml( el, paths, then ) {
+    arrMapConcurrent( defer, paths, function ( i, path, then ) {
+        _.fetchFrame( el, path, function ( result ) {
+            then( result ? result[ "val" ] : null );
+        } );
+    }, function ( fetched ) {
+        then( fetched );
+    } );
+}
+function fetchDataHtml( var_args ) {
+    var paths = _.arrCut( arguments );
+    var el = paths.shift();
+    var then = paths.pop();
+    arrFetchDataHtml( el, paths, function ( results ) {
+        _.classicapply( null, then, results );
+    } );
+}
+
+
+// ===== Build process ===============================================
+
+function runExtensions( then ) {
+    fetchDataHtml( _.el( "fetch-frames" ),
+        "osrc/ext.manifest.json.d.html",
+        "csrc/ext.manifest.json.d.html",
+        function ( extOpenSource, extClosedSource ) {
+        
+        arrFetchDataHtml( _.el( "fetch-frames" ),
+            [].concat(
+                _.arrMap(
+                    JSON.parse( extOpenSource[ "text" ] ),
+                    function ( path ) {
+                        return "osrc/" + path;
+                    } ),
+                _.arrMap(
+                    extClosedSource === null ? [] :
+                        JSON.parse( extClosedSource[ "text" ] ),
+                    function ( path ) {
+                        return "csrc/" + path;
+                    } ) )
+            function ( extensionData ) {
+            
+            then( $cs.runExtensions(
+                _.arrMap( extensionData, function ( extension ) {
+                    // TODO: These expressions being executed do not
+                    // have *any* free variables. See if we can
+                    // execute them in their own contexts in order to
+                    // enforce that kind of thing.
+                    return $cs.run(
+                        "(function ( $cs ) { return (" +
+                            extension[ "text" ] + "); })"
+                    )( $cs );
+                } ).concat( [
+                    $cs.extend( "lathe", _ ),
+                    $cs.extend( "$cg", $cg )
+                ] )
+            ) );
+        } );
+    } );
+}
+
+runExtensions( function ( extensions ) {
+    var pages = extensions[ "|" + "pages" ] || [];
+    
+    var rcPages = {};
+    _.arrEach( pages, function ( page ) {
+        $cg.definePage( rcPages, page );
+    } );
+    var site =
+        $cg.renderPagesToText( rcPages, "/", { "allowPhp": true } );
+    
+    _.el( "site" ).value = JSON.stringify( site );
+    
+    var button = _.el( "site-download" );
+    button.disabled = false;
+    _.appendDom( button, { "click": function () {
+        var zip = new JSZip( "deflate" );
+        for ( var file in site )
+            zip.add( file, site[ file ] );
+        location.href =
+            "data:application/zip;base64," + zip.generate();
+    } } );
+} );
+
+
+} } );
+</script>
+
+<style type="text/css">
+#fetch-frames { display: none; }
+
+p.test { background-color: #CCC; }
+
+#repl textarea { display: block; width: 95%; }
+#repl .scrollback { height: 100px; }
+
+#site { display: block; width: 95%; }
+</style>
+
+</head>
+<body>
+<div id="fetch-frames"></div>
+<p><a id="top" href="#bottom">Go to bottom</a></p>
+<div id="repl"></div>
+<textarea id="site"></textarea>
+<p><button id="site-download" disabled="">Download</button></p>
+<p><a href="lathe.html">lathe.html</a></p>
+<p><a id="bottom" href="#top">Go to top</a></p>
+</body>
+</html>

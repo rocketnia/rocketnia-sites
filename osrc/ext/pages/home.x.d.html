@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title></title>
+<script type="text/plain" id="datahtml">
+application/x-rocketnia-choppascript-ext
+
+
+$cs.extendOnly( "pages", "homeCandidates", function () {
+return $cs.getOne( "$rc", "$cg", "extutils",
+    function ( $rc, $cg, $eu ) {
+return $eu.extendOpenSource( "pages", "homeCandidates",
+
+$rc.rcPage( "/", $cg.parseIn( [str RocketN[i I]A.com] ),
+    "18-Aug-2012", $cg.parseIn( [str 2005[en]2010, 2012] ),
+    { "title": "RocketNIA.com, Virtual Index of Ross Angle",
+        "breadcrumbs": $cg.parseIn(
+            [str RocketN[i I]A.com: Virtual Index of Ross Angle] ) },
+    $cg.parse( [str
+
+I'm Ross Angle. I program, and I particularly like metaprogramming,
+metafiction, metamathematics, and sometimes even metagames and
+metalogic. Or maybe it's less of a meta- interest and more of an
+interdisciplinary one; I'm a fan of fiction that's about fiction, but
+I also like imagining programs that manage logic or games that
+simulate fiction. In the end, what I think about are abstract systems,
+and what I usually produce are programs that express them.
+
+On this site... well, actually there isn't much here. That's because
+this is the open source version of the site, and most content is
+closed source for now. If you want to see some projects I've done,
+out [out http://github.com/rocketnia my GitHub profile] or
+[out http://www.rocketnia.com/ my online site]!
+
+For some random musings about projects I [em haven't] done yet, check
+out [out http://rocketnia.wordpress.com/ my blog].
+
+[h3 How can you find me?]
+
+You can contact me over email at rokitna?hotmail.???. (Note that
+Hotmail's a bit of an anomaly; usually I go by the username
+[quotepunc . rocketnia])
+
+Primarily you'll find me at [out http://arclanguage.org/newest the Arc
+Forum], where I try to be informative here and there, oftentimes
+persistently pointing out things people may have overlooked (bugs and
+design flaws), in what I can only hope is perceived as a helpful
+spirit. ^_^ I also find myself writing a lot of little demos to
+demonstrate the stuff I'm talking about, so it's a good way to keep my
+programming fresh and practical.
+
+Aside from that, I occasionally post to the [out
+http://community.wizards.com/go/forum/view/75842/134782/rules_theory_and_templating
+[cite Rules Theory and Templating]] Magic: the Gathering forum at the
+Wizards of the Coast community. There, [em everybody's] trying to be
+critical and helpful. :-p I have some proactive suggestions for the
+game, but I like thinking about the game no matter what it is now and
+what it might be changed into, so I typically contribute by coming up
+with a hypothetical solution others haven't thought of for a problem
+some other poster has perceived.
+
+The rest of my online activity takes the form of
+[out http://github.com/rocketnia GitHub commits]. I do have
+[out http://www.facebook.com/ross.angle a Facebook presence] I kinda
+sorta keep up, and then there's
+[out http://rocketnia.wordpress.com/ the blog] and this website, and
+naturally it goes downhill from there, with plenty of other online
+accounts that aren't really worth mentioning. ^_^
+
+    ] ) )
+
+);
+} );
+} )
+
+
+</script>
+<textarea style="width: 100%; height: 300px" id="t"></textarea>
+<script>
+var m = /^\n([^\n]+)\n((?:[^\n]|\n)*)\n$/.exec(
+    document.getElementById( "datahtml" ).textContent.replace(
+        /@(@*)/g, "$1" ) );
+parent.postMessage( { hash: location.hash,
+    val: { type: m[ 1 ], text: m[ 2 ] } }, "*" );
+document.getElementById( "t" ).value = m[ 2 ];
+</script>
+</html>
