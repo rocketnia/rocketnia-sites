@@ -5,8 +5,8 @@
 application/x-rocketnia-choppascript-ext
 
 
-$cs.extendOnly( "pages", function () {
-return $cs.getOne( "$rc", "$cg", function ( $rc, $cg ) {
+$cs.extendOnly( "pages",
+$cs.getOne( "$rc", "$cg", function ( $rc, $cg ) {
 return $cs.extend( "pages",
 
 $rc.rcPage( "/error-403/", "Forbidden (403 Error)",
@@ -19,8 +19,8 @@ You're not allowed to see that part of my site! ^_^
     ] ) )
 
 );
-} );
 } )
+)
 
 
 </script>

@@ -103,7 +103,7 @@ function fetchDataHtml( var_args ) {
     var el = paths.shift();
     var then = paths.pop();
     arrFetchDataHtml( el, paths, function ( results ) {
-        _.classicapply( null, then, results );
+        _.funcApply( null, then, results );
     } );
 }
 
@@ -128,7 +128,7 @@ function runExtensions( then ) {
                         JSON.parse( extClosedSource[ "text" ] ),
                     function ( path ) {
                         return "csrc/" + path;
-                    } ) )
+                    } ) ),
             function ( extensionData ) {
             
             then( $cs.runExtensions(

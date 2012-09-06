@@ -5,9 +5,8 @@
 application/x-rocketnia-choppascript-ext
 
 
-$cs.extendOnly( "$rc", "$rcCandidates", function () {
-return $cs.getOne( "lathe", "$cg", "extutils",
-    function ( _, $cg, $eu ) {
+$cs.extendOnly( "$rc", "$rcCandidates",
+$cs.getOne( "lathe", "$cg", "extutils", function ( _, $cg, $eu ) {
 return $eu.extendOpenSource( "$rc", "$rcCandidates", (function () {
 
 var $rc = {};
@@ -68,8 +67,8 @@ $rc.rcPage = function (
 return $rc;
 
 })() );
-} );
 } )
+)
 
 
 </script>

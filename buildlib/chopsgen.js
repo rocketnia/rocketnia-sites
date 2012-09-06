@@ -264,46 +264,52 @@ function attrEscape( content ) {
 }
 
 
-_.rulebook( my, "widgetToHtml" );
-_.rulebook( my, "widgetToTitle" );
+function Widget() {}
+Widget.toHtml = function ( path, state ) {
+    throw new Error( "Unimplemented." );
+};
+Widget.toTitle = function () {
+    throw new Error( "Unimplemented." );
+};
 
-_.rule( my.widgetToHtml, function ( widget, path, state ) {
-    if ( !_.isString( widget ) )
-        return _.fail( "It wasn't a string." );
-    return _.win( { state: state, html: my.htmlEscape( widget ) } );
-} );
+my.widgetToHtml = function ( widget, path, state ) {
+    if ( widget instanceof Widget ) {
+        return widget.toHtml( path, state );
+    } else if ( _.isString( widget ) ) {
+        return { state: state, html: my.htmlEscape( widget ) };
+        return { state: state, text: widget };
+    } else if ( _.likeArray( widget ) ) {
+        var widgetData = _.arrMap( widget, function ( it ) {
+            var result = my.widgetToHtml( it, path, state );
+            state = result.state;
+            return result;
+        } );
+        return {
+            state: state,
+            js: _.arrMappend( widgetData,
+                function ( it ) { return it.js || []; } ),
+            css: _.arrMappend( widgetData,
+                function ( it ) { return it.css || []; } ),
+            html: _.arrMap( widgetData, _.pluckfn( "html" ) ).join( "" )
+        };
+    } else {
+        throw new Error( "Not a widget." );
+    }
+};
 
-_.rule( my.widgetToTitle, function ( widget ) {
-    if ( !_.isString( widget ) )
-        return _.fail( "It wasn't a string." );
-    return _.win( my.htmlEscape( widget ) );
-} );
-
-_.rule( my.widgetToHtml, function ( widget, path, state ) {
-    if ( !_.likeArray( widget ) )
-        return _.fail( "It wasn't likeArray." );
-    var widgetData = _.arrMap( widget, function ( it ) {
-        var result = my.widgetToHtml( it, path, state );
-        state = result.state;
-        return result;
-    } );
-    return _.win( {
-        state: state,
-        js: _.arrMappend( widgetData,
-            function ( it ) { return it.js || []; } ),
-        css: _.arrMappend( widgetData,
-            function ( it ) { return it.css || []; } ),
-        html: _.arrMap( widgetData, _.pluckfn( "html" ) ).join( "" )
-    } );
-} );
-
-_.rule( my.widgetToTitle, function ( widget ) {
-    if ( !_.likeArray( widget ) )
-        return _.fail( "It wasn't likeArray." );
-    return _.win( _.arrMap( widget, function ( it ) {
-        return my.widgetToTitle( it );
-    } ).join( "" ) );
-} );
+my.widgetToTitle = function ( widget ) {
+    if ( widget instanceof Widget ) {
+        return widget.toTitle();
+    } else if ( _.isString( widget ) ) {
+        return my.htmlEscape( widget );
+    } else if ( _.likeArray( widget ) ) {
+        return _.arrMap( widget, function ( it ) {
+            return my.widgetToTitle( it );
+        } ).join( "" );
+    } else {
+        throw new Error( "Not a widget." );
+    }
+};
 
 function relDirs( from, to ) {
     if ( to.length === 0 )
@@ -376,8 +382,6 @@ my.maskPath = function ( realPath, basePath ) {
 };
 
 Path.prototype.linkWouldBeRedundant = function ( base ) {
-    if ( /404/.test( this.abs() ) )
-        2 + 2;
     return (base instanceof Path && _.jsonIso(
             [ this.dirs_, this.file_ ], [ base.dirs_, base.file_ ] ))
         || (base instanceof MaskedPath
@@ -454,12 +458,10 @@ function HtmlTag( name, attrs, body ) {
     this.attrs_ = attrs;
     this.body_ = body;
 }
-
-_.rule( my.widgetToHtml, function ( widget, path, state ) {
-    if ( !(widget instanceof HtmlTag) )
-        return _.fail( "It wasn't an HtmlTag." );
-    var name = widget.name_;
-    var openTag = "<" + name + _.arrMap( widget.attrs_, function (
+HtmlTag.prototype = new Widget();
+HtmlTag.prototype.toHtml = function ( path, state ) {
+    var name = this.name_;
+    var openTag = "<" + name + _.arrMap( this.attrs_, function (
         kv ) {
         
         var v = kv[ 1 ];
@@ -471,13 +473,16 @@ _.rule( my.widgetToHtml, function ( widget, path, state ) {
         return " " +
             kv[ 0 ] + "=" + "\"" + attrEscape( rendered.text ) + "\"";
     } ).join( "" ) + ">";
-    var body = my.widgetToHtml( widget.body_, path, state );
-    return _.win( { state: body.state, js: body.js, css: body.css,
-        html: openTag + body.html + "</" + name + ">" } );
-} );
+    var body = my.widgetToHtml( this.body_, path, state );
+    return { state: body.state, js: body.js, css: body.css,
+        html: openTag + body.html + "</" + name + ">" };
+};
+HtmlTag.prototype.toTitle = function () {
+    throw new Error( "Can't toTitle an HtmlTag." );
+};
 
 my.tag = function ( name, var_args ) {
-    var attrs = _.pair( _.arrCut( arguments, 1 ) );
+    var attrs = _.arrPair( _.arrCut( arguments, 1 ) );
     return function ( var_args ) {
         return new HtmlTag( name, attrs, _.arrCut( arguments ) );
     };
@@ -492,16 +497,17 @@ my.tag = function ( name, var_args ) {
 function BlockWidget( widget ) {
     this.widget_ = widget;
 }
+BlockWidget.prototype = new Widget();
+BlockWidget.prototype.toHtml = function ( path, state ) {
+    return my.widgetToHtml( this.widget_, path, state );
+};
+BlockWidget.prototype.toTitle = function () {
+    throw new Error( "Can't toTitle a BlockWidget." );
+};
 
 my.blockWidget = function ( widget ) {
     return new BlockWidget( widget );
 };
-
-_.rule( my.widgetToHtml, function ( widget, path, state ) {
-    if ( !(widget instanceof BlockWidget) )
-        return _.fail( "It wasn't a BlockWidget." );
-    return _.win( my.widgetToHtml( widget.widget_, path, state ) );
-} );
 
 function getPage( state, path ) {
     if ( !(_.likeObjectLiteral( state ) && "pages" in state) )
@@ -515,16 +521,17 @@ function getPage( state, path ) {
 function NameNavLink( path ) {
     this.path_ = path;
 }
-
-_.rule( my.widgetToHtml, function ( widget, path, state ) {
-    if ( !(widget instanceof NameNavLink) )
-        return _.fail( "It wasn't a NameNavLink." );
-    var name = getPage( state, widget.path_ ).name;
-    return _.win( my.widgetToHtml(
-        widget.path_.linkWouldBeRedundant( path ) ? name :
-            my.tag( "a", "href", widget.path_ )( name ),
-        path, state ) );
-} );
+NameNavLink.prototype = new Widget();
+NameNavLink.prototype.toHtml = function ( path, state ) {
+    var name = getPage( state, this.path_ ).name;
+    return my.widgetToHtml(
+        this.path_.linkWouldBeRedundant( path ) ? name :
+            my.tag( "a", "href", this.path_ )( name ),
+        path, state );
+};
+NameNavLink.prototype.toTitle = function () {
+    throw new Error( "Can't toTitle a NameNavLink." );
+};
 
 my.nameNavLink = function ( path ) {
     return new NameNavLink( path );
@@ -534,37 +541,39 @@ function NavLink( path, content ) {
     this.path_ = path;
     this.content_ = content;
 }
-
-_.rule( my.widgetToHtml, function ( widget, path, state ) {
-    if ( !(widget instanceof NavLink) )
-        return _.fail( "It wasn't a NavLink." );
-    return _.win( my.widgetToHtml(
-        widget.path_.linkWouldBeRedundant( path ) ? widget.content_ :
-            my.tag( "a", "href", widget.path_ )( widget.content_ ),
-        path, state ) );
-} );
+NavLink.prototype = new Widget();
+NavLink.prototype.toHtml = function ( path, state ) {
+    return my.widgetToHtml(
+        this.path_.linkWouldBeRedundant( path ) ? this.content_ :
+            my.tag( "a", "href", this.path_ )( this.content_ ),
+        path, state );
+};
+NavLink.prototype.toTitle = function () {
+    throw new Error( "Can't toTitle a NavLink." );
+};
 
 function HtmlRawWidget( html ) {
     this.html_ = html;
 }
-
-_.rule( my.widgetToHtml, function ( widget, path, state ) {
-    if ( !(widget instanceof HtmlRawWidget) )
-        return _.fail( "It wasn't an HtmlRawWidget." );
-    return _.win( { state: state, html: widget.html_ } );
-} );
+HtmlRawWidget.prototype = new Widget();
+HtmlRawWidget.prototype.toHtml = function ( path, state ) {
+    return { state: state, html: this.html_ };
+};
+HtmlRawWidget.prototype.toTitle = function () {
+    throw new Error( "Can't toTitle an HtmlRawWidget." );
+};
 
 function DepsWidget( deps ) {
     this.js_ = _.arrCut( deps.js || [] );
     this.css_ = _.arrCut( deps.css || [] );
 }
-
-_.rule( my.widgetToHtml, function ( widget, path, state ) {
-    if ( !(widget instanceof DepsWidget) )
-        return _.fail( "It wasn't a DepsWidget." );
-    return _.win( {
-        state: state, js: widget.js_, css: widget.css_, html: "" } );
-} );
+DepsWidget.prototype = new Widget();
+DepsWidget.prototype.toHtml = function ( path, state ) {
+    return { state: state, js: this.js_, css: this.css_, html: "" };
+};
+DepsWidget.prototype.toTitle = function () {
+    throw new Error( "Can't toTitle an HtmlRawWidget." );
+};
 
 my.depsWidget = function ( deps, body ) {
     return [ my.blockWidget( new DepsWidget( deps ) ), body ];
@@ -670,14 +679,8 @@ function NiceWidget( details ) {
     this.css_ = css;
     this.html_ = html;
 }
-
-my.widget = function ( var_args ) {
-    return new NiceWidget( _.arrCut( arguments ) );
-};
-
-_.rule( my.widgetToHtml, function ( widget, path, state ) {
-    if ( !(widget instanceof NiceWidget) )
-        return _.fail( "It wasn't a NiceWidget." );
+NiceWidget.prototype = new Widget();
+NiceWidget.prototype.toHtml = function ( path, state ) {
     // TODO: Beware overflow... but note that if we ever have more
     // than 2^53 NiceWidgets on one page, we'll have much bigger
     // problems to deal with than just this one case of overflow. :-p
@@ -687,59 +690,66 @@ _.rule( my.widgetToHtml, function ( widget, path, state ) {
     var js = [];
     var css = [];
     var html = [];
-    _.arrEach( widget.js_, function ( jsFunc ) {
+    _.arrEach( this.js_, function ( jsFunc ) {
         var monad = jsFunc( tok, path, state );
         js.push( monad[ "val" ] );
         state = monad[ "state" ];
     } );
-    _.arrEach( widget.css_, function ( cssFunc ) {
+    _.arrEach( this.css_, function ( cssFunc ) {
         var monad = cssFunc( tok, path, state );
         css.push( monad[ "val" ] );
         state = monad[ "state" ];
     } );
-    _.arrEach( widget.html_, function ( htmlFunc ) {
+    _.arrEach( this.html_, function ( htmlFunc ) {
         var monad = htmlFunc( tok, path, state );
         js = js.concat( monad[ "js" ] );
         css = css.concat( monad[ "css" ] );
         html.push( monad[ "html" ] );
         state = monad[ "state" ];
     } );
-    return _.win(
-        { state: state, js: js, css: css, html: html.join( "" ) } );
-} );
+    return { state: state, js: js, css: css, html: html.join( "" ) };
+};
+NiceWidget.prototype.toTitle = function () {
+    throw new Error( "Can't toTitle a NiceWidget." );
+};
+
+my.widget = function ( var_args ) {
+    return new NiceWidget( _.arrCut( arguments ) );
+};
 
 
-_.rulebook( my, "manualWidgetToText" );
+function ManualWidget() {}
+ManualWidget.toText = function ( path, state ) {
+    throw new Error( "Unimplemented." );
+};
 
-_.rule( my.manualWidgetToText, function ( widget, path, state ) {
-    if ( !_.isString( widget ) )
-        return _.fail( "It wasn't a string." );
-    return _.win( { state: state, text: widget } );
-} );
-
-_.rule( my.manualWidgetToText, function ( widget, path, state ) {
-    if ( !_.likeArray( widget ) )
-        return _.fail( "It wasn't likeArray." );
-    var widgetText = _.arrMap( widget, function ( it ) {
-        var result = my.manualWidgetToText( it, path, state );
-        state = result.state;
-        return result.text;
-    } );
-    return _.win( { state: state, text: widgetText.join( "" ) } );
-} );
+my.manualWidgetToText = function ( widget, path, state ) {
+    if ( widget instanceof ManualWidget ) {
+        return widget.toText( path, state );
+    } else if ( _.isString( widget ) ) {
+        return { state: state, text: widget };
+    } else if ( _.likeArray( widget ) ) {
+        var widgetText = _.arrMap( widget, function ( it ) {
+            var result = my.manualWidgetToText( it, path, state );
+            state = result.state;
+            return result.text;
+        } );
+        return { state: state, text: widgetText.join( "" ) };
+    } else {
+        throw new Error( "Not a manual widget." );
+    }
+};
 
 function WidgetToken() {}
-
-_.rule( my.manualWidgetToText, function ( widget, path, state ) {
-    if ( !(widget instanceof WidgetToken) )
-        return _.fail( "It wasn't a WidgetToken." );
-    if ( !(_.likeObjectLiteral( state ) && "token" in state
+WidgetToken.prototype = new ManualWidget();
+WidgetToken.prototype.toText = function ( path, state ) {
+    if ( !(_.likeObjectLiteral( state ) && _.hasOwn( state, "token" )
         && _.likeArray( state.token )) )
         throw new Error( "The state wasn't the right type." );
     if ( state.token.length === 0 )
         throw new Error( "The token stack was empty." );
-    return _.win( { state: state, text: state.token[ 0 ] } );
-} );
+    return { state: state, text: state.token[ 0 ] };
+};
 
 
 
@@ -768,8 +778,7 @@ function ltrimBlockDocParser( func ) {
 }
 
 function manualChops( chops ) {
-    return $c.parseInlineChops(
-        $c.ChopsEnvObj.of( manualWidgetEnv ), chops );
+    return $c.parseInlineChops( manualWidgetEnv, chops );
 }
 
 function ltrimClassBlockParser( tagName ) {
@@ -809,8 +818,8 @@ function arrFlat( arr ) {
 
 var quoteLevel = 0;
 
-var widgetEnv = {
-    " block": function ( chops ) {
+var widgetEnv = $c.env( {
+     " block": function ( chops ) {
         var blocks = [];
         var thisBlock = [];
         function bankBlock() {
@@ -862,8 +871,7 @@ var widgetEnv = {
     "ctable": ltrimClassBlockDocParser( "table" ),
     "tr": ltrimBlockDocParser( my.tag( "tr" ) ),
     "td": ltrimBlockParser( my.tag( "td" ) ),
-    "dash": function ( chops, env ) { return emDash; },                "html": "/index.html",
-
+    "dash": function ( chops, env ) { return emDash; },
     "en": function ( chops, env ) { return enDash; },
     "copyright": function ( chops, env ) { return copyright; },
     "pct": function ( chops, env ) { return "%"; },
@@ -919,9 +927,9 @@ var widgetEnv = {
         return $c.unchops( $c.letChopLtrimRegex(
             chops, /^(?:(?!\n)\s)*[\n|]?/ ).rest );
     }
-};
+} );
 
-var manualWidgetEnv = {
+var manualWidgetEnv = $c.env( {
     "tok": function ( chops, env ) {
         return new WidgetToken();
     },
@@ -933,11 +941,11 @@ var manualWidgetEnv = {
         return $c.parseInlineChops( env, $c.letChopLtrimRegex(
             chops, /^(?:(?!\n)\s)*[\n|]?/ ).rest );
     }
-};
+} );
 
 my.parseInLocal = function ( locals, source ) {
     return $c.parseChopline(
-        $c.ChopsEnvObj.of( _.shadow( widgetEnv, locals ) ), source );
+        $c.envShadow( widgetEnv, locals ), source );
 };
 
 my.parseIn = function ( source ) {
@@ -946,7 +954,7 @@ my.parseIn = function ( source ) {
 
 my.parseLocal = function ( locals, source ) {
     return $c.parseChopup(
-        $c.ChopsEnvObj.of( _.shadow( widgetEnv, locals ) ), source );
+        $c.envShadow( widgetEnv, locals ), source );
 };
 
 my.parse = function ( source ) {
@@ -960,8 +968,7 @@ my.parseHtml = function ( source, path ) {
 
 my.parseManualLocal = function ( locals, source ) {
     return $c.parseChopline(
-        $c.ChopsEnvObj.of( _.shadow( manualWidgetEnv, locals ) ),
-        source );
+        $c.envShadow( manualWidgetEnv, locals ), source );
 };
 
 my.parseManual = function ( source ) {

@@ -5,8 +5,8 @@
 application/x-rocketnia-choppascript-ext
 
 
-$cs.extendOnly( "cliBuildFoundation", function () {
-return $cs.getOne( "lathe", "$cg", function ( _, $cg ) {
+$cs.extendOnly( "cliBuildFoundation",
+$cs.getOne( "lathe", "$cg", function ( _, $cg ) {
 return $cs.getAll( "pages", function ( pages ) {
 return $cs.getOptional( "$path", "$util", function ( $path, $util ) {
 return $cs.extend( "cliBuildFoundation", (function () {
@@ -122,8 +122,8 @@ return cliBuildFoundation;
 })() );
 } );
 } );
-} );
 } )
+)
 
 
 </script>

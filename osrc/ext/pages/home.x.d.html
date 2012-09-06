@@ -5,9 +5,8 @@
 application/x-rocketnia-choppascript-ext
 
 
-$cs.extendOnly( "pages", "homeCandidates", function () {
-return $cs.getOne( "$rc", "$cg", "extutils",
-    function ( $rc, $cg, $eu ) {
+$cs.extendOnly( "pages", "homeCandidates",
+$cs.getOne( "$rc", "$cg", "extutils", function ( $rc, $cg, $eu ) {
 return $eu.extendOpenSource( "pages", "homeCandidates",
 
 $rc.rcPage( "/", $cg.parseIn( [str RocketN[i I]A.com] ),
@@ -69,8 +68,8 @@ accounts that aren't really worth mentioning. ^_^
     ] ) )
 
 );
-} );
 } )
+)
 
 
 </script>

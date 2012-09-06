@@ -5,8 +5,8 @@
 application/x-rocketnia-choppascript-ext
 
 
-$cs.extendOnly( "extutils", function () {
-return $cs.getOne( "lathe", function ( _ ) {
+$cs.extendOnly( "extutils",
+$cs.getOne( "lathe", function ( _ ) {
 return $cs.extend( "extutils", (function () {
 
 var $eu = {};
@@ -15,7 +15,7 @@ var $eu = {};
 var getMostClosedSource = function ( candidates ) {
     if ( candidates.length === 0 )
         throw new Error();
-    return _.foldl( candidates[ 0 ], _.arrCut( candidates, 1 ),
+    return _.arrFoldl( candidates[ 0 ], _.arrCut( candidates, 1 ),
         function ( a, b ) {
             return a.openSource ? b : a;
         } ).extension;
@@ -34,11 +34,11 @@ var candidateOpenSource = function ( candidateGroup, extension ) {
 
 $eu.extendOpenSource = function ( group, candidateGroup, extension ) {
     return [
-        $cs.extendOnly( group, function () {
-        return $cs.getAll( candidateGroup, function ( candidates ) {
+        $cs.extendOnly( group,
+        $cs.getAll( candidateGroup, function ( candidates ) {
         return $cs.extend( group, getMostClosedSource( candidates ) );
-        } );
-        } ),
+        } )
+        ),
         candidateOpenSource( candidateGroup, extension )
     ];
 };
@@ -46,8 +46,8 @@ $eu.extendOpenSource = function ( group, candidateGroup, extension ) {
 return $eu;
 
 })() );
-} );
 } )
+)
 
 
 </script>

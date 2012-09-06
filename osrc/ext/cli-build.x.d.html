@@ -5,8 +5,8 @@
 application/x-rocketnia-choppascript-ext
 
 
-$cs.extendOnly( "cliBuild", "cliBuildCandidates", function () {
-return $cs.getOne( "extutils", "cliBuildFoundation",
+$cs.extendOnly( "cliBuild", "cliBuildCandidates",
+$cs.getOne( "extutils", "cliBuildFoundation",
     function ( $eu, cliBuildFoundation ) {
 return $cs.getAll( "pages", function ( pages ) {
 return $cs.getOptional( "argparse", "process",
@@ -70,8 +70,8 @@ if ( args.normalize && args.build ) {
 } );
 } );
 } );
-} );
 } )
+)
 
 
 </script>
