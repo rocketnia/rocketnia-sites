@@ -513,6 +513,6 @@ $util.fetchDataHtml = function ( var_args ) {
     var paths = _.arrCut( arguments );
     var then = paths.pop();
     $util.arrFetchDataHtml( paths, function ( results ) {
-        _.classicapply( null, then, results );
+        _.funcApply( null, then, results );
     } );
 };
