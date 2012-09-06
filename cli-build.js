@@ -15,7 +15,7 @@ var $util = require( "./osrc/util.js" );
 // ===== Build process ===============================================
 
 function runExtensions( then ) {
-    $util.objOwnMapConcurrentExn( $util.defer, {
+    _.objOwnMapConcurrentExn( {
         extOpenSource: "osrc/ext",
         extClosedSource: "csrc/ext"
     }, function ( k, v, thro, ret ) {

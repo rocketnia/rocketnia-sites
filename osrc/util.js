@@ -10,196 +10,6 @@ var $util = exports;
 
 // ===== General-use utils ===========================================
 
-$util.defer = function ( func ) {
-    process.nextTick( function () {
-        func();
-    } );
-};
-
-$util.startPromise = function ( func ) {
-    var finishedListeners = [];
-    var promiseResult;
-    func( function ( r ) {
-        if ( finishedListeners === null )
-            return;
-        promiseResult = r;
-        finishedListeners.forEach( function ( listener ) {
-            $util.defer( function () {
-                listener.call( {}, r );
-            } );
-        } );
-        finishedListeners = null;
-    } );
-    var promise = {};
-    promise.onceFinished = function ( func ) {
-        if ( finishedListeners === null )
-            $util.defer( function () {
-                func( promiseResult );
-            } );
-        else
-            finishedListeners.push( func );
-    };
-    return promise;
-};
-
-$util.makeMutex = function () {
-    var unlockPromise = null;
-    var unlockContinuation;
-    var mutex = {};
-    mutex.lock = function ( body, then ) {
-        if ( unlockPromise === null ) {
-            unlockPromise = $util.startPromise( function ( then ) {
-                unlockContinuation = then;
-            } );
-            body( function ( bodyResult ) {
-                unlockContinuation( null );
-                unlockPromise = unlockContinuation = null;
-                then( bodyResult );
-            } );
-        } else {
-            unlockPromise.onceFinished( function ( nil ) {
-                mutex.lock( body, then );
-            } );
-        }
-    };
-    return mutex;
-};
-
-$util.objOwnEachConcurrent =
-    function ( defer, obj, asyncFunc, then ) {
-    
-    var n = 0;
-    _.objOwnEach( obj, function ( k, v ) {
-        n++;
-        defer( function () {
-            var done = false;
-            asyncFunc( k, v, function () {
-                if ( done ) return;
-                done = true;
-                n--;
-                if ( n === 0 )
-                    then();
-            } );
-        } );
-    } );
-    if ( n === 0 )
-        return void defer( function () {
-            then();
-        } );
-};
-
-$util.objOwnMapConcurrent = function ( defer, obj, asyncFunc, then ) {
-    var n = 0;
-    var results = {};
-    _.objOwnEach( obj, function ( k, v ) {
-        n++;
-        defer( function () {
-            var done = false;
-            asyncFunc( k, v, function ( r ) {
-                if ( done ) return;
-                done = true;
-                results[ k ] = r;
-                n--;
-                if ( n === 0 )
-                    then( results );
-            } );
-        } );
-    } );
-    if ( n === 0 )
-        return void defer( function () {
-            then( {} );
-        } );
-};
-
-$util.objOwnEachConcurrentExn =
-    function ( defer, obj, asyncFunc, thro, ret ) {
-    
-    $util.objOwnMapConcurrent( defer, obj, function ( k, v, then ) {
-        asyncFunc( k, v, function ( e ) {
-            then( { success: false, val: e } );
-        }, function () {
-            then( { success: true } );
-        } );
-    }, function ( results ) {
-        var errors = _.acc( function ( y ) {
-            _.objOwnEach( results, function ( k, v ) {
-                if ( !v.success ) y( v.val );
-            } );
-        } );
-        if ( errors.length === 1 ) return void thro( errors[ 0 ] );
-        if ( errors.length !== 0 ) return void thro( errors );
-        ret();
-    } );
-};
-
-$util.objOwnMapConcurrentExn =
-    function ( defer, obj, asyncFunc, thro, ret ) {
-    
-    $util.objOwnMapConcurrent( defer, obj, function ( k, v, then ) {
-        asyncFunc( k, v, function ( e ) {
-            then( { success: false, val: e } );
-        }, function ( r ) {
-            then( { success: true, val: r } );
-        } );
-    }, function ( results ) {
-        var errors = [];
-        var successes = {};
-        _.objOwnEach( results, function ( k, v ) {
-            if ( v.success )
-                successes[ k ] = v.val;
-            else
-                errors.push( v.val );
-        } );
-        if ( errors.length === 1 ) return void thro( errors[ 0 ] );
-        if ( errors.length !== 0 ) return void thro( errors );
-        ret( successes );
-    } );
-};
-
-$util.arrMapConcurrent = function ( defer, arr, asyncFunc, then ) {
-    var n = arr.length;
-    if ( n === 0 )
-        return void defer( function () {
-            then( [] );
-        } );
-    var results = [];
-    results[ n - 1 ] = void 0;
-    _.arrEach( arr, function ( item, i ) {
-        defer( function () {
-            var done = false;
-            asyncFunc( i, item, function ( r ) {
-                if ( done ) return;
-                done = true;
-                results[ i ] = r;
-                n--;
-                if ( n === 0 )
-                    then( results );
-            } );
-        } );
-    } );
-};
-
-$util.arrEachConcurrentExn =
-    function ( defer, arr, asyncFunc, thro, ret ) {
-    
-    $util.arrMapConcurrent( defer, arr, function ( i, item, then ) {
-        asyncFunc( i, item, function ( e ) {
-            then( { success: false, val: e } );
-        }, function () {
-            then( { success: true } );
-        } );
-    }, function ( results ) {
-        var errors = _.acc( function ( y ) {
-            _.objOwnEach( results, function ( k, v ) {
-                if ( !v.success ) y( v.val );
-            } );
-        } );
-        if ( errors.length === 1 ) return void thro( errors[ 0 ] );
-        if ( errors.length !== 0 ) return void thro( errors );
-        ret();
-    } );
-};
-
 // This should work on most versions of Node.
 $util.exists = function ( path, then ) {
     if ( fs.exists )
@@ -221,7 +31,7 @@ $util.stat = function ( path, then ) {
 
 $util.ensureDirOptimistic = function ( path, then ) {
     if ( path === "." || path === "/" )
-        return void $util.defer( function () {
+        return void _.defer( function () {
             then();
         } );
     $util.stat( path, function ( e, stats ) {
@@ -246,7 +56,7 @@ $util.ensureDirOptimistic = function ( path, then ) {
     } );
 };
 
-var ensureDirMutex = $util.makeMutex();
+var ensureDirMutex = _.makeMutex();
 $util.ensureDir = function ( path, then ) {
     ensureDirMutex.lock( function ( then ) {
         $util.ensureDirOptimistic( path, function ( e ) {
@@ -271,7 +81,7 @@ $util.rm = function ( path, then ) {
         else if ( stats.isDirectory() )
             fs.readdir( path, function ( e, children ) {
                 if ( e ) return void then( e );
-                $util.arrEachConcurrentExn( $util.defer, children,
+                _.arrEachConcurrentExn( children,
                     function ( i, child, thro, ret ) {
                     
                     $util.rm( path + "/" + child, function ( e ) {
@@ -306,7 +116,7 @@ $util.dirDeepList = function ( path, then ) {
             } else if ( stats.isDirectory() ) {
                 fs.readdir( path, function ( e, children ) {
                     if ( e ) return void then( e );
-                    $util.arrEachConcurrentExn( $util.defer, children,
+                    _.arrEachConcurrentExn( children,
                         function ( i, child, thro, ret ) {
                         
                         accumDirDeepList( path + "/" + child,
@@ -353,8 +163,7 @@ $util.dirDeepList = function ( path, then ) {
 };
 
 $util.cp = function ( fromPath, toPath, then ) {
-    $util.objOwnMapConcurrentExn( $util.defer,
-        { from: fromPath, to: toPath },
+    _.objOwnMapConcurrentExn( { from: fromPath, to: toPath },
         function ( i, path, thro, ret ) {
         
         $util.stat( path, function ( e, stats ) {
@@ -404,7 +213,7 @@ $util.cp = function ( fromPath, toPath, then ) {
         function dirToDir() {
             fs.readdir( fromPath, function ( e, children ) {
                 if ( e ) return void then( e );
-                $util.arrEachConcurrentExn( $util.defer, children,
+                _.arrEachConcurrentExn( children,
                     function ( i, child, thro, ret ) {
                     
                     $util.cp( fromPath + "/" + child,
@@ -494,9 +303,7 @@ escape( text ) + "\n" +
 
 
 $util.arrFetchDataHtml = function ( paths, then ) {
-    $util.arrMapConcurrent( $util.defer, paths,
-        function ( i, path, then ) {
-        
+    _.arrMapConcurrent( paths, function ( i, path, then ) {
         $util.exists( path, function ( exists ) {
             if ( !exists )
                 return void then( null );

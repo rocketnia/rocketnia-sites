@@ -122,7 +122,7 @@
 
 var hasOwnProperty = {}.hasOwnProperty;
 var objectProtoToString = {}.toString;
-var slice = root[ "Array" ].prototype[ "slice" ];
+var slice = [].slice;
 var Error = root[ "Error" ];
 var functionProtoApply = (function () {}).apply;
 var getPrototypeOf = root[ "Object" ][ "getPrototypeOf" ];
@@ -131,6 +131,18 @@ var random = root[ "Math" ][ "random" ];
 var pow = root[ "Math" ][ "pow" ];
 var log = root[ "Math" ][ "log" ];
 var ln2 = root[ "Math" ][ "LN2" ];
+var Function = root[ "Function" ];
+var setTimeout = root[ "setTimeout" ];
+function toJson( x ) {
+    return root[ "JSON" ][ "stringify" ]( x );
+}
+// TODO: See if
+// "var fromCharCode = root[ "String" ][ "fromCharCode" ];" works.
+function fromCharCode( x ) {
+    return root[ "String" ][ "fromCharCode" ]( x );
+}
+
+// These are only available in the browser.
 var document = root[ "document" ];
 function write( x ) {
     return document[ "write" ]( x );
@@ -146,16 +158,10 @@ var document_addEventListener =
 function getElementById( x ) {
     return document[ "getElementById" ]( x );
 }
-var Function = root[ "Function" ];
-var setTimeout = root[ "setTimeout" ];
-function toJson( x ) {
-    return root[ "JSON" ][ "stringify" ]( x );
-}
-// TODO: See if
-// "var fromCharCode = root[ "String" ][ "fromCharCode" ];" works.
-function fromCharCode( x ) {
-    return root[ "String" ][ "fromCharCode" ]( x );
-}
+
+// These are only available in Node.js.
+var process = root[ "process" ];
+var nextTick = process && process[ "nextTick" ];
 
 
 // ===== Platform sniffing. ==========================================
@@ -277,6 +283,80 @@ my.latefn = function ( getFunc ) {
     return function ( var_args ) {
         return my.funcApply(
             this, getFunc(), my.arrCut( arguments ) );
+    };
+};
+
+
+// ===== Asynchronous calculations. ==================================
+
+if ( nextTick !== void 0 )
+    my.defer = function ( then ) {
+        nextTick( function () {
+            then();
+        } );
+    };
+else
+    my.defer = function ( then ) {
+        setTimeout( function () {
+            then();
+        }, 0 );
+    };
+
+my.startPromise = function ( calculate ) {
+    var finishedListeners = [];
+    var promiseResult;
+    calculate( function ( r ) {
+        if ( finishedListeners === null )
+            return;
+        promiseResult = r;
+        finishedListeners.forEach( function ( listener ) {
+            my.defer( function () {
+                listener( r );
+            } );
+        } );
+        finishedListeners = null;
+    } );
+    var promise = {};
+    promise.onceFinished = function ( then ) {
+        if ( finishedListeners === null )
+            my.defer( function () {
+                then( promiseResult );
+            } );
+        else
+            finishedListeners.push( then );
+    };
+    return promise;
+};
+
+my.makeMutex = function () {
+    var unlockPromise = null;
+    var unlockContinuation;
+    var mutex = {};
+    mutex.lock = function ( body, then ) {
+        if ( unlockPromise === null ) {
+            unlockPromise = my.startPromise( function ( then ) {
+                unlockContinuation = then;
+            } );
+            body( function ( bodyResult ) {
+                unlockContinuation( null );
+                unlockPromise = unlockContinuation = null;
+                then( bodyResult );
+            } );
+        } else {
+            unlockPromise.onceFinished( function ( nil ) {
+                mutex.lock( body, then );
+            } );
+        }
+    };
+    return mutex;
+};
+
+my.oncefn = function ( func ) {
+    var done = false;
+    return function ( var_args ) {
+        if ( done ) return void 0;
+        done = true;
+        return my.funcApply( this, func, arguments );
     };
 };
 
@@ -433,6 +513,48 @@ my.arrPair = function ( arr ) {
     return my.arrTuple( 2, arr );
 };
 
+function finishWithErrors( thro, ret, errors, var_args ) {
+    if ( errors.length === 1 ) return void thro( errors[ 0 ] );
+    if ( errors.length !== 0 ) return void thro( errors );
+    my.funcApply( null, ret, my.arrCut( arguments, 3 ) );
+}
+
+my.arrMapConcurrent = function ( arr, asyncFunc, then ) {
+    var n = arr.length;
+    if ( n === 0 )
+        return void my.defer( function () {
+            then( [] );
+        } );
+    var results = [];
+    results[ n - 1 ] = void 0;
+    my.arrEach( arr, function ( item, i ) {
+        my.defer( function () {
+            asyncFunc( i, item, my.oncefn( function ( r ) {
+                results[ i ] = r;
+                n--;
+                if ( n === 0 )
+                    then( results );
+            } ) );
+        } );
+    } );
+};
+
+my.arrEachConcurrentExn = function ( arr, asyncFunc, thro, ret ) {
+    my.arrMapConcurrent( arr, function ( i, item, then ) {
+        asyncFunc( i, item, function ( e ) {
+            then( { success: false, val: e } );
+        }, function () {
+            then( { success: true } );
+        } );
+    }, function ( results ) {
+        finishWithErrors( thro, ret, my.acc( function ( y ) {
+            my.objOwnEach( results, function ( k, v ) {
+                if ( !v.success ) y( v.val );
+            } );
+        } ) );
+    } );
+};
+
 my.objOwnAny = function ( obj, func ) {
     // TODO: See what to do about the IE DontEnum bug, if anything.
     for ( var key in obj )
@@ -559,6 +681,80 @@ my.objOwnKeySetOr = function ( preferredObj, fallbackObj ) {
             result[ k ] = v;
     } );
     return result;
+};
+
+my.objOwnEachConcurrent = function ( obj, asyncFunc, then ) {
+    var n = 0;
+    my.objOwnEach( obj, function ( k, v ) {
+        n++;
+        my.defer( function () {
+            asyncFunc( k, v, my.oncefn( function () {
+                n--;
+                if ( n === 0 )
+                    then();
+            } ) );
+        } );
+    } );
+    if ( n === 0 )
+        return void my.defer( function () {
+            then();
+        } );
+};
+
+my.objOwnMapConcurrent = function ( obj, asyncFunc, then ) {
+    var n = 0;
+    var results = {};
+    my.objOwnEach( obj, function ( k, v ) {
+        n++;
+        my.defer( function () {
+            asyncFunc( k, v, my.oncefn( function ( r ) {
+                results[ k ] = r;
+                n--;
+                if ( n === 0 )
+                    then( results );
+            } ) );
+        } );
+    } );
+    if ( n === 0 )
+        return void my.defer( function () {
+            then( {} );
+        } );
+};
+
+my.objOwnEachConcurrentExn = function ( obj, asyncFunc, thro, ret ) {
+    my.objOwnMapConcurrent( obj, function ( k, v, then ) {
+        asyncFunc( k, v, function ( e ) {
+            then( { success: false, val: e } );
+        }, function () {
+            then( { success: true } );
+        } );
+    }, function ( results ) {
+        finishWithErrors( thro, ret, my.acc( function ( y ) {
+            my.objOwnEach( results, function ( k, v ) {
+                if ( !v.success ) y( v.val );
+            } );
+        } ) );
+    } );
+};
+
+my.objOwnMapConcurrentExn = function ( obj, asyncFunc, thro, ret ) {
+    my.objOwnMapConcurrent( obj, function ( k, v, then ) {
+        asyncFunc( k, v, function ( e ) {
+            then( { success: false, val: e } );
+        }, function ( r ) {
+            then( { success: true, val: r } );
+        } );
+    }, function ( results ) {
+        var errors = [];
+        var successes = {};
+        my.objOwnEach( results, function ( k, v ) {
+            if ( v.success )
+                successes[ k ] = v.val;
+            else
+                errors.push( v.val );
+        } );
+        finishWithErrors( thro, ret, errors, successes );
+    } );
 };
 
 // NOTE: This returns false for my.jsonIso( 0, -0 ) and true for

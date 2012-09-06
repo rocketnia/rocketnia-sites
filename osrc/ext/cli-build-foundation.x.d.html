@@ -28,9 +28,7 @@ cliBuildFoundation.build = function ( then ) {
     $util.cp( "csrc/static", "fin/cheapsite", function ( e ) {
         if ( e ) return void then( e );
     
-    $util.objOwnEachConcurrentExn( $util.defer, site,
-        function ( k, v, thro, ret ) {
-        
+    _.objOwnEachConcurrentExn( site, function ( k, v, thro, ret ) {
         $util.writeTextFile( "fin/cheapsite" + k, "utf-8", v,
             function ( e ) {
             
@@ -49,7 +47,7 @@ cliBuildFoundation.build = function ( then ) {
 };
 
 cliBuildFoundation.normalize = function ( then ) {
-    $util.objOwnMapConcurrentExn( $util.defer, {
+    _.objOwnMapConcurrentExn( {
         extOpenSource: "osrc/ext",
         extClosedSource: "csrc/ext"
     }, function ( k, v, thro, ret ) {
@@ -62,7 +60,7 @@ cliBuildFoundation.normalize = function ( then ) {
     }, function ( e ) {
         then( e || true );
     }, function ( lists ) {
-        $util.arrEachConcurrentExn( $util.defer,
+        _.arrEachConcurrentExn(
             [].concat( lists.extOpenSource, lists.extClosedSource ),
             function ( i, path, thro, ret ) {
             
@@ -90,7 +88,7 @@ cliBuildFoundation.normalize = function ( then ) {
                         replace( /\\/g, "/" );
                 } );
             }
-            $util.arrEachConcurrentExn( $util.defer, [
+            _.arrEachConcurrentExn( [
                 { paths: relPaths( "osrc", lists.extOpenSource ),
                     file: "osrc/ext.manifest.json.d.html" },
                 { paths: relPaths( "csrc", lists.extClosedSource ),

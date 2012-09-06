@@ -55,42 +55,10 @@ _.appendDom( window, { "load": function () {
 _.blahrepl( _.el( "repl" ) );
 
 
-// ===== General-use utils ===========================================
-
-function defer( func ) {
-    setTimeout( function () {
-        func();
-    }, 0 );
-}
-
-function arrMapConcurrent( defer, arr, asyncFunc, then ) {
-    var n = arr.length;
-    if ( n === 0 )
-        return void defer( function () {
-            then( [] );
-        } );
-    var results = [];
-    results[ n - 1 ] = void 0;
-    _.arrEach( arr, function ( item, i ) {
-        defer( function () {
-            var done = false;
-            asyncFunc( i, item, function ( r ) {
-                if ( done ) return;
-                done = true;
-                results[ i ] = r;
-                n--;
-                if ( n === 0 )
-                    then( results );
-            } );
-        } );
-    } );
-}
-
-
 // ===== Lathe-specific utils ========================================
 
 function arrFetchDataHtml( el, paths, then ) {
-    arrMapConcurrent( defer, paths, function ( i, path, then ) {
+    _.arrMapConcurrent( paths, function ( i, path, then ) {
         _.fetchFrame( el, path, function ( result ) {
             then( result ? result[ "val" ] : null );
         } );
