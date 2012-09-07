@@ -50,7 +50,7 @@ Among other slight differences, ">-" and ">->" don't bind "next".
 */
 
 
-//"use strict";
+"use strict";
 
 (function ( topThis, topArgs, body ) { body( topThis, topArgs ); })(
     this, typeof arguments === "undefined" ? void 0 : arguments,

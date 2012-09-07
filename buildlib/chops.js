@@ -29,7 +29,7 @@
 
 // TODO: Document the purpose of chops.js.
 
-//"use strict";
+"use strict";
 
 (function ( topThis, topArgs, body ) { body( topThis, topArgs ); })(
     this, typeof arguments === "undefined" ? void 0 : arguments,
