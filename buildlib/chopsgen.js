@@ -61,7 +61,7 @@
 // == The Tech ==
 //
 // For maintaining site content, Chopsgen provides a Chops vocabulary
-// for constructing hierarchies of "widgets". Some widgets render
+// for constructing hierarchies of "snippets". Some snippets render
 // rather straightforwardly to HTML tags. Some just render to text.
 // At least one (not shown here) renders to nothing at all but causes
 // JavaScript and CSS dependencies to be added to the page.
@@ -102,7 +102,7 @@
 // interface. (Am I the only one who does that? :-p )
 //
 // To further facilitate breadcrumbs and navigation, each Chopsgen
-// page has a "name" widget that other pages can import when they
+// page has a "name" snippet that other pages can import when they
 // refer to that page in a hyperlink.
 //
 // In practice, I've never made a site big enough to need more than a
@@ -123,7 +123,7 @@
 // static files using ye olde copy and paste. :)
 
 
-// TODO: In an ideal world, each page's (or even widget's?) copyright
+// TODO: In an ideal world, each page's (or even snippet's?) copyright
 // and update dates would automatically prompt me to update them. Move
 // in that direction.
 
@@ -133,7 +133,7 @@
 //
 // Miscellaneous:
 //  - The implicit assumption that /gs[01-9]+gs/ never appears on the
-//    page except as generated via a NiceWidget. This should be
+//    page except as generated via a NiceSnippet. This should be
 //    strongly documented somewhere (not just hidden in a TODO here).
 //  - The fact that [nav ...] links have no class attribute, while
 //    [out ...] links do have the hardcoded "external-link" class.
@@ -149,18 +149,18 @@
 //    a more modular approach.
 //
 // Comprehensiveness:
-//  - The lack of comprehensiveness in the widgetEnv vocabulary...
+//  - The lack of comprehensiveness in the snippetEnv vocabulary...
 //    such as the lack of an [applet ...] op. :-p
 //  - The lack of comprehensiveness in the CSS dependency support,
 //    such as the inability to do once-only includes.
 //  - The lack of comprehensiveness in the JS dependency support. It
 //    would be nice to position certain JS code at the end of the
 //    <body> or in a <script defer>.
-//  - The lack of comprehensiveness in the NiceWidget interface. The
+//  - The lack of comprehensiveness in the NiceSnippet interface. The
 //    "manual" code support is a good baseline, but there should
-//    definitely be a way to use a widget rather than manual HTML.
+//    definitely be a way to use a snippet rather than manual HTML.
 //
-// TODO: See if the manualWidgetEnv vocabulary is comprehensive
+// TODO: See if the manualSnippetEnv vocabulary is comprehensive
 // enough.
 
 
@@ -219,86 +219,86 @@ function attrEscape( content ) {
 }
 
 
-function Widget() {}
-Widget.prototype.toHtml = function ( path, state ) {
+function Snippet() {}
+Snippet.prototype.toHtml = function ( path, state ) {
     throw new Error( "Unimplemented." );
 };
-Widget.prototype.toTitle = function () {
+Snippet.prototype.toTitle = function () {
     throw new Error( "Unimplemented." );
 };
-Widget.prototype.toManualPage = function ( path, state ) {
+Snippet.prototype.toManualPage = function ( path, state ) {
     throw new Error( "Unimplemented." );
 };
 
-function WidgetString() {}
-WidgetString.prototype = new Widget();
-WidgetString.prototype.init_ = function ( string ) {
+function SnippetString() {}
+SnippetString.prototype = new Snippet();
+SnippetString.prototype.init_ = function ( string ) {
     this.string_ = string;
     return this;
 };
-WidgetString.prototype.toHtml = function ( path, state ) {
+SnippetString.prototype.toHtml = function ( path, state ) {
     return { state: state, html: my.htmlEscape( this.string_ ) };
 };
-WidgetString.prototype.toTitle = function () {
+SnippetString.prototype.toTitle = function () {
     return my.htmlEscape( this.string_ );
 };
-WidgetString.prototype.toManualPage = function ( path, state ) {
+SnippetString.prototype.toManualPage = function ( path, state ) {
     return { state: state, text: this.string_ };
 };
 
-function WidgetArray() {}
-WidgetArray.prototype = new Widget();
-WidgetArray.prototype.init_ = function ( array ) {
+function SnippetArray() {}
+SnippetArray.prototype = new Snippet();
+SnippetArray.prototype.init_ = function ( array ) {
     this.array_ = array;
     return this;
 };
-WidgetArray.prototype.toHtml = function ( path, state ) {
-    var widgetData = _.arrMap( this.array_, function ( it ) {
-        var result = my.widgetToHtml( it, path, state );
+SnippetArray.prototype.toHtml = function ( path, state ) {
+    var snippetData = _.arrMap( this.array_, function ( it ) {
+        var result = my.snippetToHtml( it, path, state );
         state = result.state;
         return result;
     } );
     return {
         state: state,
-        js: _.arrMappend( widgetData,
+        js: _.arrMappend( snippetData,
             function ( it ) { return it.js || []; } ),
-        css: _.arrMappend( widgetData,
+        css: _.arrMappend( snippetData,
             function ( it ) { return it.css || []; } ),
-        html: _.arrMap( widgetData, _.pluckfn( "html" ) ).join( "" )
+        html: _.arrMap( snippetData, _.pluckfn( "html" ) ).join( "" )
     };
 };
-WidgetArray.prototype.toTitle = function () {
+SnippetArray.prototype.toTitle = function () {
     return _.arrMap( this.array_, function ( it ) {
-        return my.widgetToTitle( it );
+        return my.snippetToTitle( it );
     } ).join( "" );
 };
-WidgetArray.prototype.toManualPage = function ( path, state ) {
-    var widgetText = _.arrMap( this.array_, function ( it ) {
-        var result = my.widgetToManualPage( it, path, state );
+SnippetArray.prototype.toManualPage = function ( path, state ) {
+    var snippetText = _.arrMap( this.array_, function ( it ) {
+        var result = my.snippetToManualPage( it, path, state );
         state = result.state;
         return result.text;
     } );
-    return { state: state, text: widgetText.join( "" ) };
+    return { state: state, text: snippetText.join( "" ) };
 };
 
-my.toWidget = function ( x ) {
-    if ( x instanceof Widget )
+my.toSnippet = function ( x ) {
+    if ( x instanceof Snippet )
         return x;
     else if ( _.isString( x ) )
-        return new WidgetString().init_( "" + x );
+        return new SnippetString().init_( "" + x );
     else if ( _.likeArray( x ) )
-        return new WidgetArray().init_( _.arrCut( x ) );
+        return new SnippetArray().init_( _.arrCut( x ) );
     else
-        throw new Error( "Not a widget." );
+        throw new Error( "Not a snippet." );
 };
-my.widgetToHtml = function ( widget, path, state ) {
-    return my.toWidget( widget ).toHtml( path, state );
+my.snippetToHtml = function ( snippet, path, state ) {
+    return my.toSnippet( snippet ).toHtml( path, state );
 };
-my.widgetToTitle = function ( widget ) {
-    return my.toWidget( widget ).toTitle();
+my.snippetToTitle = function ( snippet ) {
+    return my.toSnippet( snippet ).toTitle();
 };
-my.widgetToManualPage = function ( widget, path, state ) {
-    return my.toWidget( widget ).toManualPage( path, state );
+my.snippetToManualPage = function ( snippet, path, state ) {
+    return my.toSnippet( snippet ).toManualPage( path, state );
 };
 
 function relDirs( from, to ) {
@@ -448,22 +448,22 @@ function HtmlTag( name, attrs, body ) {
     this.attrs_ = attrs;
     this.body_ = body;
 }
-HtmlTag.prototype = new Widget();
+HtmlTag.prototype = new Snippet();
 HtmlTag.prototype.toHtml = function ( path, state ) {
     var name = this.name_;
     var openTag = "<" + name + _.arrMap( this.attrs_, function (
         kv ) {
         
         var v = kv[ 1 ];
-        // TODO: Make Path a manual widget.
+        // TODO: Make Path a manual snippet.
         if ( v instanceof Path )
             v = v.from( path );
-        var rendered = my.widgetToManualPage( v, path, state );
+        var rendered = my.snippetToManualPage( v, path, state );
         state = rendered.state;
         return " " +
             kv[ 0 ] + "=" + "\"" + attrEscape( rendered.text ) + "\"";
     } ).join( "" ) + ">";
-    var body = my.widgetToHtml( this.body_, path, state );
+    var body = my.snippetToHtml( this.body_, path, state );
     return { state: body.state, js: body.js, css: body.css,
         html: openTag + body.html + "</" + name + ">" };
 };
@@ -481,28 +481,28 @@ my.tag = function ( name, var_args ) {
     };
 };
 
-// This is a wrapper widget that behaves just like its child but gets
+// This is a wrapper snippet that behaves just like its child but gets
 // special treatment in the paragraph-separating algorithm (in
-// widgetEnv[ " block" ]). In fact, these, strings, and Arrays are the
-// only kinds of widgets that get special treatment there, so it's
-// necessary to wrap any custom paragraph-like widget in one of these
-// so it doesn't get wrapped in a <p> element.
-function BlockWidget( widget ) {
-    this.widget_ = widget;
+// snippetEnv[ " block" ]). In fact, these, strings, and Arrays are
+// the only kinds of snippets that get special treatment there, so
+// it's necessary to wrap any custom paragraph-like snippet in one of
+// these so it doesn't get wrapped in a <p> element.
+function BlockSnippet( snippet ) {
+    this.snippet_ = snippet;
 }
-BlockWidget.prototype = new Widget();
-BlockWidget.prototype.toHtml = function ( path, state ) {
-    return my.widgetToHtml( this.widget_, path, state );
+BlockSnippet.prototype = new Snippet();
+BlockSnippet.prototype.toHtml = function ( path, state ) {
+    return my.snippetToHtml( this.snippet_, path, state );
 };
-BlockWidget.prototype.toTitle = function () {
-    throw new Error( "Can't toTitle a BlockWidget." );
+BlockSnippet.prototype.toTitle = function () {
+    throw new Error( "Can't toTitle a BlockSnippet." );
 };
-BlockWidget.prototype.toManualPage = function ( path, state ) {
-    throw new Error( "Can't toManualPage a BlockWidget." );
+BlockSnippet.prototype.toManualPage = function ( path, state ) {
+    throw new Error( "Can't toManualPage a BlockSnippet." );
 };
 
-my.blockWidget = function ( widget ) {
-    return new BlockWidget( widget );
+my.blockSnippet = function ( snippet ) {
+    return new BlockSnippet( snippet );
 };
 
 function getPage( state, path ) {
@@ -517,10 +517,10 @@ function getPage( state, path ) {
 function NameNavLink( path ) {
     this.path_ = path;
 }
-NameNavLink.prototype = new Widget();
+NameNavLink.prototype = new Snippet();
 NameNavLink.prototype.toHtml = function ( path, state ) {
     var name = getPage( state, this.path_ ).name;
-    return my.widgetToHtml(
+    return my.snippetToHtml(
         this.path_.linkWouldBeRedundant( path ) ? name :
             my.tag( "a", "href", this.path_ )( name ),
         path, state );
@@ -540,9 +540,9 @@ function NavLink( path, content ) {
     this.path_ = path;
     this.content_ = content;
 }
-NavLink.prototype = new Widget();
+NavLink.prototype = new Snippet();
 NavLink.prototype.toHtml = function ( path, state ) {
-    return my.widgetToHtml(
+    return my.snippetToHtml(
         this.path_.linkWouldBeRedundant( path ) ? this.content_ :
             my.tag( "a", "href", this.path_ )( this.content_ ),
         path, state );
@@ -554,37 +554,37 @@ NavLink.prototype.toManualPage = function ( path, state ) {
     throw new Error( "Can't toManualPage a NavLink." );
 };
 
-function HtmlRawWidget( html ) {
+function HtmlRawSnippet( html ) {
     this.html_ = html;
 }
-HtmlRawWidget.prototype = new Widget();
-HtmlRawWidget.prototype.toHtml = function ( path, state ) {
+HtmlRawSnippet.prototype = new Snippet();
+HtmlRawSnippet.prototype.toHtml = function ( path, state ) {
     return { state: state, html: this.html_ };
 };
-HtmlRawWidget.prototype.toTitle = function () {
-    throw new Error( "Can't toTitle an HtmlRawWidget." );
+HtmlRawSnippet.prototype.toTitle = function () {
+    throw new Error( "Can't toTitle an HtmlRawSnippet." );
 };
-HtmlRawWidget.prototype.toManualPage = function ( path, state ) {
-    throw new Error( "Can't toManualPage an HtmlRawWidget." );
+HtmlRawSnippet.prototype.toManualPage = function ( path, state ) {
+    throw new Error( "Can't toManualPage an HtmlRawSnippet." );
 };
 
-function DepsWidget( deps ) {
+function DepsSnippet( deps ) {
     this.js_ = _.arrCut( deps.js || [] );
     this.css_ = _.arrCut( deps.css || [] );
 }
-DepsWidget.prototype = new Widget();
-DepsWidget.prototype.toHtml = function ( path, state ) {
+DepsSnippet.prototype = new Snippet();
+DepsSnippet.prototype.toHtml = function ( path, state ) {
     return { state: state, js: this.js_, css: this.css_, html: "" };
 };
-DepsWidget.prototype.toTitle = function () {
-    throw new Error( "Can't toTitle a DepsWidget." );
+DepsSnippet.prototype.toTitle = function () {
+    throw new Error( "Can't toTitle a DepsSnippet." );
 };
-DepsWidget.prototype.toManualPage = function ( path, state ) {
-    throw new Error( "Can't toManualPage a DepsWidget." );
+DepsSnippet.prototype.toManualPage = function ( path, state ) {
+    throw new Error( "Can't toManualPage a DepsSnippet." );
 };
 
-my.depsWidget = function ( deps, body ) {
-    return [ my.blockWidget( new DepsWidget( deps ) ), body ];
+my.depsSnippet = function ( deps, body ) {
+    return [ my.blockSnippet( new DepsSnippet( deps ) ), body ];
 };
 
 
@@ -622,7 +622,7 @@ function unpushState( state, dynavar ) {
     } );
 }
 
-function NiceWidget( details ) {
+function NiceSnippet( details ) {
     var js = [];
     var css = [];
     var html = [];
@@ -639,45 +639,45 @@ function NiceWidget( details ) {
         if ( k === "includeOnceJs" ) {
             js.push( stateless( includeOnceJs( v ) ) );
         } else if ( k === "manualJs" ) {
-            var widget = my.parseManual( v );
+            var snippet = my.parseManual( v );
             js.push( function ( tok, path, state ) {
                 state = pushState( state, "token", tok );
                 var rendered =
-                    my.widgetToManualPage( widget, path, state );
+                    my.snippetToManualPage( snippet, path, state );
                 state = unpushState( rendered.state, "token" );
                 return { state: state,
                     val: { type: "embedded", code: rendered.text } };
             } );
         } else if ( k === "manualCss" ) {
-            var widget = my.parseManual( v );
+            var snippet = my.parseManual( v );
             css.push( function ( tok, path, state ) {
                 state = pushState( state, "token", tok );
                 var rendered =
-                    my.widgetToManualPage( widget, path, state );
+                    my.snippetToManualPage( snippet, path, state );
                 state = unpushState( rendered.state, "token" );
                 return { state: state,
                     val: { type: "embedded", code: rendered.text } };
             } );
         } else if ( k === "manualHtml" ) {
-            var widget = my.parseManual( v );
+            var snippet = my.parseManual( v );
             html.push( function ( tok, path, state ) {
                 state = pushState( state, "token", tok );
                 var rendered =
-                    my.widgetToManualPage( widget, path, state );
+                    my.snippetToManualPage( snippet, path, state );
                 state = unpushState( rendered.state, "token" );
                 return { state: state, js: [], css: [],
                     html: rendered.text };
             } );
-        } else if ( k === "widgetHtml" ) {
+        } else if ( k === "snippetHtml" ) {
             html.push( function ( tok, path, state ) {
                 state = pushState( state, "token", tok );
-                var rendered = my.widgetToHtml( v, path, state );
+                var rendered = my.snippetToHtml( v, path, state );
                 state = unpushState( rendered.state, "token" );
                 return { state: state, js: rendered.js,
                     css: rendered.css, html: rendered.html };
             } );
         } else {
-            throw new Error( "Unrecognized widget() keyword arg." );
+            throw new Error( "Unrecognized snippet() keyword arg." );
         }
     }
     _.arrEach( details, function ( detail ) {
@@ -687,10 +687,10 @@ function NiceWidget( details ) {
     this.css_ = css;
     this.html_ = html;
 }
-NiceWidget.prototype = new Widget();
-NiceWidget.prototype.toHtml = function ( path, state ) {
+NiceSnippet.prototype = new Snippet();
+NiceSnippet.prototype.toHtml = function ( path, state ) {
     // TODO: Beware overflow... but note that if we ever have more
-    // than 2^53 NiceWidgets on one page, we'll have much bigger
+    // than 2^53 NiceSnippets on one page, we'll have much bigger
     // problems to deal with than just this one case of overflow. :-p
     var tok = "gs" + state[ "counter" ] + "gs";
     state = _.copdate( state, "counter",
@@ -717,27 +717,27 @@ NiceWidget.prototype.toHtml = function ( path, state ) {
     } );
     return { state: state, js: js, css: css, html: html.join( "" ) };
 };
-NiceWidget.prototype.toTitle = function () {
-    throw new Error( "Can't toTitle a NiceWidget." );
+NiceSnippet.prototype.toTitle = function () {
+    throw new Error( "Can't toTitle a NiceSnippet." );
 };
-NiceWidget.prototype.toManualPage = function ( path, state ) {
-    throw new Error( "Can't toManualPage a NiceWidget." );
-};
-
-my.widget = function ( var_args ) {
-    return new NiceWidget( _.arrCut( arguments ) );
+NiceSnippet.prototype.toManualPage = function ( path, state ) {
+    throw new Error( "Can't toManualPage a NiceSnippet." );
 };
 
+my.snippet = function ( var_args ) {
+    return new NiceSnippet( _.arrCut( arguments ) );
+};
 
-function WidgetToken() {}
-WidgetToken.prototype = new Widget();
-WidgetToken.prototype.toHtml = function ( path, state ) {
-    throw new Error( "Can't toHtml a WidgetToken." );
+
+function SnippetToken() {}
+SnippetToken.prototype = new Snippet();
+SnippetToken.prototype.toHtml = function ( path, state ) {
+    throw new Error( "Can't toHtml a SnippetToken." );
 };
-WidgetToken.prototype.toTitle = function () {
-    throw new Error( "Can't toTitle a WidgetToken." );
+SnippetToken.prototype.toTitle = function () {
+    throw new Error( "Can't toTitle a SnippetToken." );
 };
-WidgetToken.prototype.toManualPage = function ( path, state ) {
+SnippetToken.prototype.toManualPage = function ( path, state ) {
     if ( !(_.likeObjectLiteral( state ) && _.hasOwn( state, "token" )
         && _.likeArray( state.token )) )
         throw new Error( "The state wasn't the right type." );
@@ -761,26 +761,26 @@ function ltrimParser( func ) {
 
 function ltrimBlockParser( func ) {
     return function ( chops, env ) {
-        return my.blockWidget( func( ltrimParse( env, chops ) ) );
+        return my.blockSnippet( func( ltrimParse( env, chops ) ) );
     };
 }
 
 function ltrimBlockDocParser( func ) {
     return function ( chops, env ) {
-        return my.blockWidget( func(
+        return my.blockSnippet( func(
             $c.parseDocumentOfChops( env, $c.chopParas( chops ) ) ) );
     };
 }
 
 function manualChops( chops ) {
-    return $c.parseInlineChops( manualWidgetEnv, chops );
+    return $c.parseInlineChops( manualSnippetEnv, chops );
 }
 
 function ltrimClassBlockParser( tagName ) {
     return function ( chops, env ) {
         var apart = $c.letChopWords( chops, 1 );
         if ( !apart ) throw new Error( "need a class" );
-        return my.blockWidget(
+        return my.blockSnippet(
             my.tag( tagName, "class", manualChops( apart[ 0 ] ) )(
                 ltrimParse( env, apart[ 1 ] )
             ) );
@@ -791,7 +791,7 @@ function ltrimClassBlockDocParser( tagName ) {
     return function ( chops, env ) {
         var apart = $c.letChopWords( chops, 1 );
         if ( !apart ) throw new Error( "need a class" );
-        return my.blockWidget(
+        return my.blockSnippet(
             my.tag( tagName, "class", manualChops( apart[ 0 ] ) )(
                 $c.parseDocumentOfChops(
                     env, $c.chopParas( apart[ 1 ] ) )
@@ -813,7 +813,7 @@ function arrFlat( arr ) {
 
 var quoteLevel = 0;
 
-var widgetEnv = $c.env( {
+var snippetEnv = $c.env( {
      " block": function ( chops ) {
         var blocks = [];
         var thisBlock = [];
@@ -826,12 +826,12 @@ var widgetEnv = $c.env( {
             }
             if ( thisBlock.length !== 0 ) {
                 blocks.push(
-                    my.blockWidget( my.tag( "p" )( thisBlock ) ) );
+                    my.blockSnippet( my.tag( "p" )( thisBlock ) ) );
                 thisBlock = [];
             }
         }
         _.arrEach( arrFlat( chops ), function ( it ) {
-            if ( it instanceof BlockWidget ) {
+            if ( it instanceof BlockSnippet ) {
                 bankBlock();
                 blocks.push( it );
             } else {
@@ -870,7 +870,7 @@ var widgetEnv = $c.env( {
     "en": function ( chops, env ) { return enDash; },
     "copyright": function ( chops, env ) { return copyright; },
     "pct": function ( chops, env ) { return "%"; },
-    // TODO: Turn "quote" and "quotepunc" into custom widget types
+    // TODO: Turn "quote" and "quotepunc" into custom snippet types
     // that manipulate the state they pass to their children.
     // TODO: Figure out how [quotepunc . Foo [quote foo [quote foo]]]
     // should behave. Should the period go all the way to the inside?
@@ -924,9 +924,9 @@ var widgetEnv = $c.env( {
     }
 } );
 
-var manualWidgetEnv = $c.env( {
+var manualSnippetEnv = $c.env( {
     "tok": function ( chops, env ) {
-        return new WidgetToken();
+        return new SnippetToken();
     },
     "nochops": function ( chops, env ) {
         return $c.unchops( $c.letChopLtrimRegex(
@@ -940,7 +940,7 @@ var manualWidgetEnv = $c.env( {
 
 my.parseInLocal = function ( locals, source ) {
     return $c.parseChopline(
-        $c.envShadow( widgetEnv, locals ), source );
+        $c.envShadow( snippetEnv, locals ), source );
 };
 
 my.parseIn = function ( source ) {
@@ -949,7 +949,7 @@ my.parseIn = function ( source ) {
 
 my.parseLocal = function ( locals, source ) {
     return $c.parseChopup(
-        $c.envShadow( widgetEnv, locals ), source );
+        $c.envShadow( snippetEnv, locals ), source );
 };
 
 my.parse = function ( source ) {
@@ -957,13 +957,13 @@ my.parse = function ( source ) {
 };
 
 my.parseHtml = function ( source, path ) {
-    return my.widgetToHtml(
+    return my.snippetToHtml(
         my.parse( source ), my.toPath( path ), { counter: 0 } );
 };
 
 my.parseManualLocal = function ( locals, source ) {
     return $c.parseChopline(
-        $c.envShadow( manualWidgetEnv, locals ), source );
+        $c.envShadow( manualSnippetEnv, locals ), source );
 };
 
 my.parseManual = function ( source ) {
@@ -1056,7 +1056,7 @@ function renderPage( pages, page, atpath, opts ) {
     
     atpath = my.toPath( atpath );
     
-    var body = my.widgetToHtml( page.body, atpath,
+    var body = my.snippetToHtml( page.body, atpath,
         { "counter": 0, "pages": pages } );
     
     var html = "<!DOCTYPE html>\n" +
@@ -1064,7 +1064,7 @@ function renderPage( pages, page, atpath, opts ) {
         "<head>" +
         "<meta http-equiv=\"Content-Type\" " +
             "content=\"text/html;charset=UTF-8\" />" +
-        "<title>" + my.widgetToTitle( page.title ) + "</title>" +
+        "<title>" + my.snippetToTitle( page.title ) + "</title>" +
         renderJsDependencies( body.js || [], atpath ) +
         _.arrMap( body.css || [], function ( css ) {
             return renderCssDependency( css, atpath );
