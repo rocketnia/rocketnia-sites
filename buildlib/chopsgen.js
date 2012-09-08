@@ -220,50 +220,85 @@ function attrEscape( content ) {
 
 
 function Widget() {}
-Widget.toHtml = function ( path, state ) {
+Widget.prototype.toHtml = function ( path, state ) {
     throw new Error( "Unimplemented." );
 };
-Widget.toTitle = function () {
+Widget.prototype.toTitle = function () {
+    throw new Error( "Unimplemented." );
+};
+Widget.prototype.toManualPage = function ( path, state ) {
     throw new Error( "Unimplemented." );
 };
 
+function WidgetString() {}
+WidgetString.prototype = new Widget();
+WidgetString.prototype.init_ = function ( string ) {
+    this.string_ = string;
+    return this;
+};
+WidgetString.prototype.toHtml = function ( path, state ) {
+    return { state: state, html: my.htmlEscape( this.string_ ) };
+};
+WidgetString.prototype.toTitle = function () {
+    return my.htmlEscape( this.string_ );
+};
+WidgetString.prototype.toManualPage = function ( path, state ) {
+    return { state: state, text: this.string_ };
+};
+
+function WidgetArray() {}
+WidgetArray.prototype = new Widget();
+WidgetArray.prototype.init_ = function ( array ) {
+    this.array_ = array;
+    return this;
+};
+WidgetArray.prototype.toHtml = function ( path, state ) {
+    var widgetData = _.arrMap( this.array_, function ( it ) {
+        var result = my.widgetToHtml( it, path, state );
+        state = result.state;
+        return result;
+    } );
+    return {
+        state: state,
+        js: _.arrMappend( widgetData,
+            function ( it ) { return it.js || []; } ),
+        css: _.arrMappend( widgetData,
+            function ( it ) { return it.css || []; } ),
+        html: _.arrMap( widgetData, _.pluckfn( "html" ) ).join( "" )
+    };
+};
+WidgetArray.prototype.toTitle = function () {
+    return _.arrMap( this.array_, function ( it ) {
+        return my.widgetToTitle( it );
+    } ).join( "" );
+};
+WidgetArray.prototype.toManualPage = function ( path, state ) {
+    var widgetText = _.arrMap( this.array_, function ( it ) {
+        var result = my.widgetToManualPage( it, path, state );
+        state = result.state;
+        return result.text;
+    } );
+    return { state: state, text: widgetText.join( "" ) };
+};
+
+my.toWidget = function ( x ) {
+    if ( x instanceof Widget )
+        return x;
+    else if ( _.isString( x ) )
+        return new WidgetString().init_( "" + x );
+    else if ( _.likeArray( x ) )
+        return new WidgetArray().init_( _.arrCut( x ) );
+    else
+        throw new Error( "Not a widget." );
+};
 my.widgetToHtml = function ( widget, path, state ) {
-    if ( widget instanceof Widget ) {
-        return widget.toHtml( path, state );
-    } else if ( _.isString( widget ) ) {
-        return { state: state, html: my.htmlEscape( widget ) };
-        return { state: state, text: widget };
-    } else if ( _.likeArray( widget ) ) {
-        var widgetData = _.arrMap( widget, function ( it ) {
-            var result = my.widgetToHtml( it, path, state );
-            state = result.state;
-            return result;
-        } );
-        return {
-            state: state,
-            js: _.arrMappend( widgetData,
-                function ( it ) { return it.js || []; } ),
-            css: _.arrMappend( widgetData,
-                function ( it ) { return it.css || []; } ),
-            html: _.arrMap( widgetData, _.pluckfn( "html" ) ).join( "" )
-        };
-    } else {
-        throw new Error( "Not a widget." );
-    }
+    return my.toWidget( widget ).toHtml( path, state );
 };
-
 my.widgetToTitle = function ( widget ) {
-    if ( widget instanceof Widget ) {
-        return widget.toTitle();
-    } else if ( _.isString( widget ) ) {
-        return my.htmlEscape( widget );
-    } else if ( _.likeArray( widget ) ) {
-        return _.arrMap( widget, function ( it ) {
-            return my.widgetToTitle( it );
-        } ).join( "" );
-    } else {
-        throw new Error( "Not a widget." );
-    }
+    return my.toWidget( widget ).toTitle();
+};
+my.widgetToManualPage = function ( widget, path, state ) {
+    return my.toWidget( widget ).toManualPage( path, state );
 };
 
 function relDirs( from, to ) {
@@ -423,7 +458,7 @@ HtmlTag.prototype.toHtml = function ( path, state ) {
         // TODO: Make Path a manual widget.
         if ( v instanceof Path )
             v = v.from( path );
-        var rendered = my.manualWidgetToText( v, path, state );
+        var rendered = my.widgetToManualPage( v, path, state );
         state = rendered.state;
         return " " +
             kv[ 0 ] + "=" + "\"" + attrEscape( rendered.text ) + "\"";
@@ -434,6 +469,9 @@ HtmlTag.prototype.toHtml = function ( path, state ) {
 };
 HtmlTag.prototype.toTitle = function () {
     throw new Error( "Can't toTitle an HtmlTag." );
+};
+HtmlTag.prototype.toManualPage = function ( path, state ) {
+    throw new Error( "Can't toManualPage an HtmlTag." );
 };
 
 my.tag = function ( name, var_args ) {
@@ -458,6 +496,9 @@ BlockWidget.prototype.toHtml = function ( path, state ) {
 };
 BlockWidget.prototype.toTitle = function () {
     throw new Error( "Can't toTitle a BlockWidget." );
+};
+BlockWidget.prototype.toManualPage = function ( path, state ) {
+    throw new Error( "Can't toManualPage a BlockWidget." );
 };
 
 my.blockWidget = function ( widget ) {
@@ -487,6 +528,9 @@ NameNavLink.prototype.toHtml = function ( path, state ) {
 NameNavLink.prototype.toTitle = function () {
     throw new Error( "Can't toTitle a NameNavLink." );
 };
+NameNavLink.prototype.toManualPage = function ( path, state ) {
+    throw new Error( "Can't toManualPage a NameNavLink." );
+};
 
 my.nameNavLink = function ( path ) {
     return new NameNavLink( path );
@@ -506,6 +550,9 @@ NavLink.prototype.toHtml = function ( path, state ) {
 NavLink.prototype.toTitle = function () {
     throw new Error( "Can't toTitle a NavLink." );
 };
+NavLink.prototype.toManualPage = function ( path, state ) {
+    throw new Error( "Can't toManualPage a NavLink." );
+};
 
 function HtmlRawWidget( html ) {
     this.html_ = html;
@@ -516,6 +563,9 @@ HtmlRawWidget.prototype.toHtml = function ( path, state ) {
 };
 HtmlRawWidget.prototype.toTitle = function () {
     throw new Error( "Can't toTitle an HtmlRawWidget." );
+};
+HtmlRawWidget.prototype.toManualPage = function ( path, state ) {
+    throw new Error( "Can't toManualPage an HtmlRawWidget." );
 };
 
 function DepsWidget( deps ) {
@@ -528,6 +578,9 @@ DepsWidget.prototype.toHtml = function ( path, state ) {
 };
 DepsWidget.prototype.toTitle = function () {
     throw new Error( "Can't toTitle a DepsWidget." );
+};
+DepsWidget.prototype.toManualPage = function ( path, state ) {
+    throw new Error( "Can't toManualPage a DepsWidget." );
 };
 
 my.depsWidget = function ( deps, body ) {
@@ -590,7 +643,7 @@ function NiceWidget( details ) {
             js.push( function ( tok, path, state ) {
                 state = pushState( state, "token", tok );
                 var rendered =
-                    my.manualWidgetToText( widget, path, state );
+                    my.widgetToManualPage( widget, path, state );
                 state = unpushState( rendered.state, "token" );
                 return { state: state,
                     val: { type: "embedded", code: rendered.text } };
@@ -600,7 +653,7 @@ function NiceWidget( details ) {
             css.push( function ( tok, path, state ) {
                 state = pushState( state, "token", tok );
                 var rendered =
-                    my.manualWidgetToText( widget, path, state );
+                    my.widgetToManualPage( widget, path, state );
                 state = unpushState( rendered.state, "token" );
                 return { state: state,
                     val: { type: "embedded", code: rendered.text } };
@@ -610,7 +663,7 @@ function NiceWidget( details ) {
             html.push( function ( tok, path, state ) {
                 state = pushState( state, "token", tok );
                 var rendered =
-                    my.manualWidgetToText( widget, path, state );
+                    my.widgetToManualPage( widget, path, state );
                 state = unpushState( rendered.state, "token" );
                 return { state: state, js: [], css: [],
                     html: rendered.text };
@@ -667,37 +720,24 @@ NiceWidget.prototype.toHtml = function ( path, state ) {
 NiceWidget.prototype.toTitle = function () {
     throw new Error( "Can't toTitle a NiceWidget." );
 };
+NiceWidget.prototype.toManualPage = function ( path, state ) {
+    throw new Error( "Can't toManualPage a NiceWidget." );
+};
 
 my.widget = function ( var_args ) {
     return new NiceWidget( _.arrCut( arguments ) );
 };
 
 
-function ManualWidget() {}
-ManualWidget.toText = function ( path, state ) {
-    throw new Error( "Unimplemented." );
-};
-
-my.manualWidgetToText = function ( widget, path, state ) {
-    if ( widget instanceof ManualWidget ) {
-        return widget.toText( path, state );
-    } else if ( _.isString( widget ) ) {
-        return { state: state, text: widget };
-    } else if ( _.likeArray( widget ) ) {
-        var widgetText = _.arrMap( widget, function ( it ) {
-            var result = my.manualWidgetToText( it, path, state );
-            state = result.state;
-            return result.text;
-        } );
-        return { state: state, text: widgetText.join( "" ) };
-    } else {
-        throw new Error( "Not a manual widget." );
-    }
-};
-
 function WidgetToken() {}
-WidgetToken.prototype = new ManualWidget();
-WidgetToken.prototype.toText = function ( path, state ) {
+WidgetToken.prototype = new Widget();
+WidgetToken.prototype.toHtml = function ( path, state ) {
+    throw new Error( "Can't toHtml a WidgetToken." );
+};
+WidgetToken.prototype.toTitle = function () {
+    throw new Error( "Can't toTitle a WidgetToken." );
+};
+WidgetToken.prototype.toManualPage = function ( path, state ) {
     if ( !(_.likeObjectLiteral( state ) && _.hasOwn( state, "token" )
         && _.likeArray( state.token )) )
         throw new Error( "The state wasn't the right type." );
