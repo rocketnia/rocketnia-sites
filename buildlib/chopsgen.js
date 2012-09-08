@@ -157,10 +157,11 @@
 //    would be nice to position certain JS code at the end of the
 //    <body> or in a <script defer>.
 //  - The lack of comprehensiveness in the NiceSnippet interface. The
-//    "manual" code support is a good baseline, but there should
-//    definitely be a way to use a snippet rather than manual HTML.
+//    "unstructured" code support is a good baseline, but there should
+//    definitely be a way to use a snippet rather than unstructured
+//    HTML.
 //
-// TODO: See if the manualSnippetEnv vocabulary is comprehensive
+// TODO: See if the unstructuredSnippetEnv vocabulary is comprehensive
 // enough.
 
 
@@ -226,7 +227,7 @@ Snippet.prototype.toHtml = function ( path, state ) {
 Snippet.prototype.toTitle = function () {
     throw new Error( "Unimplemented." );
 };
-Snippet.prototype.toManualPage = function ( path, state ) {
+Snippet.prototype.toUnstructuredPage = function ( path, state ) {
     throw new Error( "Unimplemented." );
 };
 
@@ -242,7 +243,9 @@ SnippetString.prototype.toHtml = function ( path, state ) {
 SnippetString.prototype.toTitle = function () {
     return my.htmlEscape( this.string_ );
 };
-SnippetString.prototype.toManualPage = function ( path, state ) {
+SnippetString.prototype.toUnstructuredPage =
+    function ( path, state ) {
+    
     return { state: state, text: this.string_ };
 };
 
@@ -272,9 +275,9 @@ SnippetArray.prototype.toTitle = function () {
         return my.snippetToTitle( it );
     } ).join( "" );
 };
-SnippetArray.prototype.toManualPage = function ( path, state ) {
+SnippetArray.prototype.toUnstructuredPage = function ( path, state ) {
     var snippetText = _.arrMap( this.array_, function ( it ) {
-        var result = my.snippetToManualPage( it, path, state );
+        var result = my.snippetToUnstructuredPage( it, path, state );
         state = result.state;
         return result.text;
     } );
@@ -297,8 +300,8 @@ my.snippetToHtml = function ( snippet, path, state ) {
 my.snippetToTitle = function ( snippet ) {
     return my.toSnippet( snippet ).toTitle();
 };
-my.snippetToManualPage = function ( snippet, path, state ) {
-    return my.toSnippet( snippet ).toManualPage( path, state );
+my.snippetToUnstructuredPage = function ( snippet, path, state ) {
+    return my.toSnippet( snippet ).toUnstructuredPage( path, state );
 };
 
 function relDirs( from, to ) {
@@ -455,10 +458,10 @@ HtmlTag.prototype.toHtml = function ( path, state ) {
         kv ) {
         
         var v = kv[ 1 ];
-        // TODO: Make Path a manual snippet.
+        // TODO: Make Path a snippet with toUnstructuredPage.
         if ( v instanceof Path )
             v = v.from( path );
-        var rendered = my.snippetToManualPage( v, path, state );
+        var rendered = my.snippetToUnstructuredPage( v, path, state );
         state = rendered.state;
         return " " +
             kv[ 0 ] + "=" + "\"" + attrEscape( rendered.text ) + "\"";
@@ -470,8 +473,8 @@ HtmlTag.prototype.toHtml = function ( path, state ) {
 HtmlTag.prototype.toTitle = function () {
     throw new Error( "Can't toTitle an HtmlTag." );
 };
-HtmlTag.prototype.toManualPage = function ( path, state ) {
-    throw new Error( "Can't toManualPage an HtmlTag." );
+HtmlTag.prototype.toUnstructuredPage = function ( path, state ) {
+    throw new Error( "Can't toUnstructuredPage an HtmlTag." );
 };
 
 my.tag = function ( name, var_args ) {
@@ -497,8 +500,8 @@ BlockSnippet.prototype.toHtml = function ( path, state ) {
 BlockSnippet.prototype.toTitle = function () {
     throw new Error( "Can't toTitle a BlockSnippet." );
 };
-BlockSnippet.prototype.toManualPage = function ( path, state ) {
-    throw new Error( "Can't toManualPage a BlockSnippet." );
+BlockSnippet.prototype.toUnstructuredPage = function ( path, state ) {
+    throw new Error( "Can't toUnstructuredPage a BlockSnippet." );
 };
 
 my.blockSnippet = function ( snippet ) {
@@ -528,8 +531,8 @@ NameNavLink.prototype.toHtml = function ( path, state ) {
 NameNavLink.prototype.toTitle = function () {
     throw new Error( "Can't toTitle a NameNavLink." );
 };
-NameNavLink.prototype.toManualPage = function ( path, state ) {
-    throw new Error( "Can't toManualPage a NameNavLink." );
+NameNavLink.prototype.toUnstructuredPage = function ( path, state ) {
+    throw new Error( "Can't toUnstructuredPage a NameNavLink." );
 };
 
 my.nameNavLink = function ( path ) {
@@ -550,8 +553,8 @@ NavLink.prototype.toHtml = function ( path, state ) {
 NavLink.prototype.toTitle = function () {
     throw new Error( "Can't toTitle a NavLink." );
 };
-NavLink.prototype.toManualPage = function ( path, state ) {
-    throw new Error( "Can't toManualPage a NavLink." );
+NavLink.prototype.toUnstructuredPage = function ( path, state ) {
+    throw new Error( "Can't toUnstructuredPage a NavLink." );
 };
 
 function HtmlRawSnippet( html ) {
@@ -564,8 +567,10 @@ HtmlRawSnippet.prototype.toHtml = function ( path, state ) {
 HtmlRawSnippet.prototype.toTitle = function () {
     throw new Error( "Can't toTitle an HtmlRawSnippet." );
 };
-HtmlRawSnippet.prototype.toManualPage = function ( path, state ) {
-    throw new Error( "Can't toManualPage an HtmlRawSnippet." );
+HtmlRawSnippet.prototype.toUnstructuredPage =
+    function ( path, state ) {
+    
+    throw new Error( "Can't toUnstructuredPage an HtmlRawSnippet." );
 };
 
 function DepsSnippet( deps ) {
@@ -579,8 +584,8 @@ DepsSnippet.prototype.toHtml = function ( path, state ) {
 DepsSnippet.prototype.toTitle = function () {
     throw new Error( "Can't toTitle a DepsSnippet." );
 };
-DepsSnippet.prototype.toManualPage = function ( path, state ) {
-    throw new Error( "Can't toManualPage a DepsSnippet." );
+DepsSnippet.prototype.toUnstructuredPage = function ( path, state ) {
+    throw new Error( "Can't toUnstructuredPage a DepsSnippet." );
 };
 
 my.depsSnippet = function ( deps, body ) {
@@ -638,32 +643,32 @@ function NiceSnippet( details ) {
             } );
         if ( k === "includeOnceJs" ) {
             js.push( stateless( includeOnceJs( v ) ) );
-        } else if ( k === "manualJs" ) {
-            var snippet = my.parseManual( v );
+        } else if ( k === "unstructuredJs" ) {
+            var snippet = my.parseUnstructured( v );
             js.push( function ( tok, path, state ) {
                 state = pushState( state, "token", tok );
-                var rendered =
-                    my.snippetToManualPage( snippet, path, state );
+                var rendered = my.snippetToUnstructuredPage(
+                    snippet, path, state );
                 state = unpushState( rendered.state, "token" );
                 return { state: state,
                     val: { type: "embedded", code: rendered.text } };
             } );
-        } else if ( k === "manualCss" ) {
-            var snippet = my.parseManual( v );
+        } else if ( k === "unstructuredCss" ) {
+            var snippet = my.parseUnstructured( v );
             css.push( function ( tok, path, state ) {
                 state = pushState( state, "token", tok );
-                var rendered =
-                    my.snippetToManualPage( snippet, path, state );
+                var rendered = my.snippetToUnstructuredPage(
+                    snippet, path, state );
                 state = unpushState( rendered.state, "token" );
                 return { state: state,
                     val: { type: "embedded", code: rendered.text } };
             } );
-        } else if ( k === "manualHtml" ) {
-            var snippet = my.parseManual( v );
+        } else if ( k === "unstructuredHtml" ) {
+            var snippet = my.parseUnstructured( v );
             html.push( function ( tok, path, state ) {
                 state = pushState( state, "token", tok );
-                var rendered =
-                    my.snippetToManualPage( snippet, path, state );
+                var rendered = my.snippetToUnstructuredPage(
+                    snippet, path, state );
                 state = unpushState( rendered.state, "token" );
                 return { state: state, js: [], css: [],
                     html: rendered.text };
@@ -720,8 +725,8 @@ NiceSnippet.prototype.toHtml = function ( path, state ) {
 NiceSnippet.prototype.toTitle = function () {
     throw new Error( "Can't toTitle a NiceSnippet." );
 };
-NiceSnippet.prototype.toManualPage = function ( path, state ) {
-    throw new Error( "Can't toManualPage a NiceSnippet." );
+NiceSnippet.prototype.toUnstructuredPage = function ( path, state ) {
+    throw new Error( "Can't toUnstructuredPage a NiceSnippet." );
 };
 
 my.snippet = function ( var_args ) {
@@ -737,7 +742,7 @@ SnippetToken.prototype.toHtml = function ( path, state ) {
 SnippetToken.prototype.toTitle = function () {
     throw new Error( "Can't toTitle a SnippetToken." );
 };
-SnippetToken.prototype.toManualPage = function ( path, state ) {
+SnippetToken.prototype.toUnstructuredPage = function ( path, state ) {
     if ( !(_.likeObjectLiteral( state ) && _.hasOwn( state, "token" )
         && _.likeArray( state.token )) )
         throw new Error( "The state wasn't the right type." );
@@ -772,8 +777,8 @@ function ltrimBlockDocParser( func ) {
     };
 }
 
-function manualChops( chops ) {
-    return $c.parseInlineChops( manualSnippetEnv, chops );
+function unstructuredChops( chops ) {
+    return $c.parseInlineChops( unstructuredSnippetEnv, chops );
 }
 
 function ltrimClassBlockParser( tagName ) {
@@ -781,9 +786,8 @@ function ltrimClassBlockParser( tagName ) {
         var apart = $c.letChopWords( chops, 1 );
         if ( !apart ) throw new Error( "need a class" );
         return my.blockSnippet(
-            my.tag( tagName, "class", manualChops( apart[ 0 ] ) )(
-                ltrimParse( env, apart[ 1 ] )
-            ) );
+            my.tag( tagName, "class", unstructuredChops( apart[ 0 ] )
+                )( ltrimParse( env, apart[ 1 ] ) ) );
     };
 }
 
@@ -792,10 +796,9 @@ function ltrimClassBlockDocParser( tagName ) {
         var apart = $c.letChopWords( chops, 1 );
         if ( !apart ) throw new Error( "need a class" );
         return my.blockSnippet(
-            my.tag( tagName, "class", manualChops( apart[ 0 ] ) )(
-                $c.parseDocumentOfChops(
-                    env, $c.chopParas( apart[ 1 ] ) )
-            ) );
+            my.tag( tagName, "class", unstructuredChops( apart[ 0 ] )
+                )( $c.parseDocumentOfChops(
+                    env, $c.chopParas( apart[ 1 ] ) ) ) );
     };
 }
 
@@ -924,7 +927,7 @@ var snippetEnv = $c.env( {
     }
 } );
 
-var manualSnippetEnv = $c.env( {
+var unstructuredSnippetEnv = $c.env( {
     "tok": function ( chops, env ) {
         return new SnippetToken();
     },
@@ -961,13 +964,13 @@ my.parseHtml = function ( source, path ) {
         my.parse( source ), my.toPath( path ), { counter: 0 } );
 };
 
-my.parseManualLocal = function ( locals, source ) {
+my.parseUnstructuredLocal = function ( locals, source ) {
     return $c.parseChopline(
-        $c.envShadow( manualSnippetEnv, locals ), source );
+        $c.envShadow( unstructuredSnippetEnv, locals ), source );
 };
 
-my.parseManual = function ( source ) {
-    return my.parseManualLocal( {}, source );
+my.parseUnstructured = function ( source ) {
+    return my.parseUnstructuredLocal( {}, source );
 };
 
 
