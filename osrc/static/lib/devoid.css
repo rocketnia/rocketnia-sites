@@ -43,7 +43,7 @@ div.top-path
   text-align: left;
   color: white;
   padding: 5px;
-  padding-left: 205px;
+  padding-left: 255px;
   float: left;
 }
 div.top-path p { margin: 0; }
@@ -62,7 +62,7 @@ div.top-search form
   float: right;
 }
 div.top-header-base { clear: both; }
-div.top-header form input[type~=text] { width: 200px; }
+div.top-header form input[type~=text] { width: 250px; }
 
 
 div.top-wrapper { background-color: #CCF; }
@@ -74,8 +74,8 @@ dl.top-nav
   font-size: medium;
   text-align: left;
   float: left;
-  width: 200px;
-  margin: 0 -234px 0 0;
+  width: 250px;
+  margin: 0 -284px 0 0;
   padding: 16px 0 0 0;
   border-right: 2px solid black;
 }
@@ -105,7 +105,7 @@ div.top-main
   background-color: white;
   padding: 1px 15px;
   border-left: 2px solid black;
-  margin-left: 200px;
+  margin-left: 250px;
 }
 
 
@@ -129,3 +129,19 @@ dt { font-weight: bolder; }
 a.sub-link-external { background-color: #CFF; }
 
 h1, h2, h3 { text-shadow: 2px 2px 10px rgba( 0, 0, 0, 0.2 ); }
+
+.tech-project h1
+{
+  font-size: 23px;
+  margin-top: 50px;
+}
+.tech-project .github
+{
+  margin-top: -12px;
+  margin-left: 20px;
+}
+.tech-project h2
+{
+  font-size: 17px;
+  margin-top: 22px;
+}

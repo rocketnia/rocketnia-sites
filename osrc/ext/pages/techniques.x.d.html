@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title></title>
+<script type="text/plain" id="datahtml">
+application/x-rocketnia-choppascript-ext
+
+
+$cs.extendOnly( "pages",
+$cs.getOne( "$rc", "$cg", function ( $rc, $cg ) {
+return $cs.extend( "pages",
+
+$rc.rcPage( "/tech/", "Programming Techniques",
+    "28-Nov-2012", $cg.parseIn( [str 2012] ), {},
+    $cg.parse( [str
+
+Sometimes in the middle of a forum discussion, I find an opportunity
+to go off on a lesser-known topic I find particularly interesting, or
+one I've pursued extensively in the past. But even for people who've
+read my posts, it might be hard to distinguish my personal passions
+from other, more context-sensitive recommendations I make. So here's
+some pure, unsolicited enthusiasm, in the form of a list of projects
+I've worked on and the approaches they exemplify.
+
+
+[cdiv tech-project
+
+[h1 Project: Lathe]
+[cdiv github [out https://github.com/rocketnia/lathe on GitHub]]
+
+A set of general-purpose utilities in JavaScript, Arc, and Racket. The
+Arc utilities are extensive but stale, and the JavaScript utilities
+are what I focus on the most.
+
+[h2 Predicate dispatch]
+
+As multimethod dispatch techniques go, predicate dispatch is the most
+rascally dynamic of the bunch. At run time, each extension can run
+code to decide whether it will handle the current call, making the
+branching as flexible as an [code if] statement. Of course, unlike an
+[code if] statement, the extensions don't have to be listed all at one
+place in the code.
+
+Predicate dispatch is a good way to manage code organization in a
+[i standalone] project, but it does nothing to manage the chaos of an
+[i undisciplined] community of developers. Here are some guidelines
+I've developed for proper discipline:
+
+[ul [li No overlaps. If a single method call could be handled by
+        either of two extensions, but only one is chosen, chances are
+        the choice will be inappropriate and surprising in a few
+        reasonable use cases. This tends to mean a module should only
+        provide extensions for cases it actually introduces, such as
+        cases involving its own custom data types.]
+    [li If no extension will respond to a call, that's a fatal program
+        error. After all, the no-response case overlaps with all
+        future extensions.]
+    [li The predicates should be computationally simple. If a method
+        promises a particular limit of resource usage (e.g.
+        time-complexity), the extensions might break that promise if
+        their collective dispatch-deciding code surpasses the limit.]]
+
+Parts of Lathe have been developed under the ideal that the
+Lathe-using community could apply this discipline. Not to say there's
+a Lathe-using community besides myself! More recently, I've set my
+sights on [i formal] enforcement of forward-compatibility, using these
+informal policies as guidance.
+
+[h2 Self-organizing precedence rules]
+
+Before I developed those guidelines for predicate dispatch, I was
+somewhat influenced by the design considerations of Inform 7. The
+problem domain of Inform 7 is interactive fiction, where the concepts
+at play are not only fuzzy, but downright expected to be inexact and
+cleverly unique. So the world is developed using broad-stroke
+declarations and some finer-grained amendments. Overlaps abound.
+
+With overlaps comes a need for precedence control. Andrew Plotkin from
+the IF community [out http://eblong.com/zarf/essays/rule-based-if/ has
+noted] that Inform 7's mechanisms for dealing with the precedence of
+these overlaps could be more expressive if the authors could define
+their own custom precedence rules, and maybe even precedence rules
+between these precedence rules.
+
+I considered several corner cases and found an approach that seems to
+be quite intuitive: Each precedence rule takes a set of rules and
+returns a DAG of judgments on those rules. Once I've calculated every
+DAG, I merge them one by one, trimming certain edges along the way to
+avoid cycles. My trimming decisions are based on whether one
+precedence rule is already known to have precedence over another, or
+whether one rule judges another rule's precedence and isn't judged in
+return. The latter metric allows the hierarchical intuition of
+meta-rules and meta-meta-rules to work, even without an [i a priori]
+hierarchy!
+
+If you'd like a more in-depth description of my algorithm, for now
+you'll have to read the Arc ([code circularly-order]) or JavaScript
+([code circularlyOrder]) implementations in the source code to Lathe.
+
+Like predicate dispatch, this self-organizing precedence rule system
+may be a very expressive basis for prototyping other precedence
+systems, but it's probably too open-ended to provide effective support
+for an undisciplined developer community. It even faces an
+expressiveness paradox: The precedence rules won't have much to go on
+if the rules they're trying to judge are opaque (e.g. procedures), and
+yet any choice of metadata will seem like pointless boilerplate if no
+precedence rules pay attention to it.
+
+If some language does take the plunge and use a precedence system like
+this one, I don't really have any discipline advice to share, except
+to say that I strongly recommend to avoid overlaps in the first place.
+
+I keep this technique in the back of my mind for whenever I want to
+model something as fuzzy as an interactive fiction world. I've
+particularly thought about using it as a basis for TCG rules, where
+it's common for new cards' text to cause contradictions when combined
+with old cards.
+
+]
+
+
+[cdiv tech-project
+
+[h1 Project: static site generator]
+[cdiv github
+  [out https://github.com/rocketnia/rocketnia-sites on GitHub]]
+
+This very website. Ironically, I improve the implementation much more
+often than I update the content.
+
+[h2 Runs on mostly browser-compatible Javascript]
+
+There's no groundbreaking insight here. I prefer to make code reusable
+when possible, and a program that runs in a Web browser can be used
+from any Web-capable device, with no installation.
+
+Since Web browsers don't provide much in the way of filesystem access
+or shell script integration, I write my static site generator code so
+it runs on Node.js too.
+
+I code mostly in JavaScript itself, rather than using a language that
+compiles to JavaScript. I like the fact that it's standardized, and
+the kinds of modularity, abstraction, and syntax I pursue are barely
+possible on the client-side Web in the first place (e.g. they require
+[code <iframe>] acrobatics), let alone possible in the kind of
+"idiomatic" code most languages strive to generate. :)
+
+[h2 Minimalistic, programmable preprocessor]
+
+When I work with textual syntax, I like to use syntaxes that are easy
+to describe directly in terms of character sequences, and I like to
+avoid escape sequences and other cruft. Because of this, I tend to
+choose syntaxes that are based on nested square brackets (no backslash
+proliferation when nesting!), with a whitespace-delimited word at the
+beginning of each nested region to establish a meaning (and hence a
+parser) for the rest of the contents. It's very lisp-esque, but with
+more room for programmatic command over the parsing process.
+
+I once worked on standalone languages
+([out https://github.com/rocketnia/blade Blade] and
+[out https://github.com/rocketnia/penknife Penknife]) with this kind
+of syntax built in. Now I instead handle it with a standalone
+JavaScript library, chops.js, which is maintained as part of
+[out https://github.com/rocketnia/lathe Lathe].
+
+In my static site generator, I use a DSL for generating HTML markup,
+and chops.js gives me exactly the kind of syntax I want for this
+purpose. I also use chops.js as a preprocessor to give JavaScript a
+multi-line string syntax.
+
+[h2 Extension dependency resolution]
+
+Sometimes all the details of a program are close at hand (inductive),
+and all it takes is some data processing to execute the sucker. Other
+times, the program is a potentially infinite expanse (coinductive),
+and we just want to find what we're looking for and get the heck out.
+
+A while back, I began making [out https://github.com/rocketnia/blade
+Blade], a compiled language with user-definable syntax. The design
+didn't fully congeal, let alone the implementation, but the challenges
+it presented were interesting. Any module could contribute an
+extension element to a multiset, and any module could ask for the
+final value of the multiset before continuing its own contributions.
+Hypothetically, a typical module would wait almost as soon as it
+started parsing, because its parser wouldn't be fully defined yet. But
+if a module is waiting, then how can we know any multiset is complete?
+
+When the system is already this dynamic, my answer is to give modules
+a way to make assertions about what contributions they're going to
+make in the future. Properly designed and employed, these assertions
+can provide enough information for the language to make progress on
+its dependency resolution.
+
+I didn't apply this technique much in practice until I refactored my
+static site generator to be more declarative in structure. Now each
+page and each bundle of functionality lives in its own extension file,
+and these files import and contribute to global multiset names, rather
+than coupling on global filenames. A page can almost trivially be
+added or deleted from the site, though hyperlinks to that page in the
+rest of the site will have to be updated manually.
+
+I haven't developed this idea to the point where it's part of an
+elegant and solid module system for community use, but I consider it a
+promising ingredient for such designs.
+
+]
+
+
+[cdiv tech-project
+
+[h1 Project: Cairntaker]
+[cdiv github
+  [out https://github.com/rocketnia/lathe/blob/master/js/cairntaker.js
+on GitHub]]
+
+An incremental garbage collector written in JavaScript, with support
+for ephemeron tables and interning of all immutable values.
+
+I haven't tested Carintaker at all yet, and I bet it's pretty slow
+too, but it's been a good exercise in surpassing many of JavaScript's
+semantic limits (limited stack size, limited-precision integers, no
+ephemeron support, etc.), and I'll start from here once I set out to
+write an abstraction-leak-free language atop JS.
+
+[h2 Everything's an ephemeron table]
+
+At least conceptually, every value handled by Cairntaker is a mutable
+or immutable ephemeron table (aka weak map). Much like lisps get away
+with representing many data structures using cons cells, Cairntaker
+does the same with tables. This gives ephemera a chance to be a
+seamless part of a language's reachability semantics, well-integrated
+with an [out http://home.pipeline.com/~hbaker1/ObjectIdentity.html
+egal] notion of equality (for key lookup).
+
+Underneath, some of the values Cairntaker allows programs to construct
+are not actually represented the same way as an arbitrary table.
+Fortunately, a hypothetical language user doesn't need to know that.
+If we distinguish two of these values and they don't have any visible
+distinguishing table entries, we can vacuously claim that they [i do]
+have distinguishing table entries but they've all become unreachable
+(or at least unreachable by user code).
+
+]
+
+
+[cdiv tech-project
+
+[h1 Future pursuits]
+
+I haven't made much out of these concepts yet, but I'm working on it!
+
+[h2 Meaning-preserving modularity]
+
+Sometimes programmers exploit unstable, undocumented, and even
+unintentional behavior of the components they're interfacing with just
+to make their own components work. This makes their components brittle
+to updates in the others, which can bring the system's overall
+progress to a cautious crawl.
+
+If a program module only "imports" things that are actually
+mathematically unique given the import criteria, then it doesn't
+matter what module implementation is used to construct this value.
+
+Even without full mathematical assurance of uniqueness, we can seek
+out other kinds of assurance. We might use the scientific method and
+establish confidence by way of reproducible demonstrations, or we
+might merely seek [i social] assurance and phrase our imports as "the
+concept Barry dubbed 'thermometer' at timestamp T."
+
+That kind of social assurance takes the form of a simple
+paraconsistent logic (inconsistency being bounded by personal
+reputation), and it's similar to our existing package manager designs,
+so I'm pursuing it as a stable and close-at-hand epistemological basis
+for modularity. The mathematical approach's network of relatively
+consistent logical frameworks and the scientific approach's community
+of laboratories can both be understood as subregions of a web of
+trust.
+
+[h2 Graphs, not ASTs]
+
+I was a fan of ASTs for a while. They're a great tool for dealing with
+nested programming syntaxes and variable scope. But neither nesting
+nor variable scope is essential to programming! They're artifacts of
+our one-dimensional representations of programs for speech and text,
+and while those represenations are important, I don't see why every
+language designer must distract themselves with these concerns.
+
+I think we should have a shallow syntax that deals with variables,
+nesting, string syntax, and other one-dimensional concerns, but which
+gives way to another mathematical model that has none of these
+idiosyncrasies. Then language designers can target this simpler
+medium, and the syntax can get better indepenently.
+
+In particular, I think the intermediate representation should be a
+graph of some sort. Nesting creates a tree structure, and nodes
+containing the same variable name essentially link up with each
+other to create cycles.
+
+Across the looking glass of the Curry-Howard correspondence (where we
+can view types as propositions and programs as proofs), these shapes
+are known as proof nets. Mathematicians study them to gain insight
+into the essential structure of a proof.
+
+There's a wide variety of proof net systems. Each is its own
+mathematical formalism, which may or may not be a programmer's
+favorite formalism for their task. However, the easiest formalisms to
+decouple from the tree representation are linear
+logics[dash]especially multiplicative linear logic (MLL), whose proof
+nets can be visualized very neatly as graphs.
+
+I haven't quite settled on a favorite formalism for representing
+programs, but I'm on the lookout, and analogies to MLL have
+occasionally informed my design choices when programming. I now like
+to reason about many programming language features in terms of
+data-control flow, even when that flow crosses the
+compile-time/run-time divide, distributes across multiple machines, or
+coils in fractal patterns due to state or recursion.
+
+[h2 Stronger metaprogramming by way of weaker abstraction]
+
+Many language designs are driven by an attempt to put more power in
+the hands of programmers, even if it complicates the language
+infrastructure. I'm guilty of this in my own designs; I believe the
+programmers of the future will know what they need better than we do,
+so I hesitate to hobble them.
+
+So it's rare to see a language that limits the Turing-completeness of
+its function abstractions. Why would we restrict programmers so? How
+would that even work?
+
+Well, it's not about [i restricting] programmers, [i per se]. It's
+about giving them the freedom to control how their creations can be
+used. This, in turn, will make it easier for programmers to follow
+through on their long-term design goals even after their creations
+have entered into widespread use. In other words, I would let
+programmers [i restrict fellow programmers' use of their work], but
+that's healthy.
+
+And indeed the technology does exist to limit the computational
+expressiveness of a lambda. The field of total functional programming
+studies ways to eliminate nontermination (thus sidestepping the
+halting problem), and the field of implicit computational
+complexity (ICC) takes this even further by studying techniques that
+enforce particular computational complexities.
+
+Incidentally, I would like to explore a peculiar kind of abstraction:
+A story subplot with holes in it, ready to be patched up by a drama
+manager. It might be possible to express this abstraction in terms of
+general-purpose language constructs, but the drama manager won't be
+able to analyze just any lambda, especially not one that can only be
+inspected by running a computation of potentially unacceptable
+performance. If we only have strong, expressive kinds of abstraction,
+this kind of metaprogramming is a challenge.
+
+(Total functional programming languages often tackle similar kinds of
+metaprogramming in the form of type inference and implicit arguments.)
+
+[h2 Partial evaluation]
+
+It's mostly just a side interest, but my
+"[out https://github.com/rocketnia/fexpress Fexpress]" project aims to
+show that fexprs, when used the way I (and others?) would use them in
+practice, can be compiled to untyped lambda calculus with no need for
+an interpreter at run time. Furthermore, if there are a few odd use
+cases that do make an interpreter necessary, I expect them to impact
+only local regions of the compiled program.
+
+I haven't found a working system yet, but this project has taken me on
+a journey through topics of partial evaluation and staged programming.
+
+At this point, whenever I consider compilation or JIT (which is
+admittedly not very often!), I keep in mind the wider field of program
+specialization, and I look for ways to perceive the specialization
+process of the program as a process of partially evaluating some
+expression. This ties in with my visualization of programs as
+data-control flow, so I expect Fexpress to become more relevant to me
+as I formulate data-control-flow-inspired programming models and try
+to implement them efficiently.
+
+[h2 Reactive demand programming]
+
+David Barbour is building a programming model he calls reactive demand
+programming (RDP). It's a reactive model, where instead of functions
+transforming values, we have behaviors transforming time-varying
+signals. Unlike other popular reactive models (namely functional
+reative programming (FRP)), RDP rejects instantaneous events, feedback
+loops, and local integration/accumulation operators, and it goes out
+of its way to permit behaviors to have side effects (prolonged over
+time) and a first-class distributable representation. RDP also ensures
+every effect can be traced back to a clear human cause.
+
+If my scattered description doesn't help you, I'm not surprised.
+You'll probably be better off reading
+[out https://github.com/dmbarbour/Sirea David Barbour's own
+description of RDP in his project's README].
+
+I see RDP as tomorrow's most powerful, and [i simultaneously] most
+secure, model for making any program that takes part in the real
+world. If anyone wants to make a programming language that models side
+effects, even the side effect of taking up computation resources, I
+recommend they think about how their model can fit into RDP. If it
+can't, I recommend they give their model some serious reconsideration.
+
+]
+
+
+    ] ) )
+
+);
+} )
+)
+
+
+</script>
+<textarea style="width: 100%; height: 300px" id="t"></textarea>
+<script>
+var m = /^\n([^\n]+)\n((?:[^\n]|\n)*)\n$/.exec(
+    document.getElementById( "datahtml" ).textContent.replace(
+        /@(@*)/g, "$1" ) );
+parent.postMessage( { hash: location.hash,
+    val: { type: m[ 1 ], text: m[ 2 ] } }, "*" );
+document.getElementById( "t" ).value = m[ 2 ];
+</script>
+</html>
