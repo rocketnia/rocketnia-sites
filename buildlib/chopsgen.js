@@ -221,7 +221,7 @@ function attrEscape( content ) {
 
 
 function Snippet() {}
-Snippet.prototype.toHtml = function ( path, state ) {
+Snippet.prototype.toHtml = function ( path, state, opts ) {
     throw new Error( "Unimplemented." );
 };
 Snippet.prototype.toTitle = function () {
@@ -237,7 +237,7 @@ SnippetString.prototype.init_ = function ( string ) {
     this.string_ = string;
     return this;
 };
-SnippetString.prototype.toHtml = function ( path, state ) {
+SnippetString.prototype.toHtml = function ( path, state, opts ) {
     return { state: state, html: my.htmlEscape( this.string_ ) };
 };
 SnippetString.prototype.toTitle = function () {
@@ -255,9 +255,9 @@ SnippetArray.prototype.init_ = function ( array ) {
     this.array_ = array;
     return this;
 };
-SnippetArray.prototype.toHtml = function ( path, state ) {
+SnippetArray.prototype.toHtml = function ( path, state, opts ) {
     var snippetData = _.arrMap( this.array_, function ( it ) {
-        var result = my.snippetToHtml( it, path, state );
+        var result = my.snippetToHtml( it, path, state, opts );
         state = result.state;
         return result;
     } );
@@ -294,8 +294,8 @@ my.toSnippet = function ( x ) {
     else
         throw new Error( "Not a snippet." );
 };
-my.snippetToHtml = function ( snippet, path, state ) {
-    return my.toSnippet( snippet ).toHtml( path, state );
+my.snippetToHtml = function ( snippet, path, state, opts ) {
+    return my.toSnippet( snippet ).toHtml( path, state, opts );
 };
 my.snippetToTitle = function ( snippet ) {
     return my.toSnippet( snippet ).toTitle();
@@ -452,7 +452,7 @@ function HtmlTag( name, attrs, body ) {
     this.body_ = body;
 }
 HtmlTag.prototype = new Snippet();
-HtmlTag.prototype.toHtml = function ( path, state ) {
+HtmlTag.prototype.toHtml = function ( path, state, opts ) {
     var name = this.name_;
     var openTag = "<" + name + _.arrMap( this.attrs_, function (
         kv ) {
@@ -466,7 +466,7 @@ HtmlTag.prototype.toHtml = function ( path, state ) {
         return " " +
             kv[ 0 ] + "=" + "\"" + attrEscape( rendered.text ) + "\"";
     } ).join( "" ) + ">";
-    var body = my.snippetToHtml( this.body_, path, state );
+    var body = my.snippetToHtml( this.body_, path, state, opts );
     return { state: body.state, js: body.js, css: body.css,
         html: openTag + body.html + "</" + name + ">" };
 };
@@ -494,8 +494,8 @@ function BlockSnippet( snippet ) {
     this.snippet_ = snippet;
 }
 BlockSnippet.prototype = new Snippet();
-BlockSnippet.prototype.toHtml = function ( path, state ) {
-    return my.snippetToHtml( this.snippet_, path, state );
+BlockSnippet.prototype.toHtml = function ( path, state, opts ) {
+    return my.snippetToHtml( this.snippet_, path, state, opts );
 };
 BlockSnippet.prototype.toTitle = function () {
     throw new Error( "Can't toTitle a BlockSnippet." );
@@ -517,16 +517,40 @@ function getPage( state, path ) {
     return pages[ my.toPath( path ).abs() ];
 }
 
+function NavLink( path, content ) {
+    this.path_ = path;
+    this.content_ = content;
+}
+NavLink.prototype = new Snippet();
+NavLink.prototype.toHtml = function ( path, state, opts ) {
+    // TODO: See if we should be hardcoding "index.html" here.
+    // What about index.php?
+    return my.snippetToHtml(
+        this.path_.linkWouldBeRedundant( path ) ? this.content_ :
+            my.tag( "a",
+                opts.mock ? "data-navlink" : "href",
+                this.path_.plus(
+                    opts.forFileUri ? "/index.html" : "/" )
+            )( this.content_ ),
+        path, state, opts );
+};
+NavLink.prototype.toTitle = function () {
+    throw new Error( "Can't toTitle a NavLink." );
+};
+NavLink.prototype.toUnstructuredPage = function ( path, state ) {
+    throw new Error( "Can't toUnstructuredPage a NavLink." );
+};
+
 function NameNavLink( path ) {
     this.path_ = path;
 }
 NameNavLink.prototype = new Snippet();
-NameNavLink.prototype.toHtml = function ( path, state ) {
+NameNavLink.prototype.toHtml = function ( path, state, opts ) {
     var name = getPage( state, this.path_ ).name;
     return my.snippetToHtml(
         this.path_.linkWouldBeRedundant( path ) ? name :
-            my.tag( "a", "href", this.path_ )( name ),
-        path, state );
+            new NavLink( this.path_, name ),
+        path, state, opts );
 };
 NameNavLink.prototype.toTitle = function () {
     throw new Error( "Can't toTitle a NameNavLink." );
@@ -539,29 +563,11 @@ my.nameNavLink = function ( path ) {
     return new NameNavLink( path );
 };
 
-function NavLink( path, content ) {
-    this.path_ = path;
-    this.content_ = content;
-}
-NavLink.prototype = new Snippet();
-NavLink.prototype.toHtml = function ( path, state ) {
-    return my.snippetToHtml(
-        this.path_.linkWouldBeRedundant( path ) ? this.content_ :
-            my.tag( "a", "href", this.path_ )( this.content_ ),
-        path, state );
-};
-NavLink.prototype.toTitle = function () {
-    throw new Error( "Can't toTitle a NavLink." );
-};
-NavLink.prototype.toUnstructuredPage = function ( path, state ) {
-    throw new Error( "Can't toUnstructuredPage a NavLink." );
-};
-
 function HtmlRawSnippet( html ) {
     this.html_ = html;
 }
 HtmlRawSnippet.prototype = new Snippet();
-HtmlRawSnippet.prototype.toHtml = function ( path, state ) {
+HtmlRawSnippet.prototype.toHtml = function ( path, state, opts ) {
     return { state: state, html: this.html_ };
 };
 HtmlRawSnippet.prototype.toTitle = function () {
@@ -578,7 +584,7 @@ function DepsSnippet( deps ) {
     this.css_ = _.arrCut( deps.css || [] );
 }
 DepsSnippet.prototype = new Snippet();
-DepsSnippet.prototype.toHtml = function ( path, state ) {
+DepsSnippet.prototype.toHtml = function ( path, state, opts ) {
     return { state: state, js: this.js_, css: this.css_, html: "" };
 };
 DepsSnippet.prototype.toTitle = function () {
@@ -665,7 +671,7 @@ function NiceSnippet( details ) {
             } );
         } else if ( k === "unstructuredHtml" ) {
             var snippet = my.parseUnstructured( v );
-            html.push( function ( tok, path, state ) {
+            html.push( function ( tok, path, state, opts ) {
                 state = pushState( state, "token", tok );
                 var rendered = my.snippetToUnstructuredPage(
                     snippet, path, state );
@@ -674,9 +680,10 @@ function NiceSnippet( details ) {
                     html: rendered.text };
             } );
         } else if ( k === "snippetHtml" ) {
-            html.push( function ( tok, path, state ) {
+            html.push( function ( tok, path, state, opts ) {
                 state = pushState( state, "token", tok );
-                var rendered = my.snippetToHtml( v, path, state );
+                var rendered =
+                    my.snippetToHtml( v, path, state, opts );
                 state = unpushState( rendered.state, "token" );
                 return { state: state, js: rendered.js,
                     css: rendered.css, html: rendered.html };
@@ -693,7 +700,7 @@ function NiceSnippet( details ) {
     this.html_ = html;
 }
 NiceSnippet.prototype = new Snippet();
-NiceSnippet.prototype.toHtml = function ( path, state ) {
+NiceSnippet.prototype.toHtml = function ( path, state, opts ) {
     // TODO: Beware overflow... but note that if we ever have more
     // than 2^53 NiceSnippets on one page, we'll have much bigger
     // problems to deal with than just this one case of overflow. :-p
@@ -714,7 +721,7 @@ NiceSnippet.prototype.toHtml = function ( path, state ) {
         state = monad[ "state" ];
     } );
     _.arrEach( this.html_, function ( htmlFunc ) {
-        var monad = htmlFunc( tok, path, state );
+        var monad = htmlFunc( tok, path, state, opts );
         js = js.concat( monad[ "js" ] );
         css = css.concat( monad[ "css" ] );
         html.push( monad[ "html" ] );
@@ -736,7 +743,7 @@ my.snippet = function ( var_args ) {
 
 function SnippetToken() {}
 SnippetToken.prototype = new Snippet();
-SnippetToken.prototype.toHtml = function ( path, state ) {
+SnippetToken.prototype.toHtml = function ( path, state, opts ) {
     throw new Error( "Can't toHtml a SnippetToken." );
 };
 SnippetToken.prototype.toTitle = function () {
@@ -959,9 +966,9 @@ my.parse = function ( source ) {
     return my.parseLocal( {}, source );
 };
 
-my.parseHtml = function ( source, path ) {
+my.parseHtml = function ( source, path, opts ) {
     return my.snippetToHtml(
-        my.parse( source ), my.toPath( path ), { counter: 0 } );
+        my.parse( source ), my.toPath( path ), { counter: 0 }, opts );
 };
 
 my.parseUnstructuredLocal = function ( locals, source ) {
@@ -1057,10 +1064,59 @@ my.definePage = function ( pages, page ) {
 
 function renderPage( pages, page, atpath, opts ) {
     
+    var opts_mock = !!opts[ "mock" ];
+    var opts_forFileUri = !!opts[ "forFileUri" ];
+    var opts_allowPhp = !!opts[ "allowPhp" ];
+    
+    if ( 1 < (opts_mock ? 1 : 0) + (opts_forFileUri ? 1 : 0) +
+        (opts_allowPhp ? 1 : 0) )
+        throw new Error(
+            "More than one page rendering mode isn't allowed." );
+    
     atpath = my.toPath( atpath );
     
-    var body = my.snippetToHtml( page.body, atpath,
-        { "counter": 0, "pages": pages } );
+    var body = my.snippetToHtml( page.body, atpath, {
+        "counter": 0,
+        "pages": pages
+    }, {
+        mock: opts_mock,
+        forFileUri: opts_forFileUri
+    } );
+    
+    var jsDependencies = body.js || [];
+    if ( opts_mock )
+        jsDependencies = jsDependencies.concat(
+            [ { type: "embedded", code:
+                "\"use strict\";\n" +
+                "(function () {\n" +
+                "    var links = " +
+                    "document.getElementsByTagName( \"a\" );\n" +
+                "    for ( var i = 0, n = links.length; " +
+                    "i < n; i++ ) (function () {\n" +
+                "        var item = links[ i ];\n" +
+                "        if ( !item.hasAttribute( \"data-navlink\" ) )\n" +
+                "            return;\n" +
+                "        if ( item.addEventListener )\n" +
+                "            item.addEventListener( \"click\", " +
+                                "onClick, !\"capture\" );\n" +
+                "        else\n" +
+                "            item.attachEvent( " +
+                                "\"onclick\", onClick );\n" +
+                "        function onClick() {\n" +
+                "            if ( parent !== window )\n" +
+                "                parent.postMessage( " +
+                                    "{ type: \"navlink\", path:\n" +
+                "                    item.getAttribute( " +
+                                        "\"data-navlink\" ) " +
+                                    "}, \"*\" );\n" +
+                // TODO: Take out this console.log() call once we have
+                // a parent frame to test with.
+                "            console.log( item.getAttribute( " +
+                                "\"data-navlink\" ) );\n" +
+                "        }\n" +
+                "    })();\n" +
+                "})();\n"
+            } ] );
     
     var html = "<!DOCTYPE html>\n" +
         "<html lang=\"en\">" +
@@ -1068,7 +1124,10 @@ function renderPage( pages, page, atpath, opts ) {
         "<meta http-equiv=\"Content-Type\" " +
             "content=\"text/html;charset=UTF-8\" />" +
         "<title>" + my.snippetToTitle( page.title ) + "</title>" +
-        renderJsDependencies( body.js || [], atpath ) +
+        // TODO: When opt_mock is true, add a <base> tag like this to
+        // support the relative URLs in the CSS and JS tags. Or maybe
+        // we should fully resolve those URLs.
+//        "<base href=\"" + attrEscape( baseUrl ) + "\" />" +
         _.arrMap( body.css || [], function ( css ) {
             return renderCssDependency( css, atpath );
         } ).join( "" ) +
@@ -1076,7 +1135,10 @@ function renderPage( pages, page, atpath, opts ) {
             attrEscape( my.toPath( page.icon ).from( atpath ) ) +
             "\" />" +
         "</head>" +
-        "<body>" + body.html + "</body>" +
+        "<body>" +
+        body.html +
+        renderJsDependencies( jsDependencies, atpath ) +
+        "</body>" +
         "</html>";
     
     if ( !page.is404 || !opts[ "allowPhp" ] )
@@ -1087,7 +1149,11 @@ function renderPage( pages, page, atpath, opts ) {
 }
 
 my.renderPages = function ( pages, basePath, opt_opts ) {
-    opt_opts = _.opt( opt_opts ).or( { "allowPhp": false } ).bam();
+    opt_opts = _.opt( opt_opts ).or( {
+        "mock": false,
+        "forFileUri": false,
+        "allowPhp": false
+    } ).bam();
     basePath = my.toPath( basePath );
     return _.objMap( pages, function ( page, permalink ) {
         return renderPage( pages, page,

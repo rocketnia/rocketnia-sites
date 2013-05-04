@@ -13,13 +13,16 @@ return $cs.extend( "cliBuildFoundation", (function () {
 
 var cliBuildFoundation = {};
 
-cliBuildFoundation.build = function ( then ) {
+cliBuildFoundation.build = function ( opts, then ) {
     var rcPages = {};
     _.arrEach( pages, function ( page ) {
         $cg.definePage( rcPages, page );
     } );
-    var site = $cg.renderPagesToText(
-        rcPages, "/", { "allowPhp": true } );
+    // TODO: Add an HTML-based test page where `mock` is true.
+    var site = $cg.renderPagesToText( rcPages, "/",
+        !!opts[ "forFileUri" ] ? { "forFileUri": true } :
+            { "allowPhp": true } );
+//            { "mock": true } );
     
     $util.rm( "fin", function ( e ) {
         if ( e ) return void then( e );

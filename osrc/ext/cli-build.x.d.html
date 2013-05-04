@@ -28,6 +28,11 @@ argParser.addArgument( [ "-b", "--build" ], {
     action: "storeTrue",
     help: "Build the project."
 } );
+argParser.addArgument( [ "-f", "--file" ], {
+    action: "storeTrue",
+    help:
+        "When building, generate links so they work from file: URLs."
+} );
 var args = argParser.parseArgs();
 
 if ( !(args.normalize || args.build) ) {
@@ -53,7 +58,9 @@ if ( args.normalize && args.build ) {
     cliBuildFoundation.normalize( function ( e ) {
         if ( e ) return void complain( e );
         console.log( "Normalized!" );
-    cliBuildFoundation.build( function ( e ) {
+    cliBuildFoundation.build( { "forFileUri": !!args.file },
+        function ( e ) {
+        
         if ( e ) return void complain( e );
         console.log( "Built!" );
         then();
@@ -63,7 +70,8 @@ if ( args.normalize && args.build ) {
     cliBuildFoundation.normalize(
         informativeResult( "Normalized!" ) );
 } else if ( args.build ) {
-    cliBuildFoundation.build( informativeResult( "Built!" ) );
+    cliBuildFoundation.build( { "forFileUri": !!args.file },
+        informativeResult( "Built!" ) );
 }
 
 
