@@ -125,20 +125,46 @@ runExtensions( function ( extensions ) {
     _.arrEach( pages, function ( page ) {
         $cg.definePage( rcPages, page );
     } );
-    var site =
+    
+    
+    var finalSite =
         $cg.renderPagesToText( rcPages, "/", { "allowPhp": true } );
     
-    _.el( "site" ).value = JSON.stringify( site );
+    _.el( "site" ).value = JSON.stringify( finalSite );
     
     var button = _.el( "site-download" );
     button.disabled = false;
     _.appendDom( button, { "click": function () {
         var zip = new JSZip( "deflate" );
-        for ( var file in site )
-            zip.add( file, site[ file ] );
+        for ( var file in finalSite )
+            zip.add( file, finalSite[ file ] );
         location.href =
             "data:application/zip;base64," + zip.generate();
     } } );
+    
+    
+    var previewSite =
+        $cg.renderPagesToText( rcPages, "/", { "mock": true } );
+    var iframe = _.el( "preview" );
+    var previewPath;
+    function setPreview( newPath ) {
+        previewPath = newPath.plus( "/index.html" );
+        // NOTE: We could almost use base64 like this, but it would
+        // encode the text as UTF-16 rather than UTF-8.
+//        iframe.src = "data:text/html;base64," +
+//            _.be16charsToB64( previewSite[ previewPath.abs() ] );
+        iframe.src = "data:text/html," +
+            encodeURIComponent( previewSite[ previewPath.abs() ] );
+    }
+    setPreview( $cg.toPath( "/" ) );
+    if ( window.addEventListener )
+        addEventListener( "message", function ( e ) {
+            if ( e.source !== iframe.contentWindow )
+                return;
+            if ( _.likeObjectLiteral( e.data )
+                && e.data.type === "navlink" )
+                setPreview( $cg.toPath( e.data.path, previewPath ) );
+        }, !"capture" );
 } );
 
 
@@ -154,6 +180,8 @@ p.test { background-color: #CCC; }
 #repl .scrollback { height: 100px; }
 
 #site { display: block; width: 95%; }
+
+#preview { width: 95%; height: 500px; }
 </style>
 
 </head>
@@ -163,6 +191,7 @@ p.test { background-color: #CCC; }
 <div id="repl"></div>
 <textarea id="site"></textarea>
 <p><button id="site-download" disabled="">Download</button></p>
+<iframe id="preview"></iframe>
 <p><a href="lathe.html">lathe.html</a></p>
 <p><a id="bottom" href="#top">Go to top</a></p>
 </body>

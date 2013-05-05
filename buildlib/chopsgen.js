@@ -137,6 +137,8 @@
 //    strongly documented somewhere (not just hidden in a TODO here).
 //  - The fact that [nav ...] links have no class attribute, while
 //    [out ...] links do have the hardcoded "external-link" class.
+//  - The fact that the "data-navlink" attribute and a certain
+//    postMessage protocol is automatically inserted for previewing.
 //
 // Naming conflicts:
 //  - Renderer state. It's monadic, but that's fine. Don't change
@@ -357,13 +359,18 @@ my.toPath = function ( x, opt_base ) {
         var base = my.toPath( opt_base );
         if ( !(base instanceof Path) )
             return null;
+        var newDirs = base.dirs_.slice();
+        while ( m = /^\.\.\/(.*)$/.exec( x ) ) {
+            newDirs.pop();
+            x = m[ 1 ];
+        }
         m = /^[^\/#?]*(?:[#?].*)?$/.exec( x );
-        if ( m ) return new Path( base.dirs_, m[ 0 ] );
+        if ( m ) return new Path( newDirs, m[ 0 ] );
         m = /^((?:[^\/?#]+\/)*[^\/?#]+)\/([^\/#?]*(?:[#?].*)?)$/.
             exec( x );
         if ( m )
             return new Path(
-                base.dirs_.concat( m[ 1 ].split( "/" ) ), m[ 2 ] );
+                newDirs.concat( m[ 1 ].split( "/" ) ), m[ 2 ] );
         return null;
     }
     return null;
@@ -1109,10 +1116,6 @@ function renderPage( pages, page, atpath, opts ) {
                 "                    item.getAttribute( " +
                                         "\"data-navlink\" ) " +
                                     "}, \"*\" );\n" +
-                // TODO: Take out this console.log() call once we have
-                // a parent frame to test with.
-                "            console.log( item.getAttribute( " +
-                                "\"data-navlink\" ) );\n" +
                 "        }\n" +
                 "    })();\n" +
                 "})();\n"
@@ -1126,7 +1129,8 @@ function renderPage( pages, page, atpath, opts ) {
         "<title>" + my.snippetToTitle( page.title ) + "</title>" +
         // TODO: When opt_mock is true, add a <base> tag like this to
         // support the relative URLs in the CSS and JS tags. Or maybe
-        // we should fully resolve those URLs.
+        // we should fully resolve those URLs. Currently, we just let
+        // them be broken links.
 //        "<base href=\"" + attrEscape( baseUrl ) + "\" />" +
         _.arrMap( body.css || [], function ( css ) {
             return renderCssDependency( css, atpath );
