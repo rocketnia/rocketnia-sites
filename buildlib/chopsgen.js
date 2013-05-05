@@ -361,6 +361,10 @@ my.toPath = function ( x, opt_base ) {
             return null;
         var newDirs = base.dirs_.slice();
         while ( m = /^\.\.\/(.*)$/.exec( x ) ) {
+            if ( newDirs.length === 0 )
+                throw new Error(
+                    "Can't toPath a relative path that uses ../ " +
+                    "too many times." );
             newDirs.pop();
             x = m[ 1 ];
         }
