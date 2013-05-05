@@ -143,8 +143,11 @@ runExtensions( function ( extensions ) {
     } } );
     
     
-    var previewSite =
-        $cg.renderPagesToText( rcPages, "/", { "mock": true } );
+    var previewSite = $cg.renderPagesToText( rcPages, "/", {
+        "mock": true,
+        "mockBaseTagPrefix":
+            _.dom( "a", { "href": "fin/cheapsite/" } ).href
+    } );
     var iframe = _.el( "preview" );
     var previewPath;
     function setPreview( newPath ) {
@@ -191,6 +194,11 @@ p.test { background-color: #CCC; }
 <div id="repl"></div>
 <textarea id="site"></textarea>
 <p><button id="site-download" disabled="">Download</button></p>
+<p>The following preview takes its CSS styles and other static
+  resources from a previously built directory tree. If you haven't
+  built the website to fin/cheapsite/ using Node.js or the above .zip
+  file recently, these static files may be out of date or may not
+  exist.</p>
 <iframe id="preview"></iframe>
 <p><a href="lathe.html">lathe.html</a></p>
 <p><a id="bottom" href="#top">Go to top</a></p>

@@ -406,6 +406,14 @@ MaskedPath.prototype.abs = function () {
     throw new Error( "A MaskedPath is being linked to." );
 };
 
+Path.prototype.toBaseTagSuffix = function () {
+    return this.from( my.toPath( "/" ) );
+};
+
+MaskedPath.prototype.toBaseTagSuffix = function () {
+    return this.basePath_.toBaseTagSuffix();
+};
+
 Path.prototype.plus = function ( child ) {
     if ( this.file_ !== "" )
         throw new Error( "Can't add a non-dir path to anything." );
@@ -946,6 +954,7 @@ var snippetEnv = $c.env( {
 } );
 
 var unstructuredSnippetEnv = $c.env( {
+    "pct": function ( chops, env ) { return "%"; },
     "tok": function ( chops, env ) {
         return new SnippetToken();
     },
@@ -1074,11 +1083,25 @@ my.definePage = function ( pages, page ) {
 };
 
 function renderPage( pages, page, atpath, opts ) {
+    opts = _.opt( opts ).or( {
+        "mock": false,
+        "forFileUri": false,
+        "allowPhp": false,
+        "mockBaseTagPrefix": null
+    } ).bam();
+    var opts_mock = opts[ "mock" ];
+    var opts_forFileUri = opts[ "forFileUri" ];
+    var opts_allowPhp = opts[ "allowPhp" ];
+    var opts_mockBaseTagPrefix = opts[ "mockBaseTagPrefix" ];
     
-    var opts_mock = !!opts[ "mock" ];
-    var opts_forFileUri = !!opts[ "forFileUri" ];
-    var opts_allowPhp = !!opts[ "allowPhp" ];
-    
+    if ( !(true
+        && _.isBoolean( opts_mock )
+        && _.isBoolean( opts_forFileUri )
+        && _.isBoolean( opts_allowPhp )
+        && (opts_mockBaseTagPrefix === null
+            || _.isString( opts_mockBaseTagPrefix ))
+    ) )
+        throw new TypeError();
     if ( 1 < (opts_mock ? 1 : 0) + (opts_forFileUri ? 1 : 0) +
         (opts_allowPhp ? 1 : 0) )
         throw new Error(
@@ -1094,36 +1117,41 @@ function renderPage( pages, page, atpath, opts ) {
         forFileUri: opts_forFileUri
     } );
     
-    var jsDependencies = body.js || [];
-    if ( opts_mock )
-        jsDependencies = jsDependencies.concat(
-            [ { type: "embedded", code:
-                "\"use strict\";\n" +
-                "(function () {\n" +
-                "    var links = " +
-                    "document.getElementsByTagName( \"a\" );\n" +
-                "    for ( var i = 0, n = links.length; " +
-                    "i < n; i++ ) (function () {\n" +
-                "        var item = links[ i ];\n" +
-                "        if ( !item.hasAttribute( \"data-navlink\" ) )\n" +
-                "            return;\n" +
-                "        if ( item.addEventListener )\n" +
-                "            item.addEventListener( \"click\", " +
-                                "onClick, !\"capture\" );\n" +
-                "        else\n" +
-                "            item.attachEvent( " +
-                                "\"onclick\", onClick );\n" +
-                "        function onClick() {\n" +
-                "            if ( parent !== window )\n" +
-                "                parent.postMessage( " +
-                                    "{ type: \"navlink\", path:\n" +
-                "                    item.getAttribute( " +
-                                        "\"data-navlink\" ) " +
-                                    "}, \"*\" );\n" +
-                "        }\n" +
-                "    })();\n" +
-                "})();\n"
-            } ] );
+    var cssDependencies = (body.css || []).slice();
+    var jsDependencies = (body.js || []).slice();
+    if ( opts_mock ) {
+        cssDependencies.unshift( { type: "embedded", code:
+            "a[data-navlink] " +
+                "{ text-decoration: underline; cursor: pointer; }\n"
+        } );
+        jsDependencies.push( { type: "embedded", code:
+            "\"use strict\";\n" +
+            "(function () {\n" +
+            "    var links = " +
+                "document.getElementsByTagName( \"a\" );\n" +
+            "    for ( var i = 0, n = links.length; " +
+                "i < n; i++ ) (function () {\n" +
+            "        var item = links[ i ];\n" +
+            "        if ( !item.hasAttribute( \"data-navlink\" ) )\n" +
+            "            return;\n" +
+            "        if ( item.addEventListener )\n" +
+            "            item.addEventListener( \"click\", " +
+                            "onClick, !\"capture\" );\n" +
+            "        else\n" +
+            "            item.attachEvent( " +
+                            "\"onclick\", onClick );\n" +
+            "        function onClick() {\n" +
+            "            if ( parent !== window )\n" +
+            "                parent.postMessage( " +
+                                "{ type: \"navlink\", path:\n" +
+            "                    item.getAttribute( " +
+                                    "\"data-navlink\" ) " +
+                                "}, \"*\" );\n" +
+            "        }\n" +
+            "    })();\n" +
+            "})();\n"
+        } );
+    }
     
     var html = "<!DOCTYPE html>\n" +
         "<html lang=\"en\">" +
@@ -1131,12 +1159,23 @@ function renderPage( pages, page, atpath, opts ) {
         "<meta http-equiv=\"Content-Type\" " +
             "content=\"text/html;charset=UTF-8\" />" +
         "<title>" + my.snippetToTitle( page.title ) + "</title>" +
-        // TODO: When opt_mock is true, add a <base> tag like this to
-        // support the relative URLs in the CSS and JS tags. Or maybe
-        // we should fully resolve those URLs. Currently, we just let
-        // them be broken links.
-//        "<base href=\"" + attrEscape( baseUrl ) + "\" />" +
-        _.arrMap( body.css || [], function ( css ) {
+        
+        // NOTE: When opts_mock is true and opts_mockBaseTagPrefix is
+        // provided, this <base> tag supports the relative URLs in the
+        // CSS and JS tags, as well as the ones used dynamically by
+        // the JS code. While we can't imitate a directory tree
+        // dynamically, opts_mockBaseTagPrefix can be set to an
+        // existing build directory or deployment site.
+        //
+        // TODO: Make this use proper relative path resolution, rather
+        // than string concatenation.
+        //
+        (opts_mock && opts_mockBaseTagPrefix !== null ?
+            "<base href=\"" + attrEscape( opts_mockBaseTagPrefix +
+                atpath.toBaseTagSuffix() ) + "\" />" :
+            "") +
+        
+        _.arrMap( cssDependencies, function ( css ) {
             return renderCssDependency( css, atpath );
         } ).join( "" ) +
         "<link rel=\"shortcut icon\" href=\"" +
