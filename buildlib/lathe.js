@@ -3092,7 +3092,11 @@ my.newcall = function ( Ctor, var_args ) {
 };
 
 
-var ENTER_KEY = 13;
+var KEYS = {
+    enter: 13,
+    up: 38,
+    down: 40
+};
 var NO_CAPTURE = false;
 
 function keyCode( event ) {
@@ -3110,16 +3114,107 @@ function preventDefault( event ) {
 // TODO: See if this leaks memory with its treatment of DOM nodes.
 my.blahrepl = function ( elem ) {
     
+    // TODO: The rules we're using for navigating the command history
+    // are idiosyncratic. Take a look at how other command prompts
+    // behave, and see if we can improve upon our technique.
+    var commandHistoryCounts = {};
+    var commandHistory = [];
+    var commandHistoryLimit = 10;
+    function pushCommand( cmd ) {
+        // Called directly when a command has been submitted. Called
+        // indirectly when a modified command has been navigated away
+        // from.
+        
+        // If the command is trivial, don't bother remembering it.
+        if ( cmd === "" )
+            return false;
+        // If the command is identical to the previous one, don't
+        // bother remembering it.
+        if ( commandHistory.length !== 0 &&
+            commandHistory[ commandHistory.length - 1 ] === cmd )
+            return false;
+        
+        var safeKey = "|" + cmd;
+        
+        // Remember the command.
+        commandHistoryCounts[ safeKey ] =
+            (commandHistoryCounts[ safeKey ] || 0) + 1;
+        commandHistory.push( cmd );
+        
+        // Prune away the next history entry, which will often be the
+        // oldest due to our circular handling of history.
+        //
+        // TODO: See if we should keep track of another command list
+        // that sorts commands by age, so that we can always remove
+        // the oldest here.
+        //
+        if ( commandHistoryLimit < commandHistory.length ) {
+            var safeAbandonedCmd = "|" + commandHistory.shift();
+            if ( 0 == --commandHistoryCounts[ safeAbandonedCmd ] )
+                delete commandHistoryCounts[ safeAbandonedCmd ];
+        }
+        return true;
+    }
+    function pushNewCommand( cmd ) {
+        // Called when a command has been navigated away from.
+        
+        // If the command is modified, make a history entry for it.
+        if ( commandHistoryCounts[ "|" + cmd ] === void 0 )
+            return pushCommand( cmd );
+        return false;
+    }
+    function replaceWithPrevious( cmd ) {
+        // Called when navigating to the previous entry.
+        
+        // If there is no history yet, don't bother remembering this
+        // command. Just leave it alone.
+        if ( commandHistory.length === 0 )
+            return cmd;
+        
+        // Rotate the history backward by one, while inserting this
+        // command into the history if it's new. The command we rotate
+        // past is the one we return.
+        if ( pushNewCommand( cmd ) )
+            commandHistory.unshift( commandHistory.pop() );
+        var replacement;
+        commandHistory.unshift( replacement = commandHistory.pop() );
+        return replacement;
+    }
+    function replaceWithNext( cmd ) {
+        // Called when navigating to the previous entry.
+        
+        // If there is no history yet, don't bother remembering this
+        // command. Just leave it alone.
+        if ( commandHistory.length === 0 )
+            return cmd;
+        
+        // Rotate the history forward by one, while inserting this
+        // command into the history if it's new. The command we rotate
+        // past is the one we return.
+        pushNewCommand( cmd );
+        var replacement;
+        commandHistory.push( replacement = commandHistory.shift() );
+        return replacement;
+    }
+    
     var scrollback = my.dom( "textarea",
         { "class": "scrollback", "readonly": "readonly" } );
     var prompt = my.dom( "textarea", { "class": "prompt",
         "keydown": function ( event ) {
-            if ( keyCode( event ) === ENTER_KEY )
+            var key = keyCode( event );
+            if ( key === KEYS.enter
+                || key === KEYS.up
+                || key === KEYS.down )
                 preventDefault( event );
         },
         "keyup": function ( event ) {
-            if ( keyCode( event ) === ENTER_KEY )
+            var key = keyCode( event );
+            if ( key === KEYS.enter )
                 doEval();
+            else if ( key === KEYS.up )
+                doArrowUp();
+            else if ( key === KEYS.down )
+                doArrowDown();
         } } );
     
     my.appendDom( elem, scrollback, prompt,
@@ -3151,7 +3246,14 @@ my.blahrepl = function ( elem ) {
         
         scrollback.scrollTop = scrollback.scrollHeight;
         
+        pushCommand( prompt.value );
         prompt.value = "";
+    }
+    function doArrowUp() {
+        prompt.value = replaceWithPrevious( prompt.value );
+    }
+    function doArrowDown() {
+        prompt.value = replaceWithNext( prompt.value );
     }
 };
 
