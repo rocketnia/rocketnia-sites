@@ -3178,6 +3178,14 @@ my.blahrepl = function ( elem ) {
             commandHistory.unshift( commandHistory.pop() );
         var replacement;
         commandHistory.unshift( replacement = commandHistory.pop() );
+        
+        // Actually, if the replacement command is identical to the
+        // one it's replacing, try rotating again. This makes a
+        // difference when we navigate one way and then turn around.
+        if ( replacement === cmd )
+            commandHistory.unshift(
+                replacement = commandHistory.pop() );
+        
         return replacement;
     }
     function replaceWithNext( cmd ) {
@@ -3194,6 +3202,14 @@ my.blahrepl = function ( elem ) {
         pushNewCommand( cmd );
         var replacement;
         commandHistory.push( replacement = commandHistory.shift() );
+        
+        // Actually, if the replacement command is identical to the
+        // one it's replacing, try rotating again. This makes a
+        // difference when we navigate one way and then turn around.
+        if ( replacement === cmd )
+            commandHistory.push(
+                replacement = commandHistory.shift() );
+        
         return replacement;
     }
     
