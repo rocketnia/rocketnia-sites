@@ -2216,17 +2216,24 @@ my.dom = function ( el, var_args ) {
 };
 
 my.setFrameSrcdoc = function ( el, srcdoc ) {
-    // NOTE: This doesn't work in IE 10, and in Chrome the resulting
-    // document doesn't even have permission to load CSS (at least if
-    // the parent frame is being accessed from a file: URL). It works
-    // in Firefox and Opera.
-//    el.src = "data:text/html," + encodeURIComponent( srcdoc );
+    // This has been tested with the following browsers, under 64-bit
+    // Windows 7:
+    //
+    // Firefox 20.0.1
+    // Opera 12.15
+    // IE 10.0.9200.16540
+    // Chrome 26.0.1410.64 m
     
-    // NOTE: This doesn't work in IE 10, Firefox, or Opera. It works
-    // in Chrome.
+    // This only works in Chrome.
 //    el.setAttribute( "srcdoc", srcdoc );
     
-    // NOTE: This works in IE 10, Firefox, Opera, and Chrome.
+    // This only works in Firefox and Opera. In Chrome, the document
+    // itself loads, but it doesn't have permission to load external
+    // stylesheets or JS code (at least if the parent frame is being
+    // accessed from a file: URL).
+//    el.src = "data:text/html," + encodeURIComponent( srcdoc );
+    
+    // This works in all four of the browsers.
     el.src = "about:blank";
     var doc = el.contentDocument;
     doc.open();
