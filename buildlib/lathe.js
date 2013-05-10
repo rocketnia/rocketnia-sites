@@ -2215,6 +2215,25 @@ my.dom = function ( el, var_args ) {
     return my.domInDoc( document, el, my.arrCut( arguments, 1 ) );
 };
 
+my.setFrameSrcdoc = function ( el, srcdoc ) {
+    // NOTE: This doesn't work in IE 10, and in Chrome the resulting
+    // document doesn't even have permission to load CSS (at least if
+    // the parent frame is being accessed from a file: URL). It works
+    // in Firefox and Opera.
+//    el.src = "data:text/html," + encodeURIComponent( srcdoc );
+    
+    // NOTE: This doesn't work in IE 10, Firefox, or Opera. It works
+    // in Chrome.
+//    el.setAttribute( "srcdoc", srcdoc );
+    
+    // NOTE: This works in IE 10, Firefox, Opera, and Chrome.
+    el.src = "about:blank";
+    var doc = el.contentDocument;
+    doc.open();
+    doc.write( srcdoc );
+    doc.close();
+};
+
 function makePostMessageFrame(
     holder, create, init, opt_then, opt_timeout ) {
     

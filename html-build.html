@@ -61,7 +61,7 @@ function arrFetchDataHtml( el, paths, then ) {
     _.arrMapConcurrent( paths, function ( i, path, then ) {
         _.fetchFrame( el, path, function ( result ) {
             then( result ? result[ "val" ] : null );
-        } );
+        }, 1 / 0 );  // No timeout.
     }, function ( fetched ) {
         then( fetched );
     } );
@@ -152,12 +152,7 @@ runExtensions( function ( extensions ) {
     var previewPath;
     function setPreview( newPath ) {
         previewPath = newPath.plus( "/index.html" );
-        // NOTE: We could almost use base64 like this, but it would
-        // encode the text as UTF-16 rather than UTF-8.
-//        iframe.src = "data:text/html;base64," +
-//            _.be16charsToB64( previewSite[ previewPath.abs() ] );
-        iframe.src = "data:text/html," +
-            encodeURIComponent( previewSite[ previewPath.abs() ] );
+        _.setFrameSrcdoc( iframe, previewSite[ previewPath.abs() ] );
     }
     setPreview( $cg.toPath( "/" ) );
     if ( window.addEventListener )
@@ -184,7 +179,7 @@ p.test { background-color: #CCC; }
 
 #site { display: block; width: 95%; }
 
-#preview { width: 95%; height: 500px; }
+#preview { width: 95%; height: 700px; }
 </style>
 
 </head>
