@@ -135,11 +135,11 @@ runExtensions( function ( extensions ) {
     var button = _.el( "site-download" );
     button.disabled = false;
     _.appendDom( button, { "click": function () {
-        var zip = new JSZip( "deflate" );
+        var zip = new JSZip();
         for ( var file in finalSite )
-            zip.add( file, finalSite[ file ] );
-        location.href =
-            "data:application/zip;base64," + zip.generate();
+            zip.file( file, finalSite[ file ] );
+        location.href = "data:application/zip;base64," +
+            zip.generate( { compression: "DEFLATE" } );
     } } );
     
     
