@@ -277,8 +277,7 @@ $util.renderDataHtml = function ( type, text ) {
     if ( /\n/.test( type ) )
         return null;
     function escape( data ) {
-        return data.replace( /(@+)/g, "@$1" ).
-            replace( /<(\/|!)/g, "<@$1" );
+        return data.replace( /<(@*[\/!])/g, "<@$1" );
     }
     return (
 "<" + "!DOCTYPE html>\n" +
@@ -293,7 +292,7 @@ escape( text ) + "\n" +
 "<script>\n" +
 "var m = /^\\n([^\\n]+)\\n((?:[^\\n]|\\n)*)\\n$/.exec(\n" +
 "    document.getElementById( \"datahtml\" ).textContent.replace(\n" +
-"        /@(@*)/g, \"$1\" ) );\n" +
+"        /<@(@*[\\/!])/g, \"<$1\" ) );\n" +
 "parent.postMessage( { hash: location.hash,\n" +
 "    val: { type: m[ 1 ], text: m[ 2 ] } }, \"*\" );\n" +
 "document.getElementById( \"t\" ).value = m[ 2 ];\n" +

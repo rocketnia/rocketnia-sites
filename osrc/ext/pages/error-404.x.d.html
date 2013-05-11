@@ -30,7 +30,7 @@ can reach me at rokitna?hotmail.???.
 <script>
 var m = /^\n([^\n]+)\n((?:[^\n]|\n)*)\n$/.exec(
     document.getElementById( "datahtml" ).textContent.replace(
-        /@(@*)/g, "$1" ) );
+        /<@(@*[\/!])/g, "<$1" ) );
 parent.postMessage( { hash: location.hash,
     val: { type: m[ 1 ], text: m[ 2 ] } }, "*" );
 document.getElementById( "t" ).value = m[ 2 ];

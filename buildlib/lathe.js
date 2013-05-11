@@ -2295,7 +2295,7 @@ function makePostMessageFrame(
 // <script>
 // var m = /^\n([^\n]+)\n((?:[^\n]|\n)*)\n$/.exec(
 //     document.getElementById( "datahtml" ).textContent.replace(
-//         /@(@*)/g, "$1" ) );
+//         /<@(@*[\/!])/g, "<$1" ) );
 // parent.postMessage( { hash: location.hash,
 //     val: { type: m[ 1 ], text: m[ 2 ] } }, "*" );
 // document.getElementById( "t" ).value = m[ 2 ];
@@ -2313,7 +2313,8 @@ my.fetchFrame = function ( holder, url, opt_then, opt_timeout ) {
 // fetchFrame(). It finds the first instance of "datahtml" and the
 // first instance of "</" after that, and it cuts out those lines and
 // all the ones surrounding them. Then it removes one @ from all
-// sequences of @ and treats the first line as a type tag describing
+// sequences of <@@@! or <@@@/ (where @@@ stands in for any nonzero
+// sequence of @) and treats the first line as a type tag describing
 // the remaining text.
 //
 // NOTE: Because of peculiarities of HTML and JavaScript, the DataHtml
@@ -2338,12 +2339,12 @@ my.parseDataHtml = function ( string ) {
                 ends = true;
                 break;
             }
-            text.push( line.replace( /@(@*)/g, "$1" ) );
+            text.push( line.replace( /<@(@*[\/!])/g, "<$1" ) );
         } else if ( onType ) {
             if ( /<\//.test( line ) )
                 ret( null );
             else
-                type = line.replace( /@(@*)/g, "$1" );
+                type = line.replace( /<@(@*[\/!])/g, "<$1" );
             onText = true;
         } else if ( /datahtml/.test( line ) ) {
             onType = true;
@@ -2359,8 +2360,8 @@ my.parseDataHtml = function ( string ) {
 //        /^(?:(?!datahtml)[\s\S]*)datahtml[^\n]*\n((?:(?!<\/)[^\n])*)\n((?:(?!<\/)[\s\S])*)\n[^\n]*<\/[\s\S]$/.
 //            test( string );
 //    return m === null ? null : {
-//        type: m[ 1 ].replace( /@(@*)/g, "$1" ),
-//        text: m[ 2 ].replace( /@(@*)/g, "$1" ) };
+//        type: m[ 1 ].replace( /<@(@*[\/!])/g, "<$1" ),
+//        text: m[ 2 ].replace( /<@(@*[\/!])/g, "<$1" ) };
 };
 
 // TODO: Test this. It probably doesn't work, and it probably isn't
