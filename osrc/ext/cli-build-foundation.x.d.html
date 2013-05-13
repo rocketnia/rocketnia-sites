@@ -71,7 +71,7 @@ cliBuildFoundation.normalize = function ( then ) {
                 if ( data === null )
                     return void thro( "Couldn't read " + path + "." );
                 var rendered =
-                    $util.renderDataHtml( data.type, data.text );
+                    _.renderDataHtml( data.type, data.text );
                 if ( rendered === null )
                     return void thro(
                         "Couldn't render " + path + "." );
@@ -97,9 +97,8 @@ cliBuildFoundation.normalize = function ( then ) {
                 { paths: relPaths( "csrc", lists.extClosedSource ),
                     file: "csrc/ext.manifest.json.d.html" }
             ], function ( i, manifest, thro, ret ) {
-                var rendered =
-                    $util.renderDataHtml( "application/json",
-                        JSON.stringify( manifest.paths, null, 4 ) );
+                var rendered = _.renderDataHtml( "application/json",
+                    JSON.stringify( manifest.paths, null, 4 ) );
                 if ( rendered === null )
                     return void thro(
                         "Couldn't render " + manifest.file + "." );

@@ -271,36 +271,6 @@ $util.writeTextFile = function ( path, encoding, string, then ) {
 
 // ===== Lathe-specific utils ========================================
 
-// TODO: Check for characters that can't be represented in HTML, such
-// such as carriage return.
-$util.renderDataHtml = function ( type, text ) {
-    if ( /\n/.test( type ) )
-        return null;
-    function escape( data ) {
-        return data.replace( /<(@*[\/!])/g, "<@$1" );
-    }
-    return (
-"<" + "!DOCTYPE html>\n" +
-"<meta charset=\"utf-8\">\n" +
-"<title><" + "/title>\n" +
-"<script type=\"text/plain\" id=\"datahtml\">\n" +
-escape( type ) + "\n" +
-escape( text ) + "\n" +
-"<" + "/script>\n" +
-"<textarea style=\"width: 100%; height: 300px\" id=\"t\"" +
-    "><" + "/textarea>\n" +
-"<script>\n" +
-"var m = /^\\n([^\\n]+)\\n((?:[^\\n]|\\n)*)\\n$/.exec(\n" +
-"    document.getElementById( \"datahtml\" ).textContent.replace(\n" +
-"        /<@(@*[\\/!])/g, \"<$1\" ) );\n" +
-"parent.postMessage( { hash: location.hash,\n" +
-"    val: { type: m[ 1 ], text: m[ 2 ] } }, \"*\" );\n" +
-"document.getElementById( \"t\" ).value = m[ 2 ];\n" +
-"<" + "/script>\n" +
-"<" + "/html>\n");
-};
-
-
 $util.arrFetchDataHtml = function ( paths, then ) {
     _.arrMapConcurrent( paths, function ( i, path, then ) {
         $util.exists( path, function ( exists ) {
@@ -315,6 +285,7 @@ $util.arrFetchDataHtml = function ( paths, then ) {
         then( fetched );
     } );
 };
+
 $util.fetchDataHtml = function ( var_args ) {
     var paths = _.arrCut( arguments );
     var then = paths.pop();
