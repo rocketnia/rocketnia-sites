@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title></title>
+<script type="text/plain" id="datahtml">
+application/x-rocketnia-choppascript-ext
+
+
+$cs.extendOnly( "pages",
+$cs.getOne(
+    "lathe", "$rc", "$cg", "snippetJsRepl", "snippetHtmlPreview",
+    function ( _, $rc, $cg, snippetJsRepl, snippetHtmlPreview ) {
+return $cs.extend( "pages",
+
+$rc.rcPage( "/web-sandbox/", "Web Programming Sandbox",
+    "14-May-2013", $cg.parseIn( [str 2013] ), {},
+    $cg.blockSnippet( $cg.snippet( {
+        unstructuredCss: [str
+
+    ], snippetHtml: $cg.parseLocal( _.objMap( {
+        "js-repl": snippetJsRepl,
+        "html-preview": snippetHtmlPreview,
+    }, _.kfn ), [str [cdiv [tok]
+
+[js-repl]
+
+[html-preview]
+
+The JavaScript REPL above supports a command history. Use the up and
+down arrow keys to switch between previously used commands. Press the
+enter (or return) key or the "Eval" button to evaluate a command.
+
+It's normal to see a small responsiveness delay in the HTML preview.
+This is intentional, meant to keep the editor responsive and reduce
+flashing.
+
+The sample HTML code is designed to be short and effective, but not
+pretty or perfect. The [code try..catch] blocks are there so the code
+can have approximately correct behavior even when it's in the middle
+of being edited.
+
+    ] ] ) } ) ) )
+
+);
+} )
+)
+
+
+</script>
+<textarea style="width: 100%; height: 300px" id="t"></textarea>
+<script>
+var m = /^\n([^\n]+)\n((?:[^\n]|\n)*)\n$/.exec(
+    document.getElementById( "datahtml" ).textContent.replace(
+        /<@(@*[\/!])/g, "<$1" ) );
+parent.postMessage( { hash: location.hash,
+    val: { type: m[ 1 ], text: m[ 2 ] } }, "*" );
+document.getElementById( "t" ).value = m[ 2 ];
+</script>
+</html>

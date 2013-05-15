@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title></title>
+<script type="text/plain" id="datahtml">
+application/x-rocketnia-choppascript-ext
+
+
+$cs.extendOnly( "snippetJsRepl",
+$cs.getOne( "$cg", function ( $cg ) {
+return $cs.extend( "snippetJsRepl",
+
+$cg.blockSnippet( $cg.snippet( {
+    includeOnceJs: [ "/lib/rocketnia.com.js", "/lib/lathe.js" ]
+}, { unstructuredJs: [str
+
+rocketnia.com.onceReady( function () {
+    var _ = rocketnia.lathe;
+    _.blahrepl( _.el( "[tok]-repl" ) );
+} );
+
+], unstructuredCss: [str
+
+#[tok]-repl {
+    position: relative;
+    border: 2px solid black;
+    width: 100[pct];
+    background: #CCCCFF;
+    margin: 10px 0;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    z-index: 0;
+}
+#[tok]-repl:before {
+    content: "JS";
+    position: absolute;
+    top: -10px;
+    left: 20px;
+    font-size: 128px;
+    color: #880088;
+    font-weight: 900;
+    opacity: 0.1;
+    font-family: tahoma, geneva, sans-serif;
+    z-index: -1;
+}
+#[tok]-repl textarea {
+    display: block;
+    border: 0;
+    margin: 0;
+    padding: 6px;
+    width: 100[pct];
+    max-width: 100[pct];
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    font-family: "lucida console", monospace;
+}
+#[tok]-repl .scrollback {
+    background: transparent;
+    height: 150px;
+    overflow-y: scroll;
+}
+#[tok]-repl .prompt {
+    background: white;
+    box-shadow: 0 0 10px 2px #888888 inset;
+    height: 40px;
+}
+
+], unstructuredHtml: [str
+
+<div id="[tok]-repl"><@/div>
+
+] } ) )
+
+);
+} )
+)
+
+
+</script>
+<textarea style="width: 100%; height: 300px" id="t"></textarea>
+<script>
+var m = /^\n([^\n]+)\n((?:[^\n]|\n)*)\n$/.exec(
+    document.getElementById( "datahtml" ).textContent.replace(
+        /<@(@*[\/!])/g, "<$1" ) );
+parent.postMessage( { hash: location.hash,
+    val: { type: m[ 1 ], text: m[ 2 ] } }, "*" );
+document.getElementById( "t" ).value = m[ 2 ];
+</script>
+</html>

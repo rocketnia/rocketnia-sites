@@ -26,6 +26,8 @@ cliBuildFoundation.build = function ( opts, then ) {
     
     $util.rm( "fin", function ( e ) {
         if ( e ) return void then( e );
+    $util.cp( "buildlib", "fin/cheapsite/lib", function ( e ) {
+        if ( e ) return void then( e );
     $util.cp( "osrc/static", "fin/cheapsite", function ( e ) {
         if ( e ) return void then( e );
     $util.cp( "csrc/static", "fin/cheapsite", function ( e ) {
@@ -44,6 +46,7 @@ cliBuildFoundation.build = function ( opts, then ) {
         then();
     } );
     
+    } );
     } );
     } );
     } );

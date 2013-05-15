@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title></title>
+<script type="text/plain" id="datahtml">
+application/x-rocketnia-choppascript-ext
+
+
+$cs.extendOnly( "snippetHtmlPreview",
+$cs.getOne( "$cg", function ( $cg ) {
+return $cs.extend( "snippetHtmlPreview",
+
+$cg.blockSnippet( $cg.snippet( {
+    includeOnceJs: [ "/lib/rocketnia.com.js", "/lib/lathe.js" ]
+}, { unstructuredJs: [str
+
+rocketnia.com.onceReady( function () {
+    var _ = rocketnia.lathe;
+    var entry = _.el( "[tok]-entry" );
+    var frame = _.el( "[tok]-display" );
+    var knownValue = null;
+    function throttlefn(
+        preStabilityMillis, postStabilityMillis, func ) {
+        
+        var bufferTime = -1 / 0;
+        var nextTimeMillis = null;
+        var nextTimeout = null;
+        return function () {
+            var now = new Date().getTime();
+            var thisTargetTimeMillis =
+                Math.max( now + preStabilityMillis, bufferTime );
+            if ( thisTargetTimeMillis === nextTimeMillis )
+                return;
+            if ( nextTimeMillis !== null )
+                clearTimeout( nextTimeout );
+            nextTimeMillis = thisTargetTimeMillis;
+            nextTimeout = setTimeout( function () {
+                func();
+                clearTimeout( nextTimeout );
+                nextTimeMillis = nextTimeout = null;
+                bufferTime =
+                    new Date().getTime() + postStabilityMillis;
+            }, thisTargetTimeMillis - now );
+        };
+    }
+    function directOnChange() {
+        if ( knownValue === entry.value )
+            return;
+        knownValue = entry.value;
+        _.setFrameSrcdoc( frame, entry.value );
+    }
+    var onChange = throttlefn( 200, 200, directOnChange );
+    _.dom( entry, { change: onChange, keyup: onChange } );
+    
+    entry.value =
+        "<" + "!DOCTYPE html>\n" +
+        "<html>\n" +
+        "<head>\n" +
+        "<meta charset=\"utf-8\">\n" +
+        "<title><" + "/title>\n" +
+        "<style type=\"text/css\">\n" +
+        "\n" +
+        "#x {\n" +
+        "    font-family: monospace;\n" +
+        "}\n" +
+        "\n" +
+        "\n" +
+        "<" + "/style>\n" +
+        "<" + "/head>\n" +
+        "<body>\n" +
+        "\n" +
+        "\n" +
+        "<h1>Hello World<" + "/h1>\n" +
+        "\n" +
+        "<div id=\"x\"><" + "/div>\n" +
+        "\n" +
+        "\n" +
+        "<script type=\"application/javascript\">\"use strict\";\n" +
+        "(function () { try {\n" +
+        "\n" +
+        "\n" +
+        "\n" +
+        "window.onload = function () { try {\n" +
+        "    \n" +
+        "    x.appendChild( document.createTextNode(\n" +
+        "        \"\" + Math.random() ) );\n" +
+        "    \n" +
+        "    \n" +
+        "} catch ( e ) {} };\n" +
+        "\n" +
+        "} catch ( e ) {} })();\n" +
+        "<" + "/script>\n" +
+        "<" + "!--\n" +
+        "<script type=\"application/javascript\" src=\"\">" +
+            "<" + "/script>\n" +
+        // TODO: This seems to cause syntax highlighting trouble when
+        // we remove the " + ". See if there's another syntax we need
+        // to escape for DataHtml.
+        "--" + ">\n" +
+        "<" + "/body>\n" +
+        "<" + "/html>\n";
+    directOnChange();
+} );
+
+], unstructuredCss: [str
+
+#[tok]-tester {
+    position: relative;
+    border: 2px solid black;
+    width: 100[pct];
+    background: #CCCCFF;
+    margin: 10px 0;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    z-index: 0;
+}
+#[tok]-tester:before {
+    content: "HTML";
+    position: absolute;
+    top: -10px;
+    left: 20px;
+    font-size: 100px;
+    color: #880088;
+    font-weight: 900;
+    opacity: 0.1;
+    font-family: tahoma, geneva, sans-serif;
+    z-index: -1;
+}
+#[tok]-tester textarea {
+    display: block;
+    border: 0;
+    margin: 0;
+    padding: 6px;
+    width: 50[pct];
+    max-width: 50[pct];
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    font-family: "lucida console", monospace;
+    background: transparent;
+    height: 600px;
+    overflow: scroll;
+    box-shadow: 0 0 10px 2px #888888 inset;
+    font-size: 11px;
+    white-space: pre;
+}
+#[tok]-tester iframe {
+    height: 100[pct];
+    width: 50[pct];
+    position: absolute;
+    top: 0;
+    right: 0;
+    border: 0;
+    background: white;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+], unstructuredHtml: [str
+
+<div id="[tok]-tester"
+    ><textarea id="[tok]-entry" wrap="off"><@/textarea
+    ><iframe id="[tok]-display"><@/iframe
+><@/div>
+
+] } ) )
+
+);
+} )
+)
+
+
+</script>
+<textarea style="width: 100%; height: 300px" id="t"></textarea>
+<script>
+var m = /^\n([^\n]+)\n((?:[^\n]|\n)*)\n$/.exec(
+    document.getElementById( "datahtml" ).textContent.replace(
+        /<@(@*[\/!])/g, "<$1" ) );
+parent.postMessage( { hash: location.hash,
+    val: { type: m[ 1 ], text: m[ 2 ] } }, "*" );
+document.getElementById( "t" ).value = m[ 2 ];
+</script>
+</html>
