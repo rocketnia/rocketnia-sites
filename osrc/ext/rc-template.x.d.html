@@ -41,29 +41,31 @@ $rc.rcPage = function (
             "copyright-dates": copyrightDates,
             "update-date": updateDate
         }, _.kfn ), [str
-[cdiv top-body-wrap
-  [cdiv top-header
-    [cdiv top-head [cdiv top-head-inner]]
-    [cdiv top-path [breadcrumbs]]
-    [cdiv top-header-base]]
-  [cdiv top-wrapper
-    [cdiv top-main-wrap [cdiv top-main [content]]]
-    [cdl top-nav
-      [dt Pages]
-      [dd [ul [li [nav /tech/]]
-              [li [nav /web-sandbox/]]]]
-      [dt My Sites]
-      [dd [ul [li [nav / RocketN[i I]A.com]]
-              [li [out http://github.com/rocketnia Git Repositories]]
-              [li [out http://rocketnia.wordpress.com/
-                    [cite Pipe Dreams] Blog]]
-              [li [out http://www.linkedin.com/pub/ross-angle/14/270/51b
-                    [cite LinkedIn] Profile]]]]]
-    [cdiv top-wrapper-base]]
-  [cdiv top-copy
-    [copyright] [copyright-dates] Ross Angle (rocketnia)
-    
-    This page was last updated [update-date].]]
+[cdiv top-body-wrap1
+  [cdiv top-body-wrap2
+    [cdiv top-header
+      [cdiv top-head [cdiv top-head-inner]]
+      [cdiv top-path [breadcrumbs]]
+      [cdiv top-header-base]]
+    [cdiv top-wrapper
+      [cdiv top-main-wrap [cdiv top-main [content]]]
+      [cdl top-nav
+        [dt Pages]
+        [dd [ul [li [nav /tech/]]
+                [li [nav /web-sandbox/]]]]
+        [dt My Sites]
+        [dd [ul [li [nav / RocketN[i I]A.com]]
+                [li [out http://github.com/rocketnia
+                      Git Repositories]]
+                [li [out http://rocketnia.wordpress.com/
+                      [cite Pipe Dreams] Blog]]
+                [li [out http://www.linkedin.com/pub/ross-angle/14/270/51b
+                      [cite LinkedIn] Profile]]]]]
+      [cdiv top-wrapper-base]]
+    [cdiv top-copy
+      [copyright] [copyright-dates] Ross Angle (rocketnia)
+      
+      This page was last updated [update-date].]]]
         ] ) ) );
 };
 

@@ -1,4 +1,8 @@
-html { background-color: #135; height: 100%; }
+html {
+  background-color: #135;
+  height: 100%;
+  overflow-y: scroll;
+}
 
 body
 {
@@ -7,16 +11,24 @@ body
   margin: 0 auto;
   max-width: 1000px;
   height: 100%;
-  box-shadow:          0 -200px 200px rgba( 0, 0, 0, 0.4 );
-  -moz-box-shadow:     0 -200px 200px rgba( 0, 0, 0, 0.4 );
-  -webkit-box-shadow:  0 -200px 200px rgba( 0, 0, 0, 0.4 );
 }
 
 
-/* This div works around a shadow-and-outline bug:
- * <https://bugzilla.mozilla.org/show_bug.cgi?id=480888>.
- */
-div.top-body-wrap { outline: 3px solid black; min-height: 100%; }
+div.top-body-wrap1
+{
+  display: table;
+  background: black;
+  min-height: 100%;
+  padding: 0 3px;
+  -webkit-box-shadow: 0 -200px 200px rgba( 0, 0, 0, 0.4 );
+  -moz-box-shadow: 0 -200px 200px rgba( 0, 0, 0, 0.4 );
+  box-shadow: 0 -200px 200px rgba( 0, 0, 0, 0.4 );
+}
+div.top-body-wrap2
+{
+  display: table-cell;
+  background: white;
+}
 
 div.top-head
 {
