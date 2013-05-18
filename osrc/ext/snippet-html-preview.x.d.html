@@ -119,9 +119,17 @@ rocketnia.com.onceReady( function () {
     top: -10px;
     left: 20px;
     font-size: 100px;
+/*
+NOTE: IE 8 doesn't support opacity or rgba(), so we're simulating
+semitransparent text by blending the desired text color and the
+background color.
+*/
+/*
     color: #880088;
-    font-weight: 900;
     opacity: 0.1;
+*/
+    color: #C5B8F3;
+    font-weight: 900;
     font-family: tahoma, geneva, sans-serif;
     z-index: -1;
 }
