@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title></title>
+<script type="text/plain" id="datahtml">
+application/x-rocketnia-choppascript-ext
+
+
+$cs.extendOnly( "pages",
+$cs.getOne( "$rc", "$cg", function ( $rc, $cg ) {
+return $cs.extend( "pages",
+
+$rc.rcPage( "/works/", "Miscellaneous Old Works",
+    "3-Oct-2010", $cg.parseIn( [str 2005[en]2010] ), {},
+    $cg.parse( [str
+
+[file /files/ross-angle-works.zip Download all of these as a single
+ZIP file.] Although I encourage you to look at the code, these works
+aren't open source. Please contact me at rokitna?hotmail.??? if you
+want to use them.
+
+[h2 A Base-Changing Calculator for JavaScript]
+
+This is a small application I did for a class, but I'm proud of it
+because unlike any other calculator I've seen, this one deals with
+floating-point numbers in bases other than 10 or 2. It parses any
+number in +0000.0000^+0000 format, represents that number using the
+[quote native] JavaScript floating-point representation, and puts it
+back in that format. Additionally, you can choose which base to use
+(from base 2 to base 36), and you can choose to display the sum,
+product, difference, or quotient of two of these numbers in a third
+text box. Changing any of these options updates the display
+automatically, including converting numbers in the input fields into
+the new bases as necessary.
+
+[h2 A JavaScript Testing Ground for JavaScript]
+
+Inspired by the TryIt demos at w3schools.com
+([out http://www.w3schools.com/js/tryit.asp?filename=tryjs_text such
+as this one]), this is a solution that works offline. Put HTML code in
+the left side, press the button, and see the result on the right side.
+This was primarily made to help a friend learn JavaScript.
+
+[h2 A Pseudo-Lisp Interpreter for Java]
+
+This is an interpreter I've made for a custom language that looks like
+a Lisp dialect but doesn't quite work like one. Here's an example:
+
+[pre [nochops
+> (if (eq 'apple (cdr (cons 'pine 'apple))) 'success 'failure)
+result: success
+> not-defined
+result: ()
+> (not-defined-function 'symbol)
+result: (() (quote symbol))
+> "(   this  is a     string )
+result: "(   this  is a     string )"
+> (doublequote      so   is   this   )
+result: "so   is   this"
+> "and-this
+result: "and-this"
+> (if (eq 'string (doublequote string)) (exit) 'whoops)
+result: whoops
+> (if (eq "string (doublequote string)) (exit) 'whoops)
+[The REPL terminates.]]]
+
+Most lisps make a distinction between functions, special forms, and
+macros, but this doesn't. Essentially, the arguments of a function
+just aren't parsed; the function just receives a string as an
+argument, and it parses and evaluates its argument as it needs to.
+
+As it is, this interpreter doesn't implement a very complete language
+at all. There is no support for defining functions or macros of any
+sort, and there are very few of the functions needed for doing
+anything important (such as accepting input). Once I got to the point
+where implementing new built-in functionality like [code if] and
+[code quote] was easy, I was done. My intent in this project was only
+to write an interpreter I knew I could use to implement any of a
+variety of lisp-like language ideas I'd been coming up with from time
+to time. Actually implementing any single complete language on top of
+it is another project.
+
+To run a REPL (like in the example), run the [code Jisp] class. (It
+will take a JRE and a rudimentary understanding of Java in order to do
+this.) Several things can lead to uncaught exceptions. These are by
+design and are shown in the console to verify to the user that they
+were thrown.
+
+[h2 More Than A Regular Expression Engine for Java]
+
+This is the core of a regex engine. With it, you can programmatically
+build regexes and use them to run searches on input strings. What it's
+missing is a way to compile a string representation like
+[code [nochops "<[^>]*+>"]] into a working regex object... but then
+again, maybe the lack of that is itself a feature; it discourages
+heiroglyphics!
+
+I made this for one reason: I wanted to be able to extend it. I really
+like pattern search-and-replace and search-and-capture as strategies
+for transforming data, and I wanted to figure out how to implement a
+system like regular expressions myself.
+
+Moreover, while implementing this, I [em did] extend it:
+
+[ul [li Many regex systems, including the Java [code Pattern] class,
+        can't apply regexes backwards, so their lookbehind mechanisms
+        are arbitrarily limited. With this project, I could implement
+        lookbehind myself, and I made sure to do so by applying a
+        regex backwards.]
+    [li The way I implemented backreferences is somewhat low-level.
+        Early in the regex, you specify a regex [quote macro] that can
+        be invoked by name at any later point in the regex. Then, at
+        various points in the regex (typically just after each time
+        you use a macro), you can insert an assertion about the macro,
+        making sure that all of its matches have identical contents or
+        that some other condition holds. Using this mechanism, you can
+        do anything regular expressions usually let you do with
+        backreferences, but it takes slightly more work. For the same
+        reason, though, you can potentially do quite a bit more.]
+    [li The fact that this core is extensible is itself a feature!]]
+
+If you don't want to read or hack at the code, you probably won't get
+any joy from this. There is an application entry point in the
+[code MyRegexTest] class, but the particular test is hardwired in.
+
+One more thing: This is probably still more than a little bit buggy
+(especially when macros are combined with lookbehind). I haven't
+devoted much of my free time to testing this and cleaning it up for
+production. Instead, I've worked on projects that have mostly
+obsoleted this one (by, for instance, actually parsing their own regex
+syntax or working on arbitrary [code List]s rather than just character
+strings).
+
+    ] ) )
+
+);
+} )
+)
+
+
+</script>
+<textarea style="width: 100%; height: 300px" id="t"></textarea>
+<script>
+var m = /^\n([^\n]+)\n((?:[^\n]|\n)*)\n$/.exec(
+    document.getElementById( "datahtml" ).textContent.replace(
+        /<@(@*[\/!])/g, "<$1" ) );
+parent.postMessage( { hash: location.hash,
+    val: { type: m[ 1 ], text: m[ 2 ] } }, "*" );
+document.getElementById( "t" ).value = m[ 2 ];
+</script>
+</html>
