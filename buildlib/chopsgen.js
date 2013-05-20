@@ -900,6 +900,8 @@ var snippetEnv = $c.env( {
     "en": function ( chops, env ) { return enDash; },
     "copyright": function ( chops, env ) { return copyright; },
     "pct": function ( chops, env ) { return "%"; },
+    "<": function ( chops, env ) { return "["; },
+    ">": function ( chops, env ) { return "]"; },
     // TODO: Turn "quote" and "quotepunc" into custom snippet types
     // that manipulate the state they pass to their children.
     // TODO: Figure out how [quotepunc . Foo [quote foo [quote foo]]]
@@ -955,7 +957,12 @@ var snippetEnv = $c.env( {
 } );
 
 var unstructuredSnippetEnv = $c.env( {
+    "": function ( chops, env ) {
+        return [ "[", $c.parseInlineChops( env, chops ), "]" ];
+    },
     "pct": function ( chops, env ) { return "%"; },
+    "<": function ( chops, env ) { return "["; },
+    ">": function ( chops, env ) { return "]"; },
     "tok": function ( chops, env ) {
         return new SnippetToken();
     },

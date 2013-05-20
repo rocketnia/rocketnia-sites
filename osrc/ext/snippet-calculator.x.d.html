@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title></title>
+<script type="text/plain" id="datahtml">
+application/x-rocketnia-choppascript-ext
+
+
+$cs.extendOnly( "snippetCalculator",
+$cs.getOne( "$cg", function ( $cg ) {
+return $cs.extend( "snippetCalculator",
+
+$cg.blockSnippet( $cg.snippet( {
+    includeOnceJs: [ "/lib/rocketnia.com.js" ]
+}, { unstructuredJs: [str
+
+
+(function () {
+
+
+/*******************************************************************************
+
+Author:       Ross Angle
+Class:        Computer Architecture
+Date:         February 22, 2008
+Instructor:   Dan Ford
+
+File:         arch080221-lab-1-base-calculator-rev01.html
+Description:  A combination four-operation positive integer calculator and base
+              conversion utility.
+
+Updates:
+
+Revision 1:  Changed an error that came from assuming how the matches() function
+             worked when a particular group wasn't matched. Internet Explorer
+             seemed to be fine with me thinking that there was an empty string
+             there, but I think FireFox actually threw an exception when I
+             treated the undefined value as a string.
+
+*******************************************************************************/
+
+
+
+/*------------------------------------------------------------------------------
+                               RUNTIME CONSTANTS
+------------------------------------------------------------------------------*/
+
+
+var BASE_MINIMUM = 2;
+var BASE_DEFAULT = 10;
+var BASE_MAXIMUM = 36;
+
+var OPERATORS =
+[
+    function( x, y ) { return ( x + y ); },
+    function( x, y ) { return ( x - y ); },
+    function( x, y ) { return ( x * y ); },
+    function( x, y ) { return ( x / y ); }
+];
+    // NOTE: These must be in the same order that they appear in the operator
+    // select element.
+
+var FIELD_BACKGROUND_VALID    = "#FFFFFF";
+var FIELD_BACKGROUND_INVALID  = "#FFD0E0";
+
+var DEFAULT_NUMBER_FORMAT_OUTPUT = {
+    alphabet: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    zeroRegex:                 '0',
+    plusSign:                  '+',
+    minusSign:                 '-',
+    groupingSeparator:         ',',
+    fractionSeparator:         '.',
+    exponentSeparator:         '^',
+    nanString:             '[<]NaN[>]',
+    infinityString:   '[<]Infinity[>]',
+    renderPlus:              false,
+    renderExponentPlus:       true,
+    significantDigits:          16,
+    smallExponentThreshold:     -7,
+    largeExponentThreshold:     20,
+    groupSize:                   0
+};
+
+var DEFAULT_NUMBER_FORMAT_INPUT = {
+    alphabet:        '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    alphabetRegex:  '[<]0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ[>]',
+    plusSign:                    '+',
+    plusSignRegex:             '\\+',
+    minusSignRegex:              '-',
+    exponentSeparatorRegex:    '\\^',
+    groupingSeparatorRegex:      ',',
+    fractionSeparatorRegex:    '\\.',
+    nanRegex:            '\\[<]NaN\\[>]',
+    infinityRegex:  '\\[<]Infinity\\[>]',
+    caseSensitive:             false
+};
+
+
+/*------------------------------------------------------------------------------
+                            ESSENTIAL FUNCTIONALITY
+------------------------------------------------------------------------------*/
+
+
+function encodeTruncatedNumber( number, base, format )
+{
+    // Turn a finite positive number into a string encoding that number in a
+    // given base with a given number format.
+
+
+    // Set the default values of any optional arguments that were not given.
+    if ( base    == null )
+         base    = BASE_DEFAULT;
+
+    if ( format  == null )
+         format  = DEFAULT_NUMBER_FORMAT_OUTPUT;
+
+
+    // Handle invalid arguments.
+    if ( !(
+           (typeof  number  == "number")
+        && (        number  >= 0       )
+        && isFinite( number )
+
+        && (typeof  base    == "number")
+        && (        base    [pct] 1 == 0   )
+        && (        base    >= 2       )
+
+        && (typeof  format  == "object")
+        && isNumberFormatOutput( format )
+    ) )
+        throw "invalid arguments to encodeTruncatedNumber";
+
+
+    var numberString = "";
+
+    for ( var shiftedNumber  = number;
+              shiftedNumber >= 1;
+              shiftedNumber /= base )
+    {
+        numberString =
+            format.alphabet.charAt( shiftedNumber [pct] base ) + numberString;
+    }
+
+    if ( numberString == "" )
+    {
+        numberString = format.alphabet.charAt( 0 );
+    }
+
+    return numberString;
+}
+
+
+function parseSimpleNatural( numberString, base, format )
+{
+    // Parse a string containing a natural number written in any base using a
+    // given number format. There should be no characters other than valid
+    // digits in the given number string.
+
+    // Set the default values of any optional arguments that were not given.
+    if ( base    == null )
+         base    = BASE_DEFAULT;
+
+    if ( format  == null )
+         format  = DEFAULT_NUMBER_FORMAT_INPUT;
+
+
+    // Handle invalid arguments.
+    if ( !(
+           (typeof  numberString  == "string")
+
+        && (typeof  base          == "number")
+        && (        base          [pct] 1 == 0   )
+        && (        base          >= 2       )
+
+        && (typeof  format        == "object")
+        && isNumberFormatInput( format )
+    ) )
+        throw "invalid arguments to parseSimpleNatural";
+
+
+    // Trim off the unused part of the alphabet, and make this transformation
+    // case-insensitive if that was specified.
+    var casedAlphabet = format.alphabet.substring( 0, base );
+    var casedNumberString = numberString;
+    if ( !format.caseSensitive )
+    {
+        casedAlphabet      = casedAlphabet      .toUpperCase();
+        casedNumberString  = casedNumberString  .toUpperCase();
+    }
+
+
+    var number = 0;
+
+    for ( var cursor = 0; cursor < casedNumberString.length; cursor++ )
+    {
+        number *= base;
+
+        var digit = casedAlphabet.indexOf( casedNumberString.charAt( cursor ) );
+
+        if ( digit == -1 )
+            throw "input number not in correct base in parseSimpleNatural";
+
+        number += digit;
+    }
+
+    return number;
+}
+
+
+function encodeRealNumber( number, base, format )
+{
+    // Turn a floating-point number into a string encoding that number in a
+    // given base in a given format.
+
+
+    // Set the default values of any optional arguments that were not given.
+    if ( base    == null )
+         base    = BASE_DEFAULT;
+
+    if ( format  == null )
+         format  = DEFAULT_NUMBER_FORMAT_OUTPUT;
+
+
+    // Handle invalid arguments.
+    if ( !(
+           (typeof  number  == "number")
+
+        && (typeof  base    == "number")
+        && (        base    [pct] 1 == 0   )
+        && (        base    >= 2       )
+
+        && (typeof  format  == "object")
+        && isNumberFormatOutput( format )
+    ) )
+        throw "invalid arguments to encodeRealNumber";
+
+
+
+    if ( !isFinite( number ) )
+    {
+        if ( isNaN( number ) )
+            return format.nanString;
+
+        var signString = ((0 <= number) ?
+              (format.renderPlus ? format.plusSign : "")
+            : format.minusSign
+        );
+
+        return ( signString + format.infinityString );
+    }
+
+
+    var absoluteValue = Math.abs( number );
+
+    var exponent = (absoluteValue == 0)
+          ? 0
+          : Math.floor( Math.log( absoluteValue ) / Math.log( base ) );
+
+    var showExponent = (
+           (exponent <= format.smallExponentThreshold)
+        || (exponent >= format.largeExponentThreshold)
+    );
+
+    var normalized = Math.round(
+          absoluteValue
+        * Math.pow( base, format.significantDigits - exponent - 1 )
+    );
+
+
+    var numberString = encodeTruncatedNumber( normalized, base, format );
+
+    if ( showExponent )
+    {
+        var mantissa = numberString.substring( 1 ).replace(
+            new RegExp( format.zeroRegex + '*$' ), ''
+        );
+
+        numberString = numberString.charAt( 0 );
+
+        if ( 0 < mantissa.length != 0 )
+        {
+            numberString += format.fractionSeparator + mantissa;
+        }
+
+
+        var exponentString;
+        if ( 0 <= exponent )
+        {
+            exponentString =
+                (format.renderExponentPlus ? format.plusSign : "")
+              + encodeTruncatedNumber( exponent, base, format );
+        }
+        else
+        {
+            exponentString =
+                 format.minusSign
+               + encodeTruncatedNumber( -exponent, base, format );
+        }
+
+        numberString += format.exponentSeparator + exponentString;
+    }
+    else
+    {
+        var zeroString = format.alphabet.charAt( 0 );
+        while ( exponent < 0 )
+        {
+            numberString = zeroString + numberString;
+            exponent++;
+        }
+
+        var integerPartString = numberString.substring( 0, exponent + 1 );
+        var fractionalPartString =
+            numberString.substring( exponent + 1 ).replace(
+                new RegExp( format.zeroRegex + '*$' ),
+                ''
+            );
+
+        if ( 0 < format.groupSize )
+        {
+            var groupingSeparatedString = "";
+
+            var cursor;
+            for ( cursor =  exponent + 1 - format.groupSize;
+                  cursor >  0;
+                  cursor -= format.groupSize )
+            {
+                groupingSeparatedString = format.groupingSeparator
+                    + integerPartString.substr( cursor, format.groupSize )
+                    + groupingSeparatedString;
+            }
+
+            groupingSeparatedString = groupingSeparatedString.substring(
+                format.groupingSeparator.length
+            ) + groupingSeparatedString;
+
+            integerPartString = groupingSeparatedString;
+        }
+
+        numberString = integerPartString;
+
+        if ( fractionalPartString.length != 0 )
+        {
+            numberString += format.fractionSeparator + fractionalPartString;
+        }
+    }
+
+
+    var signString = ((0 <= number) ?
+          (format.renderPlus ? format.plusSign : "")
+        : format.minusSign
+    );
+
+    numberString = signString + numberString;
+
+    return numberString;
+}
+
+
+function parseRealNumber( numberString, base, format )
+{
+    // Parse a string containing a floating-point number written in any base
+    // using a given number format. This transormation is case-
+    // insensitive.
+
+
+    // Set the default values of any optional arguments that were not given.
+    if ( base    == null )
+         base    = BASE_DEFAULT;
+
+    if ( format  == null )
+         format  = DEFAULT_NUMBER_FORMAT_INPUT;
+
+
+    // Handle invalid arguments.
+    if ( !(
+           (typeof  numberString  == "string")
+
+        && (typeof  base          == "number")
+        && (        base          [pct] 1 == 0   )
+        && (        base          >= 2       )
+
+        && (typeof  format        == "object")
+        && isNumberFormatInput( format )
+    ) )
+        throw "invalid arguments to parseRealNumber";
+
+
+    var caseSuffix = (format.caseSensitive ? '' : 'i');
+        // value to put on the end of a regex expression to make it case
+        // insensiftive
+
+
+    if (
+        numberString.search(
+            new RegExp( '^' + format.nanRegex + '$', caseSuffix)
+        ) != -1
+    )
+    {
+        return NaN;
+    }
+
+    var matches = numberString.match( new RegExp(
+          '^(|' + format.plusSignRegex + '|' + format.minusSignRegex + ')'
+        + format.infinityRegex + '$',
+        caseSuffix
+    ) );
+    if ( matches != null )
+    {
+        if ( format.plusSign.indexOf( matches[ 1 ] ) == -1 )
+            return -Infinity;
+
+        return Infinity;
+    }
+
+    matches = numberString.match( new RegExp(
+          '^(|' + format.plusSignRegex + '|' + format.minusSignRegex + ')(('
+        + format.alphabetRegex + '|' + format.groupingSeparatorRegex + ')*)(|'
+        + format.fractionSeparatorRegex + '(' + format.alphabetRegex + '*))(|'
+        + format.exponentSeparatorRegex + '(|' + format.plusSignRegex + '|'
+        + format.minusSignRegex + ')(' + format.alphabetRegex + '*))$',
+        caseSuffix
+    ) );
+    if ( matches == null )
+        throw "number in invalid format in parseRealNumber";
+
+
+    // NOTE: Named references don't work in JavaScript, so I'm putting my
+    // intended names below.
+
+    var match_sign =
+        (typeof matches[ 1 ] == "undefined") ? "" : matches[ 1 ];
+
+    var match_integerPart =
+        (typeof matches[ 2 ] == "undefined") ? "" : matches[ 2 ];
+
+    var match_fractionalPart =
+        (typeof matches[ 5 ] == "undefined") ? "" : matches[ 5 ];
+
+    var match_exponentSign =
+        (typeof matches[ 7 ] == "undefined") ? "" : matches[ 7 ];
+
+    var match_exponent =
+        (typeof matches[ 8 ] == "undefined") ? "" : matches[ 8 ];
+
+
+    var integerPartString = match_integerPart.replace(
+        new RegExp( format.groupingSeparatorRegex + caseSuffix ),
+        ''
+    );
+
+    var number = parseSimpleNatural( integerPartString, base, format );
+
+    var fractionalPartString = match_fractionalPart;
+    if ( fractionalPartString.length != 0 )
+    {
+        number +=
+              parseSimpleNatural( fractionalPartString, base, format )
+            * Math.pow( base, -fractionalPartString.length );
+    }
+
+    var exponentString = match_exponent;
+    if ( exponentString.length != 0 )
+    {
+        var exponent = parseSimpleNatural( exponentString, base, format );
+
+        if ( format.plusSign.indexOf( match_exponentSign ) == -1 )
+        {
+            exponent = -exponent;
+        }
+
+        number *= Math.pow( base, exponent );
+    }
+
+    if ( format.plusSign.indexOf( match_sign ) == -1 )
+    {
+        number = -number;
+    }
+
+    return number;
+}
+
+
+/*------------------------------------------------------------------------------
+                                   DATA TYPES
+------------------------------------------------------------------------------*/
+
+
+function isNumberFormatOutput( format )
+{
+    // duck typing for NumberFormatOutput "type"
+    // Determine whether the given object would be okay to use as a
+    // number format for output purposes.
+
+    return (
+           (typeof  format                             == "object" )
+
+        && (typeof  format.alphabet                    == "string" )
+        && (        format.alphabet           .length  >= 2        )
+
+        && (typeof  format.plusSign                    == "string" )
+        && (        format.plusSign           .length  >= 1        )
+
+        && (typeof  format.minusSign                   == "string" )
+        && (        format.minusSign          .length  >= 1        )
+
+        && (typeof  format.groupingSeparator           == "string" )
+        && (        format.groupingSeparator  .length  >= 1        )
+
+        && (typeof  format.fractionSeparator           == "string" )
+        && (        format.fractionSeparator  .length  >= 1        )
+
+        && (typeof  format.exponentSeparator           == "string" )
+        && (        format.exponentSeparator  .length  >= 1        )
+
+        && (typeof  format.nanString                   == "string" )
+        && (        format.nanString          .length  >= 1        )
+
+        && (typeof  format.infinityString              == "string" )
+        && (        format.infinityString     .length  >= 1        )
+
+        && (typeof  format.zeroRegex                   == "string" )
+        && (        format.zeroRegex          .length  >= 1        )
+
+        && (typeof  format.renderPlus                  == "boolean")
+
+        && (typeof  format.renderExponentPlus          == "boolean")
+
+        && (typeof  format.significantDigits           == "number" )
+        && (        format.significantDigits           >= 0        )
+
+        && (typeof  format.smallExponentThreshold      == "number" )
+        && (        format.smallExponentThreshold      <= 0        )
+
+        && (typeof  format.largeExponentThreshold      == "number" )
+        && (        format.largeExponentThreshold      >= 0        )
+
+        && (typeof  format.groupSize                   == "number" )
+        && (        format.groupSize                   >= 0        )
+    );
+}
+
+
+function isNumberFormatInput( format )
+{
+    // duck typing for NumberFormatInput "type"
+    // Determine whether the given object would be okay to use as a
+    // number format for input purposes.
+
+    return (
+           (typeof  format                                  == "object" )
+
+        && (typeof  format.alphabet                         == "string" )
+        && (        format.alphabet                .length  >= 2        )
+
+        && (typeof  format.alphabetRegex                    == "string" )
+        && (        format.alphabetRegex           .length  >= 4        )
+
+        && (typeof  format.plusSign                         == "string" )
+        && (        format.plusSign                .length  >= 1        )
+
+        && (typeof  format.plusSignRegex                    == "string" )
+        && (        format.plusSignRegex           .length  >= 1        )
+
+        && (typeof  format.minusSignRegex                   == "string" )
+        && (        format.minusSignRegex          .length  >= 1        )
+
+        && (typeof  format.groupingSeparatorRegex           == "string" )
+        && (        format.groupingSeparatorRegex  .length  >= 1        )
+
+        && (typeof  format.fractionSeparatorRegex           == "string" )
+        && (        format.fractionSeparatorRegex  .length  >= 1        )
+
+        && (typeof  format.exponentSeparatorRegex           == "string" )
+        && (        format.exponentSeparatorRegex  .length  >= 1        )
+
+        && (typeof  format.nanRegex                         == "string" )
+        && (        format.nanRegex                .length  >= 1        )
+
+        && (typeof  format.infinityRegex                    == "string" )
+        && (        format.infinityRegex           .length  >= 1        )
+
+        && (typeof  format.caseSensitive                    == "boolean")
+    );
+}
+
+
+/*------------------------------------------------------------------------------
+                      PAGE INTERACTIVITY; "MAIN" ROUTINES
+------------------------------------------------------------------------------*/
+
+
+// static program state
+// (simple enough that I think a few global variables suffice)
+var operand1          = 0;
+var operand2          = 0;
+var operator          = OPERATORS[ 0 ];
+var base              = BASE_DEFAULT;
+
+
+function initializeForm()
+{
+    // Put everything where it needs to be in the calculator form, and set up
+    // the event handlers so that we can react to user actions.
+
+    // Put all of the options for bases into the base selection box, and select
+    // the default base.
+    setOptionsIntegerRange(
+        '[tok]-selBase',
+        BASE_MINIMUM,
+        BASE_MAXIMUM,
+        BASE_DEFAULT
+    );
+
+    // Reset the operator selection box to the first selection, in case the web
+    // browser kept the old selection after a refresh.
+    //
+    // Note that none of the other fields need explicit attention like this
+    // because this is the only field that is never dynamically modified
+    // anywhere else in the program.
+    $('[tok]-selOperator').selectedIndex = 0;
+
+    // Set up the event handlers.
+    $('[tok]-txtOperand1')  .onkeyup   = validateOperand1;
+    $('[tok]-txtOperand2')  .onkeyup   = validateOperand2;
+    $('[tok]-txtOperand1')  .onchange  = updateOperand1;
+    $('[tok]-txtOperand2')  .onchange  = updateOperand2;
+    $('[tok]-selOperator')  .onchange  = updateOperator;
+    $('[tok]-selBase')      .onchange  = updateBase;
+
+    updateDisplay();
+}
+
+// Initialize the form as soon as the DOM is ready.
+rocketnia.com.onceReady( initializeForm );
+
+
+function validateOperand( operandElementId )
+{
+    // Provide a visual indication as to whether or not the given operand field
+    // has a valid value in it. This is accomplished by changing the field's
+    // background color.
+
+
+    // Handle invalid arguments.
+    if ( !(
+           (typeof     operandElementId    == "string"    )
+        && (typeof  $( operandElementId )  == "object"    )
+
+        // NOTE: The DOM element $( operandElementId ) should also be a text box
+        // object, but I don't know for sure how to test for that.
+    ) )
+        throw "invalid arguments to validateOperand";
+
+
+    var verified = false;
+
+    try
+    {
+        parseRealNumber( $( operandElementId ).value, base );
+        verified = true;
+    }
+    catch ( e ) {}
+
+    $( operandElementId ).style.backgroundColor =
+        (verified ? FIELD_BACKGROUND_VALID : FIELD_BACKGROUND_INVALID );
+}
+
+
+function validateOperand1()
+{
+    // Validate the first operand.
+
+    validateOperand( '[tok]-txtOperand1' );
+}
+
+
+function validateOperand2()
+{
+    // Validate the second operand.
+
+    validateOperand( '[tok]-txtOperand2' );
+}
+
+
+function updateOperand1()
+{
+    // Recapture the value in the first operand's text box, and recalculate the
+    // other fields.
+
+    try
+    {
+        operand1 = parseRealNumber( $('[tok]-txtOperand1').value, base );
+    }
+    catch ( e ) {}
+
+    updateDisplay();
+}
+
+
+function updateOperand2()
+{
+    // Recapture the value in the second operand's text box, and recalculate the
+    // other fields.
+
+    try
+    {
+        operand2 = parseRealNumber( $('[tok]-txtOperand2').value, base );
+    }
+    catch ( e ) {}
+
+    updateDisplay();
+}
+
+
+function updateOperator()
+{
+    // Recapture the value in the operator select box, and recalculate the other
+    // fields.
+
+    operator = OPERATORS[ $('[tok]-selOperator').selectedIndex ];
+
+    updateDisplay();
+}
+
+
+function updateBase()
+{
+    // Recapture the value in the base select box, and recalculate the other
+    // fields.
+
+    base = parseInt(
+        $('[tok]-selBase').options[ $('[tok]-selBase').selectedIndex ].text
+    );
+
+    updateDisplay();
+}
+
+
+function updateDisplay()
+{
+    // Recalculate the contents of the operand and solution fields.
+
+    // Calculate the solution.
+    var solution = operator( operand1, operand2 );
+
+    // Actually put the text in the text boxes.
+    $('[tok]-txtOperand1').value = encodeRealNumber( operand1, base );
+    $('[tok]-txtOperand2').value = encodeRealNumber( operand2, base );
+    $('[tok]-txtSolution').value = encodeRealNumber( solution, base );
+
+    // The fields should be valid now, so make sure we recognize them as such.
+    validateOperand1();
+    validateOperand2();
+}
+
+
+/*------------------------------------------------------------------------------
+                                UTILITY ROUTINES
+------------------------------------------------------------------------------*/
+
+
+function $( elementId )
+{
+    // Retrieve a DOM element by its id attribute. This is equivalent in
+    // purpose to document.getElementById, but it is more compatible with older
+    // browsers and is easier to type.
+    //
+    // NOTE: Although I would not normally use "$" as an identifier, I have seen
+    // enough examples of people online using this name for this function that I
+    // am convinced that the power of convention outweighs the power of a more
+    // independently evocative identifier in this case.
+
+
+    // Handle invalid arguments.
+    if ( !(
+           (typeof elementId == "string")
+    ) )
+        throw 'invalid arguments to the function called "$"';
+
+
+    if ( typeof document.getElementById != "undefined" )
+         return document.getElementById( elementId );
+
+    if ( typeof document.all != "undefined" )
+         return document.all[ elementId ];
+
+    if ( typeof document.layers != "undefined" )
+         return document.layers[ elementId ];
+
+    throw "can't get element by id";
+}
+
+
+function setOptionsIntegerRange(
+    selectElementId,
+    lowerBound,
+    upperBound,
+    selection       // optional
+)
+{
+    // Set the options of <selectElementId> to the set of all integers from
+    // <lowerBound> to <upperBound>, inclusive, either choosing <selection> or
+    // keeping as close to the original selected number as possible depending on
+    // whether a selection is given.
+
+
+    // Handle invalid arguments.
+    if ( !(
+           (typeof     selectElementId    == "string")
+        && (typeof  $( selectElementId )  == "object")
+        // NOTE: $( selectElementId ) instanceof Select, but I don't know how to
+        // verify that
+
+        && (typeof  lowerBound            == "number")
+        && (        upperBound            >= 0       )
+
+        && (typeof  upperBound            == "number")
+        && (        upperBound            >= 0       )
+
+        && (lowerBound <= upperBound)
+
+        && (   (       selection == null    )
+            || (typeof selection == "number") )
+    ) )
+        throw "invalid arguments to setOptionsIntegerRange";
+
+
+    // Figure out what the new selected index should be. If a selection has been
+    // given, it should be that. Otherwise, the new selected number should be as
+    // near to the old selected number as possible. If the current selection
+    // isn't a number, just select <lowerBound>.
+    var selectedNumber = selection;
+    if ( selection == null )
+    {
+        selectedNumber = parseInt(
+            $( selectElementId ).options[
+                $( selectElementId ).selectedIndex
+            ].text
+        );
+
+        if ( isNaN( $( selectElementId ) ) )
+            $( selectElementId ) = lowerBound;
+
+        if ( selectedNumber < lowerBound )
+             selectedNumber = lowerBound;
+
+        if ( selectedNumber > upperBound )
+             selectedNumber = upperBound;
+    }
+    var selectedIndex = selectedNumber - lowerBound;
+
+    // Remove the existing options from the combo box.
+    while ( $( selectElementId ).options[ 0 ] != null )
+            $( selectElementId ).options[ 0 ]  = null;
+
+    // Add the new options to the combo box.
+    var index = 0;
+    for (
+        var optionNumber  = lowerBound;
+            optionNumber <= upperBound;
+            optionNumber++
+    )
+    {
+        $( selectElementId ).options.add(
+            new Option( "" + optionNumber, null ),
+            index
+        );
+
+        index++;
+    }
+
+    // Restore the selected index.
+    $( selectElementId ).selectedIndex = selectedIndex;
+
+    return;
+}
+
+
+})();
+
+
+], unstructuredCss: [str
+
+
+#[tok]-form input[ type=text] {
+    text-align: right;
+    width: 166px;
+}
+
+#[tok]-form hr {
+    border: 1px solid black;
+    margin: 0;
+}
+
+
+], unstructuredHtml: [str
+
+
+<form id="[tok]-form"><table><tr>
+    <td style="text-align: right;"
+        ><input type="text" id="[tok]-txtOperand1" /><br
+        /><select id="[tok]-selOperator">
+            <option selected="selected">+<@/option>
+            <option>&#8722;<@/option>
+            <option>&#0215;<@/option>
+            <option>&#0247;<@/option>
+        <@/select>
+        <input type="text" id="[tok]-txtOperand2" /><hr
+        /><input type="text" id="[tok]-txtSolution"
+            readonly="readonly" /><@/td>
+    <td style="text-align: center; vertical-align: middle;"
+        ><label for="[tok]-selBase">Base:<@/label>
+        <select id="[tok]-selBase" name="selBase" />
+            <option selected="selected"><@/option>
+        <@/select><@/td>
+<@/tr><@/table><@/form>
+
+
+] } ) )
+
+);
+} )
+)
+
+
+</script>
+<textarea style="width: 100%; height: 300px" id="t"></textarea>
+<script>
+var m = /^\n([^\n]+)\n((?:[^\n]|\n)*)\n$/.exec(
+    document.getElementById( "datahtml" ).textContent.replace(
+        /<@(@*[\/!])/g, "<$1" ) );
+parent.postMessage( { hash: location.hash,
+    val: { type: m[ 1 ], text: m[ 2 ] } }, "*" );
+document.getElementById( "t" ).value = m[ 2 ];
+</script>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title></title>
+<script type="text/plain" id="datahtml">
+application/x-rocketnia-choppascript-ext
+
+
+$cs.extendOnly( "pages",
+$cs.getOne(
+    "lathe", "$rc", "$cg", "snippetCalculator",
+    function ( _, $rc, $cg, snippetCalculator ) {
+return $cs.extend( "pages",
+
+$rc.rcPage( "/calculator/", "Base-Changing Calculator",
+    "20-May-2013", $cg.parseIn( [str 2013] ), {},
+    $cg.parseLocal( _.objMap( {
+        "calculator": snippetCalculator
+    }, _.kfn ), [str
+
+
+[calculator]
+
+Here are some examples of the number format:
+
+[ul [li 123]
+    [li 123.456]
+    [li -123.456]
+    [li 123^789]
+    [li -123.456^-789]
+    [li [<]NaN[>]]
+    [li [<]Infinity[>]]
+    [li -[<]Infinity[>]]]
+
+Each base [i n] uses the first [i n] digits out of the the sequence
+(0-9A-Z). You don't have to worry about capitalization.
+
+The '^' symbol is used in place of an 'e' so as not to conflict with
+bases over 14 that use 'e' as a digit. The number 1.2^4 is in
+scientific notation and should be read "one point two times ten to the
+fourth."
+
+
+    ] ) )
+
+);
+} )
+)
+
+
+</script>
+<textarea style="width: 100%; height: 300px" id="t"></textarea>
+<script>
+var m = /^\n([^\n]+)\n((?:[^\n]|\n)*)\n$/.exec(
+    document.getElementById( "datahtml" ).textContent.replace(
+        /<@(@*[\/!])/g, "<$1" ) );
+parent.postMessage( { hash: location.hash,
+    val: { type: m[ 1 ], text: m[ 2 ] } }, "*" );
+document.getElementById( "t" ).value = m[ 2 ];
+</script>
+</html>
