@@ -142,18 +142,19 @@ a.sub-link-external { background-color: #CFF; }
 
 h1, h2, h3 { text-shadow: 2px 2px 10px rgba( 0, 0, 0, 0.2 ); }
 
-.tech-project h1
+h2
 {
-  font-size: 23px;
-  margin-top: 50px;
+  margin-top: 22px;
+  font-size: 17px;
 }
-.tech-project .github
+div.details
 {
   margin-top: -12px;
   margin-left: 20px;
 }
-.tech-project h2
+
+.tech-project h1
 {
-  font-size: 17px;
-  margin-top: 22px;
+  font-size: 23px;
+  margin-top: 50px;
 }

@@ -874,6 +874,7 @@ var snippetEnv = $c.env( {
         return [ "[", $c.parseInlineChops( env, chops ), "]" ];
     },
     "i": ltrimParser( my.tag( "i" ) ),
+    "b": ltrimParser( my.tag( "b" ) ),
     "em": ltrimParser( my.tag( "em" ) ),
     "cite": ltrimParser( my.tag( "cite" ) ),
     "sup": ltrimParser( my.tag( "sup" ) ),

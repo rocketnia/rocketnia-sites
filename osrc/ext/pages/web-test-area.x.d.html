@@ -12,14 +12,11 @@ $cs.getOne(
 return $cs.extend( "pages",
 
 $rc.rcPage( "/web-sandbox/", "Web Programming Sandbox",
-    "14-May-2013", $cg.parseIn( [str 2013] ), {},
-    $cg.blockSnippet( $cg.snippet( {
-        unstructuredCss: [str
-
-    ], snippetHtml: $cg.parseLocal( _.objMap( {
+    "19-May-2013", $cg.parseIn( [str 2013] ), {},
+    $cg.parseLocal( _.objMap( {
         "js-repl": snippetJsRepl,
         "html-preview": snippetHtmlPreview,
-    }, _.kfn ), [str [cdiv [tok]
+    }, _.kfn ), [str
 
 [js-repl]
 
@@ -29,8 +26,8 @@ The JavaScript REPL above supports a command history. Use the up and
 down arrow keys to switch between previously used commands. Press the
 enter (or return) key or the "Eval" button to evaluate a command.
 
-It's normal to see a small responsiveness delay in the HTML preview.
-This is intentional, meant to keep the editor responsive and reduce
+There may be a small responsiveness delay in the HTML preview. This is
+an intentional feature, meant to keep the editor responsive and reduce
 flashing.
 
 The sample HTML code is designed to be short and effective, but not
@@ -38,7 +35,7 @@ pretty or perfect. The [code try..catch] blocks are there so the code
 can have approximately correct behavior even when it's in the middle
 of being edited.
 
-    ] ] ) } ) ) )
+    ] ) )
 
 );
 } )
