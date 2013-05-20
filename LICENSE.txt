@@ -3,7 +3,7 @@ in the buildlib/ directory, this project is released under the
 following license:
 
 
-Copyright (c) 2009-2012 Ross Angle
+Copyright (c) 2009-2013 Ross Angle
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
