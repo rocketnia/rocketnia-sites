@@ -152,8 +152,11 @@ function encodeTruncatedNumber( number, base, format )
 function parseSimpleNatural( numberString, base, format )
 {
     // Parse a string containing a natural number written in any base using a
-    // given number format. There should be no characters other than valid
-    // digits in the given number string.
+    // given number format. If the input string has characters other than valid
+    // digits, the parse will fail.
+    //
+    // If the parse fails, this returns null. Otherwise, it returns an object of
+    // the form { val: _ } containing a JavaScript number.
 
     // Set the default values of any optional arguments that were not given.
     if ( base    == null )
@@ -196,13 +199,14 @@ function parseSimpleNatural( numberString, base, format )
 
         var digit = casedAlphabet.indexOf( casedNumberString.charAt( cursor ) );
 
+        // The input number isn't in the expected base, so the parse fails.
         if ( digit == -1 )
-            throw "input number not in correct base in parseSimpleNatural";
+            return null;
 
         number += digit;
     }
 
-    return number;
+    return { val: number };
 }
 
 
@@ -358,8 +362,10 @@ function encodeRealNumber( number, base, format )
 function parseRealNumber( numberString, base, format )
 {
     // Parse a string containing a floating-point number written in any base
-    // using a given number format. This transormation is case-
-    // insensitive.
+    // using a given number format. This transormation is case-insensitive.
+    //
+    // If the number is invalid, this returns null. Otherwise, it returns an
+    // object of the form { val: _ } containing a JavaScript number.
 
 
     // Set the default values of any optional arguments that were not given.
@@ -395,7 +401,7 @@ function parseRealNumber( numberString, base, format )
         ) != -1
     )
     {
-        return NaN;
+        return { val: NaN };
     }
 
     var matches = numberString.match( new RegExp(
@@ -406,9 +412,9 @@ function parseRealNumber( numberString, base, format )
     if ( matches != null )
     {
         if ( format.plusSign.indexOf( matches[ 1 ] ) == -1 )
-            return -Infinity;
+            return { val: -Infinity };
 
-        return Infinity;
+        return { val: Infinity };
     }
 
     matches = numberString.match( new RegExp(
@@ -419,8 +425,9 @@ function parseRealNumber( numberString, base, format )
         + format.minusSignRegex + ')(' + format.alphabetRegex + '*))$',
         caseSuffix
     ) );
+    // If the match fails, the number string is in an invalid format.
     if ( matches == null )
-        throw "number in invalid format in parseRealNumber";
+        return null;
 
 
     // NOTE: Named references don't work in JavaScript, so I'm putting my
@@ -447,20 +454,31 @@ function parseRealNumber( numberString, base, format )
         ''
     );
 
-    var number = parseSimpleNatural( integerPartString, base, format );
+    var maybeIntegerPart =
+        parseSimpleNatural( integerPartString, base, format );
+    if ( maybeIntegerPart === null )
+        return null;
+    var number = maybeIntegerPart.val;
 
     var fractionalPartString = match_fractionalPart;
     if ( fractionalPartString.length != 0 )
     {
-        number +=
-              parseSimpleNatural( fractionalPartString, base, format )
+        var maybeFractionalPart =
+            parseSimpleNatural( fractionalPartString, base, format );
+        if ( maybeFractionalPart === null )
+            return null;
+        number += maybeFractionalPart.val
             * Math.pow( base, -fractionalPartString.length );
     }
 
     var exponentString = match_exponent;
     if ( exponentString.length != 0 )
     {
-        var exponent = parseSimpleNatural( exponentString, base, format );
+        var maybeExponent =
+            parseSimpleNatural( exponentString, base, format );
+        if ( maybeExponent === null )
+            return null;
+        var exponent = maybeExponent.val;
 
         if ( format.plusSign.indexOf( match_exponentSign ) == -1 )
         {
@@ -475,7 +493,7 @@ function parseRealNumber( numberString, base, format )
         number = -number;
     }
 
-    return number;
+    return { val: number };
 }
 
 
@@ -618,13 +636,54 @@ function initializeForm()
     // anywhere else in the program.
     $('[tok]-selOperator').selectedIndex = 0;
 
+
     // Set up the event handlers.
-    $('[tok]-txtOperand1')  .onkeyup   = validateOperand1;
-    $('[tok]-txtOperand2')  .onkeyup   = validateOperand2;
-    $('[tok]-txtOperand1')  .onchange  = updateOperand1;
-    $('[tok]-txtOperand2')  .onchange  = updateOperand2;
+
+    $('[tok]-txtOperand1')  .onkeyup   = function ()
+    {
+        // Recapture the value in this operand's text box.
+        updateOperand1();
+
+        // Validate it.
+        validateOperand( '[tok]-txtOperand1' );
+
+        // Update the other parts of the display.
+        $('[tok]-txtOperand2').value = encodeRealNumber( operand2, base );
+        updateKeyboardlessDisplay();
+    };
+
+    $('[tok]-txtOperand2')  .onkeyup   = function ()
+    {
+        // Recapture the value in this operand's text box.
+        updateOperand2();
+
+        // Validate it.
+        validateOperand( '[tok]-txtOperand2' );
+
+        // Update the other parts of the display.
+        $('[tok]-txtOperand1').value = encodeRealNumber( operand1, base );
+        updateKeyboardlessDisplay();
+    };
+
+    $('[tok]-txtOperand1')  .onchange  = function ()
+    {
+        // Recapture the value in this operand's text box, and recalculate the
+        // other fields.
+        updateOperand1();
+        updateDisplay();
+    };
+
+    $('[tok]-txtOperand2')  .onchange  = function ()
+    {
+        // Recapture the value in this operand's text box, and recalculate the
+        // other fields.
+        updateOperand2();
+        updateDisplay();
+    };
+
     $('[tok]-selOperator')  .onchange  = updateOperator;
     $('[tok]-selBase')      .onchange  = updateBase;
+
 
     updateDisplay();
 }
@@ -651,63 +710,29 @@ function validateOperand( operandElementId )
         throw "invalid arguments to validateOperand";
 
 
-    var verified = false;
-
-    try
-    {
-        parseRealNumber( $( operandElementId ).value, base );
-        verified = true;
-    }
-    catch ( e ) {}
-
     $( operandElementId ).style.backgroundColor =
-        (verified ? FIELD_BACKGROUND_VALID : FIELD_BACKGROUND_INVALID );
-}
-
-
-function validateOperand1()
-{
-    // Validate the first operand.
-
-    validateOperand( '[tok]-txtOperand1' );
-}
-
-
-function validateOperand2()
-{
-    // Validate the second operand.
-
-    validateOperand( '[tok]-txtOperand2' );
+        parseRealNumber( $( operandElementId ).value, base ) ?
+            FIELD_BACKGROUND_VALID : FIELD_BACKGROUND_INVALID;
 }
 
 
 function updateOperand1()
 {
-    // Recapture the value in the first operand's text box, and recalculate the
-    // other fields.
-
-    try
-    {
-        operand1 = parseRealNumber( $('[tok]-txtOperand1').value, base );
-    }
-    catch ( e ) {}
-
-    updateDisplay();
+    // Recapture the value in the first operand's text box.
+    var maybeParsed =
+        parseRealNumber( $('[tok]-txtOperand1').value, base );
+    if ( maybeParsed !== null )
+        operand1 = maybeParsed.val;
 }
 
 
 function updateOperand2()
 {
-    // Recapture the value in the second operand's text box, and recalculate the
-    // other fields.
-
-    try
-    {
-        operand2 = parseRealNumber( $('[tok]-txtOperand2').value, base );
-    }
-    catch ( e ) {}
-
-    updateDisplay();
+    // Recapture the value in the second operand's text box.
+    var maybeParsed =
+        parseRealNumber( $('[tok]-txtOperand2').value, base );
+    if ( maybeParsed !== null )
+        operand2 = maybeParsed.val;
 }
 
 
@@ -739,17 +764,27 @@ function updateDisplay()
 {
     // Recalculate the contents of the operand and solution fields.
 
+    // Populate the input text boxes.
+    $('[tok]-txtOperand1').value = encodeRealNumber( operand1, base );
+    $('[tok]-txtOperand2').value = encodeRealNumber( operand2, base );
+    
+    updateKeyboardlessDisplay();
+}
+
+function updateKeyboardlessDisplay()
+{
+    // Recalculate the contents of the operand and solution fields,
+    // but without changing the contents of input text boxes.
+
     // Calculate the solution.
     var solution = operator( operand1, operand2 );
 
-    // Actually put the text in the text boxes.
-    $('[tok]-txtOperand1').value = encodeRealNumber( operand1, base );
-    $('[tok]-txtOperand2').value = encodeRealNumber( operand2, base );
+    // Populate the solution text box.
     $('[tok]-txtSolution').value = encodeRealNumber( solution, base );
 
-    // The fields should be valid now, so make sure we recognize them as such.
-    validateOperand1();
-    validateOperand2();
+    // Validate the fields.
+    validateOperand( '[tok]-txtOperand1' );
+    validateOperand( '[tok]-txtOperand2' );
 }
 
 
