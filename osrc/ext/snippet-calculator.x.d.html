@@ -263,19 +263,24 @@ function encodeRealNumber( number, base, format )
 
     // NOTE: JavaScript's numbers are IEEE-754 doubles, with 53 bits of
     // precision. When they're displayed in decimal, it takes about 15.94 digits
-    // to represent this much data. This is the general formula.
+    // to represent this much data. This is the general formula, decremented by
+    // one digit to avoid oddities like 7 displaying as "7.00000000001" in base
+    // 25.
     //
-    // TODO: See what kind of suitability this has for representing a number in
-    // a way that can be accurately read back in.
+    // TODO: Figure out if there's a way to avoid those oddities.
     //
-    var significantDigits = Math.floor( 53 * Math.log( 2 ) / Math.log( base ) );
+    // TODO: See if we can make this output a number in a way that can be
+    // faithfully re-parsed.
+    //
+    var significantDigits =
+        Math.ceil( 53 * Math.log( 2 ) / Math.log( base ) ) - 1;
     var normalized = Math.round(
           absoluteValue
-        * Math.pow( base, significantDigits - exponent )
+        * Math.pow( base, significantDigits - (exponent + 1) )
     );
 
-    var showExponent = exponent < -format.zerosBeforeShowingExponent - 1 ||
-        format.zerosBeforeShowingExponent < exponent - significantDigits;
+    var showExponent = exponent + 1 < -format.zerosBeforeShowingExponent ||
+        format.zerosBeforeShowingExponent < exponent + 1 - significantDigits;
 
 
     var numberString = encodeTruncatedNumber( normalized, base, format );
