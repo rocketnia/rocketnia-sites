@@ -74,9 +74,11 @@ var DEFAULT_NUMBER_FORMAT_OUTPUT = {
     infinityString:   '[<]Infinity[>]',
     renderPlus:              false,
     renderExponentPlus:       true,
-    significantDigits:          16,
-    smallExponentThreshold:     -7,
-    largeExponentThreshold:     20,
+    
+    // NOTE: JavaScript seems to display numbers up to five decimal places away
+    // from the decimal point. We do the same.
+    zerosBeforeShowingExponent:  5,
+    
     groupSize:                   0
 };
 
@@ -259,15 +261,21 @@ function encodeRealNumber( number, base, format )
           ? 0
           : Math.floor( Math.log( absoluteValue ) / Math.log( base ) );
 
-    var showExponent = (
-           (exponent <= format.smallExponentThreshold)
-        || (exponent >= format.largeExponentThreshold)
-    );
-
+    // NOTE: JavaScript's numbers are IEEE-754 doubles, with 53 bits of
+    // precision. When they're displayed in decimal, it takes about 15.94 digits
+    // to represent this much data. This is the general formula.
+    //
+    // TODO: See what kind of suitability this has for representing a number in
+    // a way that can be accurately read back in.
+    //
+    var significantDigits = Math.floor( 53 * Math.log( 2 ) / Math.log( base ) );
     var normalized = Math.round(
           absoluteValue
-        * Math.pow( base, format.significantDigits - exponent - 1 )
+        * Math.pow( base, significantDigits - exponent )
     );
+
+    var showExponent = exponent < -format.zerosBeforeShowingExponent - 1 ||
+        format.zerosBeforeShowingExponent < exponent - significantDigits;
 
 
     var numberString = encodeTruncatedNumber( normalized, base, format );
@@ -280,7 +288,7 @@ function encodeRealNumber( number, base, format )
 
         numberString = numberString.charAt( 0 );
 
-        if ( 0 < mantissa.length != 0 )
+        if ( mantissa.length != 0 )
         {
             numberString += format.fractionSeparator + mantissa;
         }
@@ -309,6 +317,10 @@ function encodeRealNumber( number, base, format )
         {
             numberString = zeroString + numberString;
             exponent++;
+        }
+        while ( numberString.length < exponent + 1 )
+        {
+            numberString += zeroString;
         }
 
         var integerPartString = numberString.substring( 0, exponent + 1 );
@@ -542,14 +554,8 @@ function isNumberFormatOutput( format )
 
         && (typeof  format.renderExponentPlus          == "boolean")
 
-        && (typeof  format.significantDigits           == "number" )
-        && (        format.significantDigits           >= 0        )
-
-        && (typeof  format.smallExponentThreshold      == "number" )
-        && (        format.smallExponentThreshold      <= 0        )
-
-        && (typeof  format.largeExponentThreshold      == "number" )
-        && (        format.largeExponentThreshold      >= 0        )
+        && (typeof  format.zerosBeforeShowingExponent  == "number" )
+        && (        format.zerosBeforeShowingExponent  >= 0        )
 
         && (typeof  format.groupSize                   == "number" )
         && (        format.groupSize                   >= 0        )
