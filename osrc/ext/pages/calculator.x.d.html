@@ -12,7 +12,7 @@ $cs.getOne(
 return $cs.extend( "pages",
 
 $rc.rcPage( "/calculator/", "Base-Changing Calculator",
-    "20-May-2013", $cg.parseIn( [str 2013] ), {},
+    "23-May-2013", $cg.parseIn( [str 2013] ), {},
     $cg.parseLocal( _.objMap( {
         "calculator": snippetCalculator
     }, _.kfn ), [str
@@ -38,6 +38,18 @@ The '^' symbol is used in place of an 'e' so as not to conflict with
 bases over 14 that use 'e' as a digit. The number 1.2^4 is in
 scientific notation and should be read "one point two times ten to the
 fourth."
+
+Internally, these numbers are represented as JavaScript numbers, which
+is to say they're IEEE-754 doubles. However, the display code isn't
+accurate to quite that level of precision, so it intentionally strips
+off the least significant digit.
+
+[h2 About this project]
+
+I did this for a class assignment at Linfield College in 2008. It's an
+early example of the kind of immediate feedback UI I like to build,
+and at the time it was the only four-function calculator I'd seen that
+dealt with floating-point numbers in bases other than 10 or 2.
 
 
     ] ) )
