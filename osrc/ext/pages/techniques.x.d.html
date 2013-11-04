@@ -35,7 +35,7 @@ straightforward.
 
 [h2 Meaning-preserving modularity]
 
-Software updates are frequent[em]and frequently frustrating, as they
+Software updates are frequent[dash]and frequently frustrating, as they
 discontinue entire features, introduce bugs, or merely change some
 incidental details that other systems shouldn't have depended upon...
 but did.
@@ -210,8 +210,8 @@ This is pretty interesting to me, because I've long been frustrated
 with the use of quasiquotation for multi-stage programming. Variable
 hygiene is cumbersome to enforce, and this makes it awkward to write
 abstractions that operate in multiple stages. But if we don't need to
-do explicit quasiquotation[em]if we just need to provide inputs that
-live in a later stage[em]then abstractions are very easy to write.
+do explicit quasiquotation[dash]if we just need to provide inputs that
+live in a later stage[dash]then abstractions are very easy to write.
 
 The catch is, this will be cumbersome to specify as a language. If we
 branch on a value in a later stage, the semantics in an earlier stage
@@ -301,8 +301,8 @@ precedence rule takes a set of rules and returns a DAG of precedence
 judgments on those rules. Once we've calculated every DAG, we merge
 them one by one, trimming certain edges along the way to avoid cycles.
 Our trimming decisions are based on whether one precedence rule is
-already known to have precedence over another, or[em]brace
-yourself[em]whether one rule judges another rule's precedence and
+already known to have precedence over another, or[dash]brace
+yourself[dash]whether one rule judges another rule's precedence and
 isn't judged in return. This last point lets a hierarchy of meta-rules
 and meta-meta-rules arise organically!
 
