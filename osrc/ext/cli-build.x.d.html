@@ -40,11 +40,11 @@ if ( !(args.normalize || args.build) ) {
     process.exit( 1 );
 }
 
-function complain ( e ) {
+function complain( e ) {
     console.log( "ERROR" );
     console.log( e );
     then( e );
-};
+}
 
 function informativeResult( message ) {
     return function ( e ) {

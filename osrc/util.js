@@ -4,6 +4,7 @@ var fs = require( "fs" );
 var $path = require( "path" );
 
 var _ = require( "../buildlib/lathe.js" );
+var $cs = require( "../buildlib/choppascript.js" );
 
 
 var $util = exports;
@@ -291,5 +292,44 @@ $util.fetchDataHtml = function ( var_args ) {
     var then = paths.pop();
     $util.arrFetchDataHtml( paths, function ( results ) {
         _.funcApply( null, then, results );
+    } );
+};
+
+
+// ===== Utils specific to this project ==============================
+
+$util.nodeRunExtensionsWith = function (
+    extOpenSource, extClosedSource, otherExtensions, then ) {
+    
+    _.objOwnMapConcurrentExn( {
+        extOpenSource: extOpenSource,
+        extClosedSource: extClosedSource
+    }, function ( k, v, thro, ret ) {
+        $util.dirDeepList( v, function ( e, paths ) {
+            if ( e ) return void thro( e );
+            ret( paths.filter( function ( path ) {
+                return /\.x\.d\.html$/.test( path );
+            } ) );
+        } );
+    }, function ( e ) {
+        then( e || true );
+    }, function ( lists ) {
+        $util.arrFetchDataHtml(
+            [].concat( lists.extOpenSource, lists.extClosedSource ),
+            function ( extensionData ) {
+            
+            then( $cs.runExtensions(
+                _.arrMap( extensionData, function ( extension ) {
+                    // TODO: These expressions being executed do not
+                    // have *any* free variables. See if we can
+                    // execute them in their own contexts in order to
+                    // enforce that kind of thing.
+                    return $cs.run(
+                        "(function ( $cs ) { return (" +
+                            extension[ "text" ] + "); })"
+                    )( $cs );
+                } ).concat( otherExtensions )
+            ) );
+        } );
     } );
 };
