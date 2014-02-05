@@ -259,6 +259,17 @@ $util.mv = function ( fromPath, toPath, then ) {
     } );
 };
 
+$util.readTextFile = function ( path, encoding, then ) {
+    $util.exists( path, function ( exists ) {
+        if ( !exists )
+            return void then( null, null );
+        fs.readFile( path, encoding, function ( e, text ) {
+            if ( e ) return void then( e );
+            then( null, text );
+        } );
+    } );
+};
+
 $util.writeTextFile = function ( path, encoding, string, then ) {
     $util.ensureDir( $path.dirname( path ), function ( e ) {
         if ( e ) return void then( e );
@@ -274,13 +285,9 @@ $util.writeTextFile = function ( path, encoding, string, then ) {
 
 $util.arrFetchDataHtml = function ( paths, then ) {
     _.arrMapConcurrent( paths, function ( i, path, then ) {
-        $util.exists( path, function ( exists ) {
-            if ( !exists )
-                return void then( null );
-            fs.readFile( path, "utf-8", function ( e, dataHtml ) {
-                if ( e ) throw e;
-                then( _.parseDataHtml( dataHtml ) );
-            } );
+        $util.readTextFile( path, "utf-8", function ( e, dataHtml ) {
+            if ( e ) throw e;
+            then( _.parseDataHtml( dataHtml ) );
         } );
     }, function ( fetched ) {
         then( fetched );
