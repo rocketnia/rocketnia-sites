@@ -20,8 +20,7 @@ cliBuildFoundation.build = function ( opts, then ) {
     } );
     // TODO: Add an HTML-based test page where `mock` is true.
     var site = $cg.renderPagesToText( rcPages, "/",
-        !!opts[ "forFileUri" ] ? { "forFileUri": true } :
-            { "allowPhp": true } );
+        !!opts[ "forFileUri" ] ? { "forFileUri": true } : {} );
 //            { "mock": true } );
     
     $util.rm( "fin", function ( e ) {

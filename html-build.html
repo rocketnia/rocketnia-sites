@@ -127,8 +127,7 @@ runExtensions( function ( extensions ) {
     } );
     
     
-    var finalSite =
-        $cg.renderPagesToText( rcPages, "/", { "allowPhp": true } );
+    var finalSite = $cg.renderPagesToText( rcPages, "/", {} );
     
     _.el( "site" ).value = JSON.stringify( finalSite );
     
