@@ -250,12 +250,16 @@ $util.cp = function ( fromPath, toPath, then ) {
 };
 
 $util.mv = function ( fromPath, toPath, then ) {
-    $util.ensureDir( $path.dirname( toPath ), function ( e ) {
-        if ( e ) return void then( e );
-    fs.rename( fromPath, toPath, function ( e ) {
-        if ( e ) return void then( e );
-    then();
-    } );
+    $util.exists( fromPath, function ( exists ) {
+        if ( !exists )
+            return void then();
+        $util.ensureDir( $path.dirname( toPath ), function ( e ) {
+            if ( e ) return void then( e );
+        fs.rename( fromPath, toPath, function ( e ) {
+            if ( e ) return void then( e );
+        then();
+        } );
+        } );
     } );
 };
 
