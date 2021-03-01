@@ -112,7 +112,6 @@ div.top-main-wrap { width: 100%; display: block; float: right; }
 
 div.top-main
 {
-  font-size: smaller;
   color: black;
   background-color: white;
   padding: 1px 15px;
@@ -126,7 +125,7 @@ div.top-wrapper-base { clear: right; }
 
 div.top-copy
 {
-  font-size: x-small;
+  font-size: smaller;
   text-align: center;
   color: black;
   background-color: white;
@@ -140,7 +139,7 @@ div.top-copy p { margin: 0; }
 dt { font-weight: bolder; }
 a.sub-link-external { background-color: #CFF; }
 
-h1, h2, h3 { text-shadow: 2px 2px 10px rgba( 0, 0, 0, 0.2 ); }
+h1, h2, h3 { text-shadow: 2px 2px 10px rgba( 0, 0, 0, 0.1 ); }
 
 h2
 {
