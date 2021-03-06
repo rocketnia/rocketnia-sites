@@ -27,6 +27,10 @@ $rc.rcPage = function (
         }
     } ).bam();
     
+    // TODO: Add a link to the Programming Techniques page, like
+    // `[str [li [nav /tech/]]]`. It's still part of the site, but
+    // it's a pretty old page that I'm not sure I care to show people.
+    
     return $cg.makePage( permalink,
         opts[ "usesAbsolute" ], opts[ "is404" ],
         name, opts[ "title" ], "/lib/devoid-favicon.ico",
@@ -50,8 +54,6 @@ $rc.rcPage = function (
     [cdiv top-wrapper
       [cdiv top-main-wrap [cdiv top-main [content]]]
       [cdl top-nav
-        [dt About Me]
-        [dd [ul [li [nav /tech/]]]]
         [dt In-Browser Utilities]
         [dd [ul [li [nav /web-sandbox/]]]]
         [dt Libraries for Racket]
