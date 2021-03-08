@@ -10,49 +10,139 @@ $cs.getOne( "$rc", "$cg", "extutils", function ( $rc, $cg, $eu ) {
 return $eu.extendOpenSource( "pages", "homeCandidates",
 
 $rc.rcPage( "/", $cg.parseIn( [str RocketN[i I]A.com] ),
-    "19-Nov-2012", $cg.parseIn( [str 2005[en]2010, 2012] ),
+    "7-Mar-2021", $cg.parseIn( [str 2005[en]2010, 2012, 2017, 2021] ),
     { "title": "RocketNIA.com, Virtual Index of Ross Angle",
         "breadcrumbs": $cg.parseIn(
             [str RocketN[i I]A.com: Virtual Index of Ross Angle] ) },
     $cg.parse( [str
 
-((This is the open source version of my site.
-[out http://www.rocketnia.com/ The online version] has a bit more
+((This is the open source version of my site. The
+[out https://www.rocketnia.com/ online version] has a bit more
 content.))
 
-I'm Ross Angle, a programming language designer and metafiction fan
-who wants to build abstraction techniques that will help society be
-mindful of new and unfamiliar social entities.
+I'm Ross Angle, otherwise known as rocketnia or Nia. Some people might
+know me from the Racket programming language community's Slack or
+Discord channels, or from the Arc Forum. Some people might know me
+from being a casual onlooker in the interactive fiction world. I
+consider myself a fan of character-centric tomfoolery fiction and
+colorful platform games, and yet I often enjoy these things for the
+plot. I love discovering ways to combine things that brings out the
+unique advantages they all have, so it's no surprise that I'm a fan of
+obscure combo decks in Magic: The Gathering.
 
-Often I come up with ideas for artistic goals like making AMVs or
-authoring some original stories, but then I divert that motivation to
-the task of building the tools that would support that kind of project
-instead. That's been an okay dynamic. As of this writing,
-[out https://era-platform.github.io/cene/ my programming language
-Cene] is polished enough that I can use it, but I'm still tempted to
-write a package manager and a UI library before I build creative works
-on top of it.
+I have many of my own creative projects, like story and game ideas,
+that I occasionally tinker on. Many of them are so ambitious that I
+don't know if I'll ever finish them. I spend a lot of my time working
+not directly on these projects, but on reusable tools that can
+facilitate many creative works all at once. Many of my dream projects
+have extensionality as a central feature, like a rules-enforcing
+tabletop game engine where people can add their own new cards or house
+rules, so coming up with languages or APIs for those extension
+facilities is an essential part of the project.
+
+For these reasons and more, I've devoted a lot of my hobby energy to
+designing and developing new programming languages. (I've actually
+been doodling language designs ever since I first learned programming,
+so perhaps I like it for its own sake.)
+
+Most programming ecosystems rely on tools that have complex,
+unspecified behavior that's only implemented for one platform. Many of
+those tools don't offer realistic paths to gradually improve or
+replace them without starting over. I consider a simple internal representation, a deterministic module system, and
+modularity-respecting language extension (e.g. a hygienic macro
+system) to be essential ways to let programmers upgrade and replace
+the language they're using. Unfortunately, module systems are usually
+ad hoc and full of global namespaces (such as search paths) and
+opportunities for side effects that interfere with deterministic
+module composition. Macro systems, meanwhile, are rarely hygienic and
+rarely facilitate good error messages or incremental compilation.
+
+The lambda calculus is capable of being given higher-dimensional
+semantics for (space-indexed) distributed programming, (time-indexed)
+reactive programming, and (homotopic path-indexed) mechanized proofs
+of program compatibility. In spite of this, most programming languages
+have unsound type systems and allow the pervasive use of imperative
+side effects, which impedes their ability to take advantage of this
+design space.
+
+There are amazing developments in programming languages all the time,
+but there's a lot of room to improve.
+
+The languages I've made aren't silver bullets. Not yet, anyway! :-p I
+am just one person, and for most of my time designing these, I've been
+content with low-quality error messages and highly unconventional
+workflows that I don't expect others to care for. For instance, I've
+written many of my compilers in JavaScript so that I could run them
+from an HTML page on a mobile device. Even the static site generator I
+built for this website can be run that way, using inter-frame
+communication as a makeshift module system.
+
+I've been spending the past few years polishing up my practices (and
+continuing to explore). The compiler for my language
+[out https://era-platform.github.io/cene/ Cene] can be installed from
+npm and run from the command line, which makes it a lot more like
+other programming languages and makes it easier to integrate into
+continuous integration and deployment setups. I've been doing an
+extensive
+[out https://github.com/era-platform/cene-for-racket rewrite of Cene]
+to improve the provenance-tracking of error messages and to give it a
+module system with separate compilation support. In the process of
+doing this, I've untangled many of my programming language ideas into
+[out https://github.com/lathe individual Racket libraries] and written
+documentation for them so that they can be understood independently
+from each other.
+
+One of the most intense projects from late 2016 to early 2021 has been
+[out https://docs.racket-lang.org/punctaffy/index.html Punctaffy].
+What started out as an idea for factoring out parts of a string
+template DSL language into individual libraries turned out to require
+quite a few concepts from category theory before I could be confident
+in the design approach and implement it with the generality I expected
+it to have. The basic idea is that, like a "program with holes in it,"
+we might think about having a "program-with-holes-in-it with
+(program-with-holes-in-it)-shaped holes in it" and so on. See the
+[out https://docs.racket-lang.org/punctaffy/index.html intro page] for
+a more practical introduction and the
+[out https://docs.racket-lang.org/punctaffy/motivation.html
+  motivation page]
+for several places I think this concept will come in handy in the
+future.
+
+Now that Punctaffy is working, I'm excited to get back to some more
+creative projects.
 
 
 [h3 How you can find me]
 
-Feel free to contact me over email at rokitna?hotmail.???. (If you're
-a recruiter: I'm sorry to say I almost never respond to recruiters
-unless I'm actively looking for work.)
+Feel free to contact me over email at rokitna?hotmail.???.
 
 If you want to read programming discussions I've participated in,
 there are several old posts I've made on
 [out http://arclanguage.org/newest the Arc Forum] as rocketnia and
 [out http://www.lambda-the-ultimate.org/ Lambda the Ultimate] as
-Ross Angle. Hmm, lately I've been discussing my language progress in
-more private places, unfortunately.
+Ross Angle. Lately I've been participating in the Racket community's
+Slack and Discord, which aren't as easy to link to.
 
-Occasionally I update [out http://github.com/rocketnia my GitHub
-repos], [out http://rocketnia.wordpress.com/ my programming blog],
-and (least frequently) this website.
+Occasionally I update my open source repos,
+[out https://rocketnia.wordpress.com/ my programming blog], and (least
+frequently) this website.
 
-The repos are probably the best way to see my latest progress and
-notes.
+My open source repositories are actually split into a few places:
+
+[ul [li My own [out https://github.com/rocketnia GitHub profile].]
+    [li The [out https//github.com/era-platform Era platform]
+        organization on GitHub, which I made to collect my
+        general-purpose language projects into one place. The two main
+        languages are Era (still little more than scattered notes at
+        this point) and
+        [out https://era-platform.github.io/cene/ Cene].]
+    [li The [out https//github.com/lathe Lathe] organization on
+        GitHub, which I made to collect the various libraries I'm
+        building to serve as demonstrations and infrastructure for the
+        ideas in the Era language projects.]]
+
+Watching my commits to these repos is probably the best way to find
+out about my latest progress and ideas.
 
     ] ) )
 
