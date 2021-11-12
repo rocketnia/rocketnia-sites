@@ -16,27 +16,30 @@ return $eu.extendOpenSource( "cliBuild", "cliBuildCandidates",
 
 
 var argParser = new argparse.ArgumentParser( {
-    version: "0.0.1",
-    addHelp: true,
+    add_help: true,
     description: "Websites maintained by Ross Angle (rocketnia)."
 } );
-argParser.addArgument( [ "-n", "--normalize" ], {
-    action: "storeTrue",
+argParser.add_argument( "-v", "--version", {
+    action: "version",
+    version: "0.0.1"
+} );
+argParser.add_argument( "-n", "--normalize", {
+    action: "store_true",
     help: "Normalize the source tree."
 } );
-argParser.addArgument( [ "-b", "--build" ], {
-    action: "storeTrue",
+argParser.add_argument( "-b", "--build", {
+    action: "store_true",
     help: "Build the project."
 } );
-argParser.addArgument( [ "-f", "--file" ], {
-    action: "storeTrue",
+argParser.add_argument( "-f", "--file", {
+    action: "store_true",
     help:
         "When building, generate links so they work from file: URLs."
 } );
-var args = argParser.parseArgs();
+var args = argParser.parse_args();
 
 if ( !(args.normalize || args.build) ) {
-    argParser.printHelp();
+    argParser.print_help();
     process.exit( 1 );
 }
 
