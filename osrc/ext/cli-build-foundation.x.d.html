@@ -13,6 +13,24 @@ return $cs.extend( "cliBuildFoundation", (function () {
 
 var cliBuildFoundation = {};
 
+cliBuildFoundation.vendor = function ( then ) {
+    _.arrEachConcurrentExn( [
+        {
+            src: "node_modules/jszip/dist/jszip.js",
+            dst: "buildlib/jszip.js"
+        }
+    ], function ( i, entry, thro, ret ) {
+        $util.cp( entry.src, entry.dst, function ( e ) {
+            if ( e ) return void thro( e );
+            ret();
+        } );
+    }, function ( e ) {
+        then( e || true );
+    }, function () {
+        then();
+    } );
+};
+
 cliBuildFoundation.build = function ( opts, then ) {
     var rcPages = {};
     _.arrEach( pages, function ( page ) {

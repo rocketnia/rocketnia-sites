@@ -6,7 +6,7 @@
 <!-- chopsgen.html -->
 <!--
 
-Copyright (c) 2011 Ross Angle
+Copyright (c) 2011-2013, 2016, 2021 Rocketnia
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
@@ -41,8 +41,6 @@ your option.
 <script type="text/javascript" src="buildlib/choppascript.js">
 </script>
 <script type="text/javascript" src="buildlib/jszip.js"></script>
-<script type="text/javascript" src="buildlib/jszip-deflate.js">
-</script>
 <script type="text/javascript">//"use strict";
 var _ = rocketnia.lathe, $ = rocketnia.chops;
 var $cg = rocketnia.chopsgen, $cs = rocketnia.choppascript;
@@ -137,8 +135,11 @@ runExtensions( function ( extensions ) {
         var zip = new JSZip();
         for ( var file in finalSite )
             zip.file( file, finalSite[ file ] );
-        location.href = "data:application/zip;base64," +
-            zip.generate( { compression: "DEFLATE" } );
+        zip.generateAsync( { type: "base64" } )
+            .then( function ( content ) {
+                location.href =
+                    "data:application/zip;base64," + content;
+            } );
     } } );
     
     

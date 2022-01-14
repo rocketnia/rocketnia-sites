@@ -1,19 +1,23 @@
 {
   "private": true,
-  "name": "rocketnia-sites",
+  "name": "@rocketnia/rocketnia-sites",
   "version": "0.0.1",
-  "description": "Open source versions of websites maintained by Ross Angle (rocketnia).",
-  "homepage": "https://github.com/rocketnia/rocketnia-sites/",
+  "description": "Open source versions of websites maintained by Ross Angle (Rocketnia).",
+  "homepage": "https://github.com/rocketnia/rocketnia-sites#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rocketnia/rocketnia-sites.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rocketnia/rocketnia-sites/issues"
+  },
   "author": {
-    "name": "Ross Angle",
-    "url": "http://www.rocketnia.com/"
+    "name": "Ross Angle (Rocketnia)",
+    "url": "https://www.rocketnia.com/"
   },
-  "engines": {
-    "node": ">= 8.4.0",
-    "npm": ">= 5.3.0"
-  },
+  "bin": "./cli-build.js",
   "dependencies": {
-    "argparse": "^2.0.1"
-  },
-  "main": "cli-build.js"
+    "argparse": "^2.0.1",
+    "jszip": "^3.7.1"
+  }
 }

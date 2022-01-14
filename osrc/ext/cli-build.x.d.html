@@ -23,6 +23,10 @@ argParser.add_argument( "-v", "--version", {
     action: "version",
     version: "0.0.1"
 } );
+argParser.add_argument( "-V", "--vendor", {
+    action: "store_true",
+    help: "Copy libraries from node_modules/ into buildlib/."
+} );
 argParser.add_argument( "-n", "--normalize", {
     action: "store_true",
     help: "Normalize the source tree."
@@ -38,7 +42,7 @@ argParser.add_argument( "-f", "--file", {
 } );
 var args = argParser.parse_args();
 
-if ( !(args.normalize || args.build) ) {
+if ( !(args.vendor || args.normalize || args.build) ) {
     argParser.print_help();
     process.exit( 1 );
 }
@@ -49,7 +53,7 @@ function complain( e ) {
     then( e );
 }
 
-function informativeResult( message ) {
+function informativeResult( then, message ) {
     return function ( e ) {
         if ( e ) return void complain( e );
         console.log( message );
@@ -57,25 +61,43 @@ function informativeResult( message ) {
     };
 }
 
-if ( args.normalize && args.build ) {
-    cliBuildFoundation.normalize( function ( e ) {
-        if ( e ) return void complain( e );
-        console.log( "Normalized!" );
-    cliBuildFoundation.build( { "forFileUri": !!args.file },
-        function ( e ) {
-        
-        if ( e ) return void complain( e );
-        console.log( "Built!" );
-        then();
-    } );
-    } );
-} else if ( args.normalize ) {
-    cliBuildFoundation.normalize(
-        informativeResult( "Normalized!" ) );
-} else if ( args.build ) {
-    cliBuildFoundation.build( { "forFileUri": !!args.file },
-        informativeResult( "Built!" ) );
+function informativeStep( condition, message, body ) {
+    if ( condition ) {
+        return function ( then ) {
+            body( informativeResult( then, message ) );
+        };
+    } else {
+        return function ( then ) {
+            then();
+        };
+    }
 }
+
+var vendorStep = informativeStep( args.vendor, "Vendored!",
+    function ( then ) {
+    
+    cliBuildFoundation.vendor( then );
+} );
+
+var normalizeStep = informativeStep( args.normalize, "Normalized!",
+    function ( then ) {
+    
+    cliBuildFoundation.normalize( then );
+} );
+
+var buildStep = informativeStep( args.build, "Built!",
+    function ( then ) {
+    
+    cliBuildFoundation.build( { "forFileUri": !!args.file }, then );
+} );
+
+vendorStep( function () {
+normalizeStep( function () {
+buildStep( function () {
+then();
+} );
+} );
+} );
 
 
 } );
