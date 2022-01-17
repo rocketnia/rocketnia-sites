@@ -230,12 +230,15 @@ the details are all ironed out.
 
 [cdiv tech-project
 
-[h2 Project: Lathe]
-[cdiv details [out https://github.com/rocketnia/lathe on GitHub]]
+[h2 Projects: Framewarc, Lathe Comforts for JS]
+[cdiv details for Framewarc
+  [out https://github.com/rocketnia/framewarc on GitHub]]
+[cdiv details for Lathe Comforts for JS
+  [out https://github.com/lathe/lathe-comforts-for-js on GitHub]]
+[cdiv details for other Lathe libraries
+  [out https://github.com/lathe on GitHub]]
 
-A set of general-purpose utilities in JavaScript, Arc, and Racket. The
-Arc utilities are extensive but stale, and the JavaScript utilities
-are what I focus on the most.
+Sets of general-purpose utilities in Arc and JavaScript.
 
 
 [h3 Predicate dispatch]
@@ -267,8 +270,8 @@ follow to live with the chaos:
         time-complexity), the extensions might break that promise if
         their collective dispatch-deciding code surpasses the limit.]]
 
-Parts of Lathe have been developed under the ideal that a community
-could build up around this kind of self-discipline.
+Parts of Framewarc and Lathe have been developed under the ideal that
+a community could build up around this kind of self-discipline.
 
 More recently, I've set my sights on [i formal] enforcement of
 forward-compatibility, using these informal policies as guidance. See
@@ -308,8 +311,8 @@ and meta-meta-rules arise organically!
 
 If you'd like a more in-depth description of my algorithm, for now
 you'll have to read the Arc implementation ([code circularly-order])
-or JavaScript implementation ([code circularlyOrder]) in Lathe's
-source code.
+in Framewarc's source code or the JavaScript implementation
+([code circularlyOrder]) in Lathe Comforts for JS.
 
 Like predicate dispatch, this self-organizing precedence rule system
 may be a very expressive basis for prototyping other precedence
@@ -378,7 +381,8 @@ I once worked on standalone languages
 [out https://github.com/rocketnia/penknife Penknife]) with this kind
 of syntax built in. Now I instead handle it with a JavaScript library,
 chops.js, which is maintained as part of
-[out https://github.com/rocketnia/lathe Lathe].
+[out https://github.com/lathe/lathe-comforts-for-js
+Lathe Comforts for JS].
 
 In my static site generator, I use a DSL for generating HTML markup,
 and chops.js gives me exactly the kind of syntax I want for this
@@ -434,7 +438,7 @@ rigid top-level structure.
 
 [h2 Project: Cairntaker]
 [cdiv details
-  [out https://github.com/rocketnia/lathe/blob/main/js/cairntaker.js
+  [out https://github.com/lathe/lathe-comforts-for-js/blob/main/js/cairntaker.js
     on GitHub]]
 
 An incremental garbage collector written in JavaScript, with support
