@@ -51,18 +51,32 @@ div.top-header { background-color: black; }
 div.top-path
 {
   font-weight: bolder;
-  font-size: medium;
   text-align: left;
   color: white;
   padding: 5px;
   padding-left: 255px;
   float: left;
 }
-div.top-path p { margin: 0; }
 div.top-path a:link { color: white; }
 div.top-path a:visited { color: #999; }
 div.top-path a:hover,
 div.top-path a:active { color: #99C; }
+div.top-path div.top-path-breadcrumbs,
+div.top-path div.top-path-breadcrumbs p,
+div.top-path div.top-path-breadcrumbs
+  div.top-path-breadcrumbs-separator,
+div.top-path h1 {
+  display: inline-block;
+}
+div.top-path div.top-path-breadcrumbs
+  div.top-path-breadcrumbs-separator {
+  margin: 0 0.28em;
+}
+div.top-path div.top-path-breadcrumbs p,
+div.top-path h1 {
+  margin: 0;
+  font-size: medium;
+}
 div.top-search form
 {
   font-weight: bolder;
@@ -146,21 +160,29 @@ a.external-link:after {
 }
 a.sub-link-external { background-color: #CFF; }
 
-h1, h2, h3 { text-shadow: 2px 2px 10px rgba( 0, 0, 0, 0.1 ); }
-
-h2
-{
-  margin-top: 22px;
-  font-size: 17px;
+div.top-main h2,
+div.top-main h3,
+div.top-main h4 {
+  text-shadow: 2px 2px 10px rgba( 0, 0, 0, 0.1 );
 }
-div.details
-{
+
+div.top-main h2 {
+  margin-top: 21px;
+  margin-bottom: 21px;
+  font-size: 32px;
+}
+div.top-main h3 {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+div.top-main h4 {
+  margin-top: 19px;
+  margin-bottom: 19px;
+  font-size: 19px;
+}
+
+div.details {
   margin-top: -12px;
   margin-left: 20px;
-}
-
-.tech-project h1
-{
-  font-size: 23px;
-  margin-top: 50px;
 }

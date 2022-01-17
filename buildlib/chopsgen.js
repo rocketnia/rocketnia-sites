@@ -1,6 +1,6 @@
 // chopsgen.js
 
-// Copyright (c) 2011 Ross Angle
+// Copyright (c) 2011-2013, 2016, 2022 Rocketnia
 //
 //   Permission is hereby granted, free of charge, to any person
 //   obtaining a copy of this software and associated documentation
@@ -205,9 +205,10 @@ if ( topArgs === void 0 && typeof exports === "undefined" ) {
 }
 
 
+var nbsp = "\u00A0";
+var copyright = "\u00A9";
 var enDash = "\u2013";
 var emDash = "\u2014";
-var copyright = "\u00A9";
 
 // TODO: See if this is sufficient.
 my.htmlEscape = function ( content ) {
@@ -814,6 +815,15 @@ function unstructuredChops( chops ) {
     return $c.parseInlineChops( unstructuredSnippetEnv, chops );
 }
 
+function ltrimClassParser( tagName ) {
+    return function ( chops, env ) {
+        var apart = $c.letChopWords( chops, 1 );
+        if ( !apart ) throw new Error( "need a class" );
+        return my.tag( tagName, "class", unstructuredChops( apart[ 0 ] )
+            )( ltrimParse( env, apart[ 1 ] ) );
+    };
+}
+
 function ltrimClassBlockParser( tagName ) {
     return function ( chops, env ) {
         var apart = $c.letChopWords( chops, 1 );
@@ -887,9 +897,13 @@ var snippetEnv = $c.env( {
     "sup": ltrimParser( my.tag( "sup" ) ),
     "sub": ltrimParser( my.tag( "sub" ) ),
     "code": ltrimParser( my.tag( "code" ) ),
+    "cspan": ltrimClassParser( my.tag( "span" ) ),
     "h1": ltrimBlockParser( my.tag( "h1" ) ),
     "h2": ltrimBlockParser( my.tag( "h2" ) ),
     "h3": ltrimBlockParser( my.tag( "h3" ) ),
+    "h4": ltrimBlockParser( my.tag( "h4" ) ),
+    "h5": ltrimBlockParser( my.tag( "h5" ) ),
+    "h6": ltrimBlockParser( my.tag( "h6" ) ),
     "p": ltrimBlockParser( my.tag( "p" ) ),
     "cpre": ltrimClassBlockParser( "pre" ),
     "pre": ltrimBlockParser( my.tag( "pre" ) ),
@@ -903,9 +917,10 @@ var snippetEnv = $c.env( {
     "ctable": ltrimClassBlockDocParser( "table" ),
     "tr": ltrimBlockDocParser( my.tag( "tr" ) ),
     "td": ltrimBlockParser( my.tag( "td" ) ),
-    "dash": function ( chops, env ) { return emDash; },
-    "en": function ( chops, env ) { return enDash; },
+    "nbsp": function ( chops, env ) { return nbsp; },
     "copyright": function ( chops, env ) { return copyright; },
+    "en": function ( chops, env ) { return enDash; },
+    "dash": function ( chops, env ) { return emDash; },
     "pct": function ( chops, env ) { return "%"; },
     "<": function ( chops, env ) { return "["; },
     ">": function ( chops, env ) { return "]"; },

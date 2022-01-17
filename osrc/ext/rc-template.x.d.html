@@ -20,10 +20,34 @@ $rc.rcPage = function (
         "is404": false,
         "title": [ name, " - RocketNIA.com" ],
         "breadcrumbs": function () {
-            return _.arrMappend( permalink.familyDirs(),
-                function ( dir ) {
-                    return [ " > ", $cg.nameNavLink( dir ) ];
-                } ).slice( 1 );
+            var result = [];
+            var familyDirs = permalink.familyDirs();
+            
+            var navLinks = _.arrMap( familyDirs, function ( dir ) {
+                return $cg.nameNavLink( dir );
+            } );
+            
+            var parentLinks =
+                navLinks.slice( 0, navLinks.length - 1 );
+            var selfLink = navLinks[ navLinks.length - 1 ];
+            
+            var decoratedParentLinks = _.arrMappend( parentLinks,
+                function ( parentLink ) {
+                
+                return [
+                    parentLink,
+                    $cg.parseIn(
+                        [str [cdiv top-path-breadcrumbs-separator >]]
+                    )
+                ];
+            } );
+            return $cg.parseLocal( _.objMap( {
+                "parent-links": decoratedParentLinks,
+                "self-link": selfLink
+            }, _.kfn ), [str
+[cdiv top-path-breadcrumbs [parent-links]]
+[h1 [self-link]]
+            ] );
         }
     } ).bam();
     

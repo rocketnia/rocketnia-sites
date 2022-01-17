@@ -25,7 +25,7 @@ I've worked on and the approaches they exemplify.
 [cdiv tech-project
 
 
-[h1 Project: Era]
+[h2 Project: Era]
 [cdiv details [out https://github.com/rocketnia/era on GitHub]]
 
 A module system for cross-platform programs. This project is
@@ -33,7 +33,7 @@ incomplete, but the roadmap toward a first usable version seems
 straightforward.
 
 
-[h2 Meaning-preserving modularity]
+[h3 Meaning-preserving modularity]
 
 Software updates are frequent[dash]and frequently frustrating, as they
 discontinue entire features, introduce bugs, or merely change some
@@ -66,7 +66,7 @@ exist, they'll be represented as different sets of always-installed
 modules.
 
 
-[h2 Weak expressiveness, strong meta-theoretical usefulness]
+[h3 Weak expressiveness, strong meta-theoretical usefulness]
 
 I believe the programmers of the future will know what they need
 better than we do, and therefore any long-lived tool must be flexible
@@ -100,13 +100,13 @@ drama-managed interactive stories.
 
 [cdiv tech-project
 
-[h1 Project: Underreact]
+[h2 Project: Underreact]
 [cdiv details [out https://github.com/rocketnia/underreact on GitHub]]
 
 A framework for reactive programming in JavaScript.
 
 
-[h2 Reactive demand programming]
+[h3 Reactive demand programming]
 
 David Barbour has been building a programming model he calls reactive
 demand programming (RDP), and Underreact is my implementation of this
@@ -145,7 +145,7 @@ this is confusing. Perhaps it would help to read
 explanation in the Sirea readme].
 
 
-[h2 External state]
+[h3 External state]
 
 Technically, external state is already an essential part of RDP.
 However, David Barbour's descriptions of RDP's external state seem to
@@ -172,7 +172,7 @@ stateless network is a person, or that it otherwise deserves the kinds
 of treatment we extend toward people.
 
 
-[h2 Graphs, not ASTs]
+[h3 Graphs, not ASTs]
 
 I think ASTs are an inconvenient consequence of our need to represent
 programs as one-dimensional text. I'm interested in making a
@@ -192,7 +192,7 @@ going to be the main compile target target if and when I develop a
 graph-targeting textual syntax.
 
 
-[h2 Reactive staged programming]
+[h3 Reactive staged programming]
 
 Recently, David Barbour and I hit upon an interesting spin on RDP,
 where we can potentially pass around first-class collections where
@@ -230,7 +230,7 @@ the details are all ironed out.
 
 [cdiv tech-project
 
-[h1 Project: Lathe]
+[h2 Project: Lathe]
 [cdiv details [out https://github.com/rocketnia/lathe on GitHub]]
 
 A set of general-purpose utilities in JavaScript, Arc, and Racket. The
@@ -238,7 +238,7 @@ Arc utilities are extensive but stale, and the JavaScript utilities
 are what I focus on the most.
 
 
-[h2 Predicate dispatch]
+[h3 Predicate dispatch]
 
 As multimethod dispatch techniques go, predicate dispatch is the most
 rascally dynamic of the bunch. At run time, each extension can run
@@ -277,7 +277,7 @@ extensibility, but I am developing it with multiple kinds of
 extensibility in mind.
 
 
-[h2 Self-organizing precedence rules]
+[h3 Self-organizing precedence rules]
 
 Before I developed those guidelines for predicate dispatch, I was
 somewhat influenced by the design of Inform 7. The problem domain of
@@ -336,7 +336,7 @@ combined with old cards, so overlap resolution is a necessity.
 
 [cdiv tech-project
 
-[h1 Project: static site generator]
+[h2 Project: static site generator]
 [cdiv details
   [out https://github.com/rocketnia/rocketnia-sites on GitHub]]
 
@@ -344,7 +344,7 @@ This very website. It just so happens I improve the implementation
 much more often than I update the content....
 
 
-[h2 Runs on mostly browser-compatible Javascript]
+[h3 Runs on mostly browser-compatible Javascript]
 
 There's no groundbreaking insight here. I prefer to make code reusable
 when possible, and a program that runs in a Web browser can be used
@@ -362,7 +362,7 @@ possible on the client-side Web in the first place (e.g. they require
 "idiomatic" code most languages strive to generate. :)
 
 
-[h2 Minimalistic, programmable preprocessor]
+[h3 Minimalistic, programmable preprocessor]
 
 When I work with textual syntax, I like to use syntaxes that are easy
 to describe directly in terms of character sequences, and I like to
@@ -386,7 +386,7 @@ purpose. I also use chops.js as a preprocessor to give JavaScript a
 multi-line string syntax.
 
 
-[h2 Extension dependency resolution]
+[h3 Extension dependency resolution]
 
 Sometimes all the details of a program are close at hand (inductive),
 and all it takes is some data processing to execute the sucker. Other
@@ -432,7 +432,7 @@ rigid top-level structure.
 
 [cdiv tech-project
 
-[h1 Project: Cairntaker]
+[h2 Project: Cairntaker]
 [cdiv details
   [out https://github.com/rocketnia/lathe/blob/main/js/cairntaker.js
     on GitHub]]
@@ -447,7 +447,7 @@ ephemeron support, etc.), and I'll start from here once I set out to
 write an abstraction-leak-free language atop JS.
 
 
-[h2 Everything's an ephemeron table]
+[h3 Everything's an ephemeron table]
 
 At least conceptually, every value handled by Cairntaker is a mutable
 or immutable ephemeron table (aka weak map). Much like lisps get away
@@ -472,13 +472,13 @@ program had a reference to it.
 
 [cdiv tech-project
 
-[h1 Other pursuits]
+[h2 Other pursuits]
 
 I haven't made much out of the following technique yet, but I might
 return to it at some point.
 
 
-[h2 Partial evaluation]
+[h3 Partial evaluation]
 
 It's mostly just a side interest, but my
 "[out https://github.com/rocketnia/fexpress Fexpress]" project aims to
