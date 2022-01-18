@@ -186,3 +186,52 @@ div.details {
   margin-top: -12px;
   margin-left: 20px;
 }
+
+
+@media only screen and (max-width: 615px) {
+  div.top-head {
+    border-left: none;
+  }
+  div.top-head-inner {
+    background-size: contain;
+    margin-left: 10px;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  div.top-body-wrap1 {
+    display: block;
+    padding: 0;
+  }
+  div.top-body-wrap2 {
+    display: block;
+  }
+  div.top-wrapper {
+    background: none;
+  }
+  div.top-head {
+    height: 100px;
+    background-size: cover;
+  }
+  div.top-main {
+    border-left: none;
+    margin-left: 0;
+  }
+  div.top-main pre {
+    overflow-x: scroll;
+  }
+  div.top-path {
+    padding-left: 5px;
+  }
+  dl.top-nav {
+    float: none;
+    width: auto;
+    margin: 10px;
+    padding: 22px 8px 10px;
+    border-right: none;
+    border-radius: 30px;
+  }
+  div.top-main-wrap {
+    float: none;
+  }
+}

@@ -57,7 +57,13 @@ $rc.rcPage = function (
     
     return $cg.makePage( permalink,
         opts[ "usesAbsolute" ], opts[ "is404" ],
-        name, opts[ "title" ], "/lib/devoid-favicon.ico",
+        name, opts[ "title" ],
+        ("" +
+            "width=device-width," +
+            "minimum-scale=1.0," +
+            "initial-scale=1.0," +
+            "user-scalable=yes"),
+        "/lib/devoid-favicon.ico",
         $cg.depsSnippet( {
             css: [ { type: "external", url: "/lib/devoid.css" },
                 { type: "ie", on: "lt ie 7", use:

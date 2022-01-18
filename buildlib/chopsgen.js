@@ -1101,11 +1101,12 @@ function renderJsDependencies( deps, path ) {
 function makePages() { return {}; }
 
 my.makePage = function (
-    permalink, usesAbsolute, is404, name, title, icon, body ) {
-    
+    permalink, usesAbsolute, is404, name, title, viewport, icon, body
+) {
     return { permalink: my.toPath( permalink ),
         usesAbsolute: usesAbsolute, is404: is404,
-        name: name, title: title, icon: icon, body: body };
+        name: name, title: title, viewport: viewport, icon: icon,
+        body: body };
 };
 
 my.definePage = function ( pages, page ) {
@@ -1188,7 +1189,6 @@ function renderPage( pages, page, atpath, opts ) {
         "<head>" +
         "<meta http-equiv=\"Content-Type\" " +
             "content=\"text/html;charset=UTF-8\" />" +
-        "<title>" + my.snippetToTitle( page.title ) + "</title>" +
         
         // NOTE: When opts_mock is true and opts_mockBaseTagPrefix is
         // provided, this <base> tag supports the relative URLs in the
@@ -1208,9 +1208,14 @@ function renderPage( pages, page, atpath, opts ) {
         _.arrMap( cssDependencies, function ( css ) {
             return renderCssDependency( css, atpath );
         } ).join( "" ) +
+        "<title>" + my.snippetToTitle( page.title ) + "</title>" +
+        (page.viewport !== null ?
+            "<meta name=\"viewport\" " +
+                "content=\"" + attrEscape( page.viewport ) + "\" />" :
+            "") +
         "<link rel=\"shortcut icon\" href=\"" +
             attrEscape( my.toPath( page.icon ).from( atpath ) ) +
-            "\" />" +
+        "\" />" +
         "</head>" +
         "<body>" +
         body.html +
