@@ -41,7 +41,7 @@ div.top-head-inner
 {
   width: auto;
   height: 100%;
-  background: url(devoid-front.png) center right no-repeat;
+  background: url(devoid-front.png) center right/580px 71px no-repeat;
   padding: 0;
   margin-left: -34px;
   margin-right: 10px;
@@ -188,7 +188,15 @@ div.details {
 }
 
 
-@media only screen and (max-width: 615px) {
+/*
+ * 606px
+ *   = 3px padding on .top-body-wrap1 for the leftmost black border
+ *   + 10px left margin
+ *   + (1160px header logo natural width / 2 header logo pixel density)
+ *   + 10px right margin
+ *   + 3px padding on .top-body-wrap1 for the rightmost black border
+ */
+@media only screen and (max-width: 606px) {
   div.top-head {
     border-left: none;
   }
