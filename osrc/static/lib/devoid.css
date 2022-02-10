@@ -135,6 +135,12 @@ div.top-main
   margin-left: 250px;
 }
 
+div.top-main a:link { color: black; }
+div.top-main a:visited { color: #666; }
+div.top-main a:hover,
+div.top-main a:active { color: #66C; }
+
+
 
 div.top-wrapper-base { clear: right; }
 
@@ -154,9 +160,12 @@ div.top-copy p { margin: 0; }
 
 dt { font-weight: bolder; }
 a.external-link:after {
-  content: "🔗";
+  content: "↗";
   display: inline-block;
-  opacity: 35%;
+  margin-top: -100%;
+  vertical-align: super;
+  font-size: 10px;
+  opacity: 75%;
 }
 a.sub-link-external { background-color: #CFF; }
 
@@ -185,6 +194,52 @@ div.top-main h4 {
 div.details {
   margin-top: -12px;
   margin-left: 20px;
+}
+
+div.project {
+  width: 90%;
+  border: 1px solid #7cd474;
+  border-radius: 20px;
+  margin: 1em auto;
+  padding: 15px;
+  background: #cff2cc;
+  box-shadow:
+    inset -15px -15px 8px -10px rgb(161, 216, 156),
+    inset 3px 3px 13px rgba(255, 255, 255, 70%);
+}
+div.project img.project-logo {
+  float: right;
+  margin-right: 20px;
+  background: white;
+  box-shadow: 0 0 15px 10px white;
+}
+div.project div.project-name {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+div.project div.project-links {
+  margin: 5px 0 5px 10px;
+  font-size: 18px;
+}
+div.project div.project-links a {
+  font-size: 15px;
+}
+div.project div.project-description {
+  position: relative;
+  z-index: 1;
+  margin: 0 -15px -15px -15px;
+  border-top: 1px solid #7cd474;
+  border-radius: 0 0 20px 20px;
+  padding: 5px 15px 15px 15px;
+  background: white;
+  box-shadow: inset -15px -15px 8px -10px rgb(224, 197, 236);
+}
+div.project p {
+  margin: 0;
+}
+div.project div.project-description p {
+  margin-bottom: 0.5em;
 }
 
 

@@ -6,144 +6,165 @@ application/x-rocketnia-choppascript-ext
 
 
 $cs.extendOnly( "pages", "homeCandidates",
-$cs.getOne( "$rc", "$cg", "extutils", function ( $rc, $cg, $eu ) {
+$cs.getOne( "lathe", "$rc", "$cg", "extutils",
+    function ( _, $rc, $cg, $eu ) {
 return $eu.extendOpenSource( "pages", "homeCandidates",
 
 $rc.rcPage( "/", "Rocketnia.com",
-    "18-Jan-2022",
+    "10-Feb-2022",
     $cg.parseIn( [str 2005[en]2010, 2012, 2017, 2021-2022] ),
     { "title": "Rocketnia.com, Virtual Index of Ross Angle",
         "breadcrumbs": $cg.parseIn(
             [str [h1 Rocketnia.com: Virtual Index of Ross Angle]] ) },
-    $cg.parse( [str
+    $cg.parseLocal( _.objMap( {
+        "cene-logo": $cg.blockSnippet( $cg.snippet( {
+        }, { unstructuredHtml: [str
+            <img class="project-logo" width="90" height="48"
+                src="lib/cene-5-cropped-164.png"
+                alt="Cene logo" />
+        ] } ) ),
+        "rainbow-js-logo": $cg.blockSnippet( $cg.snippet( {
+        }, { unstructuredHtml: [str
+            <img class="project-logo" width="48" height="48"
+                src="lib/rainbow-js-1-resized-162x162.png"
+                alt="Rainbow.js logo" />
+        ] } ) )
+    }, _.kfn ), [str
 
-((This is the open source version of my site. The
-[out https://www.rocketnia.com/ online version] has a bit more
-content.))
+((This is the open source version of my site. The [out https://www.rocketnia.com/ online version] has a bit more content.))
 
-I'm Ross Angle, otherwise known as Rocketnia or Nia. Some people might
-know me from the Racket programming language community's Slack or
-Discord channels, or from the Arc Forum. Some people might know me
-from being a casual onlooker in the interactive fiction world. I
-consider myself a fan of character-centric tomfoolery fiction and
-colorful platform games, and yet I often enjoy these things for the
-plot. I love discovering ways to combine things that brings out the
-unique advantages they all have, so it's no surprise that I'm a fan of
-obscure combo decks in Magic: The Gathering.
+Hi, I'm Ross Angle. I like to go by Rocketnia, or Nia for short. (Interested in my [nav /resume/ resume]? I'm on the lookout for the right company! Feel free to contact me at rokitna?hotmail.???.)
 
-I have many of my own creative projects, like story and game ideas,
-that I occasionally tinker on. Many of them are so ambitious that I
-don't know if I'll ever finish them. I spend a lot of my time working
-not directly on these projects, but on reusable tools that can
-facilitate many creative works all at once. Many of my dream projects
-have extensionality as a central feature, like a rules-enforcing
-tabletop game engine where people can add their own new cards or house
-rules, so coming up with languages or APIs for those extension
-facilities is an essential part of the project.
+I'd like to simplify programming for everyone. My programming languages under the [out https://github.com/era-platform Era] umbrella are my efforts toward that goal. Some of the work involves utility libraries I refer to collectively as [out https://github.com/lathe Lathe], with which I aim to spruce up existing languages with the additional techniques I'm embracing for Era. And some of my tinkering takes place in one-off projects on [out https://github.com/rocketnia my own GitHub profile]. Here are a few examples:
 
-For these reasons and more, I've devoted a lot of my hobby energy to
-designing and developing new programming languages. (I've actually
-been doodling language designs ever since I first learned programming,
-so perhaps I like it for its own sake.)
+[cdiv project
+  [cene-logo]
+  [cdiv project-name Cene Mk. I]
+  [cdiv project-links
+    [out https://era-platform.github.io/cene/ website]
+    | [out https://github.com/era-platform/cene#readme repo]
+    | [out https://cene.readthedocs.io/en/latest/ docs]]
+  
+  [cdiv project-description
+    A pure functional language with concurrent macroexpansion and a JavaScript FFI. I've built a [out https://github.com/era-platform/cene-scaffold/blob/18056655dcc29c023fde6191567f425cbcedf72a/src/main.cene#L149 text generation DSL] in Cene, as well as a [out https://github.com/rocketnia/mise-en.cene/blob/bed693477bb96fbe6b3a2ca5a45fe49abf979fda/src/demo.cene#L103 little screenplay-like DSL].
+    
+    [out https://github.com/era-platform/cene-for-racket#readme Cene Mk. II] is the latest experimental work on Cene, rebuilding it with better error messages, a module system, and a few other refinements.]]
 
-Most programming ecosystems rely on tools that have complex,
-unspecified behavior that's only implemented for one platform. Many of
-those tools don't offer realistic paths to gradually improve or
-replace them without starting over. I consider a simple internal representation, a deterministic module system, and
-modularity-respecting language extension (e.g. a hygienic macro
-system) to be essential ways to let programmers upgrade and replace
-the language they're using. Unfortunately, module systems are usually
-ad hoc and full of global namespaces (such as search paths) and
-opportunities for side effects that interfere with deterministic
-module composition. Macro systems, meanwhile, are rarely hygienic and
-rarely facilitate good error messages or incremental compilation.
+[cdiv project
+  [cdiv project-name Fexpress]
+  [cdiv project-links
+    [out https://github.com/rocketnia/fexpress#readme repo]
+    | [out https://docs.racket-lang.org/fexpress/index.html docs]]
+  
+  [cdiv project-description
+    A proof-of-concept language core in which fexprs and compiled functions can coexist.]]
 
-The lambda calculus is capable of being given higher-dimensional
-semantics for (space-indexed) distributed programming, (time-indexed)
-reactive programming, and (homotopic path-indexed) mechanized proofs
-of program compatibility. In spite of this, most programming languages
-have unsound type systems and allow the pervasive use of imperative
-side effects, which impedes their ability to take advantage of this
-design space.
+[cdiv project
+  [cdiv project-name Underreact]
+  [cdiv project-links
+    [out https://github.com/rocketnia/underreact#readme repo]]
+  
+  [cdiv project-description
+    A dataflow library that could form the underlying plumbing of a continuous-time functional reactive programming language.
+    
+    This makes some sort of snazzy demos, including a [out https://rocketnia.github.io/underreact/test/canvas-fancy.html demo of some state machines] and a [out https://rocketnia.github.io/underreact/test/platformer.html
+    demo of a rudimentary platform game]. [<]Warning: Some flickering.[>]]]
 
-There are amazing developments in programming languages all the time,
-but there's a lot of room to improve.
+[cdiv project
+  [cdiv project-name Punctaffy]
+  [cdiv project-links
+    [out https://github.com/lathe/punctaffy-for-racket#readme repo]
+    | [out https://docs.racket-lang.org/punctaffy/index.html docs]]
+  
+  [cdiv project-description
+    A rather abstract library I worked on to figure out the more subtle intricacies of designing extensible templating languages.]]
 
-The languages I've made aren't silver bullets. Not yet, anyway! :-p I
-am just one person, and for most of my time designing these, I've been
-content with low-quality error messages and highly unconventional
-workflows that I don't expect others to care for. For instance, I've
-written many of my compilers in JavaScript so that I could run them
-from an HTML page on a mobile device. Even the static site generator I
-built for this website can be run that way, using inter-frame
-communication as a makeshift module system.
+General-purpose programming language design isn't my only pursuit. Here are some other nifty projects I've made:
 
-I've been spending the past few years polishing up my practices (and
-continuing to explore). The compiler for my language
-[out https://era-platform.github.io/cene/ Cene] can be installed from
-npm and run from the command line, which makes it a lot more like
-other programming languages and makes it easier to integrate into
-continuous integration and deployment setups. I've been doing an
-extensive
-[out https://github.com/era-platform/cene-for-racket rewrite of Cene]
-to improve the provenance-tracking of error messages and to give it a
-module system with separate compilation support. In the process of
-doing this, I've untangled many of my programming language ideas into
-[out https://github.com/lathe individual Racket libraries] and written
-documentation for them so that they can be understood independently
-from each other.
+[cdiv project
+  [cdiv project-name Rocketnia.com]
+  [cdiv project-links
+    [out https://github.com/rocketnia/rocketnia-sites repo for the open-source subset of the site]]
+  
+  [cdiv project-description
+    The website you're looking at is written in a static site generator I made myself called [out https://github.com/rocketnia/chopsgen Chopsgen]. It uses the same kind of deterministic concurrency model that went into the Cene macroexpander.
+    
+    I wrote this static site generator at a time when I wanted to be able to run all my code in the browser, even the build tools themselves. In a clone of the repo, the file html-build.html shows a preview of the site in an iframe, and it offers a button to download the processed .html files in a .zip archive, ready to be unpacked and uploaded. In practice, I actually do a more sophisticated kind of deployment, but it's nice to have this as a fallback.]]
 
-One of the most intense projects from late 2016 to early 2021 has been
-[out https://docs.racket-lang.org/punctaffy/index.html Punctaffy].
-What started out as an idea for factoring out parts of a string
-template DSL language into individual libraries turned out to require
-quite a few concepts from category theory before I could be confident
-in the design approach and implement it with the generality I expected
-it to have. The basic idea is that, like a "program with holes in it,"
-we might think about having a "program-with-holes-in-it with
-(program-with-holes-in-it)-shaped holes in it" and so on. See the
-[out https://docs.racket-lang.org/punctaffy/index.html intro page] for
-a more practical introduction and the
-[out https://docs.racket-lang.org/punctaffy/motivation.html
-  motivation page]
-for several places I think this concept will come in handy in the
-future.
+[cdiv project
+  [rainbow-js-logo]
+  [cdiv project-name Rainbow.js]
+  [cdiv project-links
+    [out https://github.com/arclanguage/rainbow-js#readme repo]
+    | [out https://arclanguage.github.io/rainbow-js/test/#libs try Rainbow.js online]]
+  
+  [cdiv project-description
+    Rainbow.js is a JavaScript port of the [out https://arclanguage.github.io/ Arc programming language] (specifically a port of Conan Dalton's implementation of it, [out https://github.com/conanite/rainbow#readme Rainbow]).]]
 
-Now that Punctaffy is working, I'm excited to get back to some more
-creative projects.
+[cdiv project
+  [cdiv project-name Writing prompt generators]
+  [cdiv project-links
+    [out https://github.com/rocketnia/monday-comics repo]]
+  
+  [cdiv project-description
+    Some creative tools I've made to inspire writing ideas: A very simple [out https://rocketnia.github.io/monday-comics/ prompt generator] for scenarios where characters get into tomfoolery related to their unique talents, and an [out https://rocketnia.github.io/monday-comics/episodic-adventure-generator.html interactive plot structure generator] based on graph rewriting.]]
+
+[cdiv project
+  [cdiv project-name Mega Man IV and V password generators]
+  [cdiv project-links
+    [nav /password-cracks/ website]]
+  
+  [cdiv project-description
+    Some password generators for Mega Man IV and V for Game Boy.]]
+
+I have some storytelling pursuits, too:
+
+[cdiv project
+  [cdiv project-name Symple Home Renovations]
+  [cdiv project-links
+    [out https://rocketnia.itch.io/symple-home-renovations play on Itch.io]]
+  
+  [cdiv project-description
+    [i Magic makes home renovations easier than ever. Almost too easy.]
+    
+    Inspired by [out https://seltani.net/ Seltani], I made a little text-based game engine ([out https://github.com/rocketnia/contrivertext#readme ContriverText]) to try out some different UI ideas for multiplayer interactive hypertext fiction. The interface could use a lot of work, especially for a single-player demo like this one. However, for the [out https://itch.io/jam/bring-out-your-dead Bring Out Your Dead] game jam, I put together this short work to showcase the engine. There are some more author's notes on the [out https://itch.io/jam/bring-out-your-dead/rate/73015 jam submission page].]]
+
+[cdiv project
+  [cdiv project-name The Shape of Our Container]
+  [cdiv project-links
+    [out https://www.rocketnia.com/if/shape-of-our-container/play/ play online]]
+  
+  [cdiv project-description
+    A little hypertext piece I made for a [out https://ifdb.org/viewcomp?id=w7c92kqrhij4kt8h game jam on the theme of "tiny utopias."]]]
+
+[cdiv project
+  [cdiv project-name Megalomaniac]
+  [cdiv project-links
+    [out https://www.rocketnia.com/megalomaniac/ read online]]
+  
+  [cdiv project-description
+    A short-lived Mega Man sprite comic I started while I was really into [out https://www.bobandgeorge.com/ Bob and George].]]
+
+[cdiv project
+  [cdiv project-name MyAI and Mikkamon]
+  
+  [cdiv project-description
+    I could talk all day about some of my original characters and settings. Telling their stories in full is a daunting prospect, one that I might even need better programming languages for. :-p But I've occasionally written up some notes about [out https://github.com/rocketnia/myai-franchise#readme MyAI] and [out https://github.com/rocketnia/mikkamon#readme Mikkamon] on GitHub to get the ideas out there somewhere.]]
+
+Thanks for visiting my little place on the web. I hope you enjoy your stay!
 
 
-[h4 How you can find me]
+[h4 Where else you can find me]
 
 Feel free to contact me over email at rokitna?hotmail.???.
 
-If you want to read programming discussions I've participated in,
-there are several old posts I've made on
-[out http://arclanguage.org/newest the Arc Forum] as rocketnia and
-[out http://www.lambda-the-ultimate.org/ Lambda the Ultimate] as
-Ross Angle. Lately I've been participating in the Racket community's
-Slack and Discord, which aren't as easy to link to.
+A lot of my online activity is in the form of maintaining my [out https://github.com/rocketnia open source repos].
 
-Occasionally I update my open source repos,
-[out https://rocketnia.wordpress.com/ my programming blog], and (least
-frequently) this website.
+Lately, I spend a lot of my time in the [out https://racket-lang.org/ Racket programming language]'s Slack and Discord communities, as well as hanging out with friends at the [out https://www.twitch.tv/multitapmugen Multitap Twitch channel].
 
-My open source repositories are actually split into a few places:
+If you want to read programming discussions I've participated in, there are several old posts I've made on [out http://arclanguage.org/newest the Arc Forum] as rocketnia and [out http://www.lambda-the-ultimate.org/ Lambda the Ultimate] as Ross Angle.
 
-[ul [li My own [out https://github.com/rocketnia GitHub profile].]
-    [li The [out https://github.com/era-platform Era platform]
-        organization on GitHub, which I made to collect my
-        general-purpose language projects into one place. The two main
-        languages are Era (still little more than scattered notes at
-        this point) and
-        [out https://era-platform.github.io/cene/ Cene].]
-    [li The [out https://github.com/lathe Lathe] organization on
-        GitHub, which I made to collect the various libraries I'm
-        building to serve as demonstrations and infrastructure for the
-        ideas in the Era language projects.]]
-
-Watching my commits to these repos is probably the best way to find
-out about my latest progress and ideas.
+Sometimes, I update [out https://rocketnia.wordpress.com/ my programming blog].
 
     ] ) )
 
