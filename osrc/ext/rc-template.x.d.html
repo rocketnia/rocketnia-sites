@@ -72,8 +72,22 @@ $rc.rcPage = function (
         }, $cg.parseLocal( _.objMap( {
             "breadcrumbs": opts[ "breadcrumbs" ],
             "content": content,
-            "copyright-dates": copyrightDates,
-            "update-date": updateDate
+            "top-copy": updateDate === "recently" ?
+                $cg.parseLocal( _.objMap( {
+                    "copyright-dates": copyrightDates
+                }, _.kfn ), [str
+                    [cdiv top-copy
+                      [copyright] [copyright-dates] Ross Angle (Rocketnia)]
+                ] ) :
+                $cg.parseLocal( _.objMap( {
+                    "copyright-dates": copyrightDates,
+                    "update-date": updateDate
+                }, _.kfn ), [str
+                    [cdiv top-copy
+                      [copyright] [copyright-dates] Ross Angle (Rocketnia)
+                      
+                      This page was last updated [update-date].]
+                ] )
         }, _.kfn ), [str
 [cdiv top-body-wrap1
   [cdiv top-body-wrap2
@@ -107,10 +121,7 @@ $rc.rcPage = function (
                 [li [out https://www.linkedin.com/in/ross-angle-51b27014
                       [cite LinkedIn] Profile]]]]]
       [cdiv top-wrapper-base]]
-    [cdiv top-copy
-      [copyright] [copyright-dates] Ross Angle (Rocketnia)
-      
-      This page was last updated [update-date].]]]
+    [top-copy]]]
         ] ) ) );
 };
 
