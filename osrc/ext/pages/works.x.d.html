@@ -6,45 +6,52 @@ application/x-rocketnia-choppascript-ext
 
 
 $cs.extendOnly( "pages",
-$cs.getOne( "$rc", "$cg", function ( $rc, $cg ) {
+$cs.getOne( "lathe", "$rc", "$cg", function ( _, $rc, $cg ) {
 return $cs.extend( "pages",
 
-$rc.rcPage( "/works/", "Miscellaneous Old Works",
-    "17-Jan-2022", $cg.parseIn( [str 2005[en]2010, 2013, 2022] ), {},
-    $cg.parse( [str
+$rc.rcPage( "/works/", "Things I've Made",
+    "11-Feb-2022", $cg.parseIn( [str 2005[en]2010, 2013, 2022] ), {},
+    $cg.parseLocal( _.objMap( {
+        "cene-logo": $cg.blockSnippet( $cg.snippet( {
+        }, { unstructuredHtml: [str
+            <img class="project-logo" width="90" height="48"
+                src="../lib/cene-5-cropped-164.png"
+                alt="Cene logo" />
+        ] } ) ),
+        "rainbow-js-logo": $cg.blockSnippet( $cg.snippet( {
+        }, { unstructuredHtml: [str
+            <img class="project-logo" width="48" height="48"
+                src="../lib/rainbow-js-1-resized-162x162.png"
+                alt="Rainbow.js logo" />
+        ] } ) )
+    }, _.kfn ), [str
 
-These are a couple of projects I did in my spare time in 2008, while I
-was going to Linfield College.
-[file /files/ross-angle-works.zip Download these projects as a zip
-file], and you can take a look at their source code or run them (using
-Java).
+On the [nav / front page], I go into several of my snazzier projects. For those interested in a more comprehensive look, this page elaborates on that with details about some of the weirder or less fully explored projects.
 
-Most of the Rocketnia.com website is
-[out https://github.com/rocketnia/rocketnia-sites open source under
-the MIT license], including both of these projects.
+For now, this page just describes my programming language pursuits.
 
 
-[h3 Jisp, an Interpreted Pseudo-Lisp]
+[h2 Programming languages]
 
-During my side pursuits in college, I was reading about lisp dialects,
-and I was especially enticed by
-[out http://www.paulgraham.com/rootsoflisp.html Paul Graham's
-idealistic depiction of John McCarthy's original Lisp]. Still, some
-aspects of what I read about lisp dialects seemed needlessly
-inconsistent, such as the non-function-like behavior of [code quote]
-and the non-[code quote]-like syntax of string literals.
+My programming language ideas actually started long before I was able to bring them to fruition. I've basically been wanting to program in better languages as long as I've wanted to program at all. Here's a chronological account.
 
-I'd been formulating my own programming language syntaxes for a while
-before this, and something as simple as McCarthy's language seemed
-like a good place to start.
+[cdiv project
+  [cdiv project-name MyRegex]
+  [cdiv project-links
+    [out https://github.com/rocketnia/myregex#readme repo]]
+  
+  [cdiv project-description
+    One of my first programming languages was a regular expression engine in Java. I didn't know the term "combinatorial parser" at the time, but I knew how I thought regular expressions worked, and I could model all those operations myself, so that's what I did. Thanks to this, I got the hang of programming in a monadic style (another term I didn't know at the time).]]
 
-Unlike most lisp dialects, Jisp has macros that take [i unparsed
-strings] as input, rather than s-expressions. Here's an example, which
-you can test for yourself by running
-"[code java com.rocketnia.hacks.jisp.Jisp]" from the [code bin]
-directory:
-
-[pre [nochops
+[cdiv project
+  [cdiv project-name Jisp]
+  [cdiv project-links
+    [out https://github.com/rocketnia/jisp#readme repo]]
+  
+  [cdiv project-description
+    Hot on the heels of MyRegex, I put together Jisp, a rudimentary general-purpose language based on an upgrade how I thought Lisp programs worked. The evaluation model I implemented for Jisp was very much an interpreter; not only did it have first-class macros in the fexpr sense (not that I knew the term "fexpr" at the time), but its macros processed textual code rather than s-expressions.
+    
+    [pre [nochops
 > (if (eq 'apple (cdr (cons 'pine 'apple))) 'success 'failure)
 result: success
 > something-we-havent-defined
@@ -61,48 +68,303 @@ result: "and-this"
 result: whoops
 > (if (eq "string (doublequote string)) (exit) 'whoops)
 [The REPL terminates.]]]
+    
+    ]]
 
-Jisp has unified semantics for functions, special forms, macros, and
-string literals, making it easier to implement them all at once. Aside
-from the string part, it's similar to an fexpr-based lisp like Kernel,
-but I didn't know that at the time.
+As I started to program in Groovy and Arc, I learned about Groovy's DSL-oriented design and Arc's Lisp-style macros. Programmers could build most of their code in their dream language and implement the details of that language in a library.
 
-Jisp development stopped once I got through the initial challenge of
-writing the parser. The implementation of [code lambda] is incomplete,
-and there are no meaningful I/O primitives. I would rebuild this kind
-of parser from scratch in later projects like
-[out https://github.com/rocketnia/blade Blade],
-[out https://github.com/rocketnia/penknife Penknife], and chops.js
-(part of [out https://github.com/lathe/lathe-comforts-for-js
-Lathe Comforts for JS]) rather than maintaining the Jisp codebase.
+[cdiv project
+  [cdiv project-name Framewarc]
+  [cdiv project-links
+    [out https://github.com/rocketnia/framewarc#readme repo]]
+  
+  [cdiv project-description
+    Framewarc is a collection of libraries I wrote for Arc, to indulge in the ability to write arbitrary language features.
+    
+    The first thing I made in Framewarc was the module system. This allowed me to pursue various library ideas without feeling like I was using up global names that would be needed by other Arc programmers.
+    
+    A few of the other things I made in Framewarc were multimethod systems, inspired largely by Inform 7's rulebooks and actions. I also put together a pattern-matching DSL and a framework for MyRegex-style backtracking computations.]]
+
+[cdiv project
+  [cdiv project-name Blade]
+  [cdiv project-links
+    [out https://github.com/rocketnia/blade#readme repo]]
+  
+  [cdiv project-description
+    I started to want to use the right tool for the job in a very fine-grained way. In my dream language, I could write parts of my code in Groovy, I figured, and I could write other parts in Arc or in DSLs like MyRegex. I especially wanted to reduce the effort it took to install and configure all these languages to work together.
+    
+    So I started to build Blade, a language intended from the outset for polyglot programming. Blade programs could contain arbitrary text (e.g., text that was code in some other programming language). It was only when a paragraph began with certain punctuation that it would be recognized and processed as Blade code.
+    
+    Like Jisp, Blade was based on syntaxes that took strings as input. However, Blade programs took this input at compile time, avoiding the main downside of Jisp's approach.
+    
+    Since Blade code could be scattered opportunistically among other kinds of code, the order of Blade declarations with respect to each other was largely accidental. In order to allow them to be processed in an arbitrary order, I had objects called [code Lead]s that represented clues as to where more Blade code could be found and [code Calc]s that represented computations in progress that could be blocked waiting for more information. Little did I know, these were basically monadic computation types, and I had implemented a concurrency trampoline.
+    
+    Unfortunately, I was a stickler for indenting my code properly, and writing code in continuation-passing style created a lot of rightward drift that I had never experienced before. It was frustrating to work on Blade, and I felt like I'd made some kind of mistake.
+    
+    Also, Blade didn't have a very good story for REPL-based programming. If I wanted to allow Blade code to be written out of order, exactly when during a REPL interaction would Blade actually run anything?]]
+
+[cdiv project
+  [cdiv project-name Penknife Mk. I]
+  [cdiv project-links
+    [out https://github.com/rocketnia/penknife repo]]
+  
+  [cdiv project-description
+    Having worked some more in Arc, I had a lot of ideas for improving upon Arc in terms of syntax and hygiene. I was also coming to terms with the fact that Blade didn't have a very good story for REPL-based programming the way that Arc did. If I wanted to allow Blade code to be written out of order, exactly when during a REPL interaction would Blade actually run anything?
+    
+    So I decided that while Blade might be good for programming in a codebase-based workflow, a REPL-based workflow justified having a different kind of language. The two languages could be complementary.
+    
+    And so I started building Penknife. Blade was a language for "freedom of declaration" (as in, writing declarations in whatever language one wanted), and Penknife was a language for "freedom of command."
+    
+    One of the most remarkable features of Penknife Mk. I was the hygiene approach. Like Jisp and Blade, Penknife Mk. I had string-based syntax. However, this syntax was allowed to contain not only text but certain other objects. One of those was an object representing a change in environment. When a Penknife macro created a piece of generated code, this feature was used to swap out the caller's environment for a macro's definition-time environment for the purposes of that code, and it was used again to swap back to the caller's environment to process the macro's arguments.
+    
+    A macro's definition-time environment was captured and bundled with the macro binding itself. This way, the generated code didn't actually have to embed a whole environment in it; it could just embed a relative path that navigated to the macro's environment from the caller's environment. Since the caller has to have the macro in their environment to call it in the first place, the generated code can count on the macro being there.
+    
+    I still feel this separation between environments and expressions allows for a rather nice sweet spot for the kinds of environment mutation REPL users expect to be able to do. This remains one of my favorite approaches to hygiene.
+    
+    Penknife Mk. I programs are very terse, not unlike Arc programs, and Arc code can be used to fill in when something isn't defined in Penknife:
+    
+    [pre [nochops
+[= fn-if [arc (fn (test then else)
+                (pk-call:if test then else))]]
+
+[mac if [test then else]
+  qq.[fn-if \,test tf0.\,then tf0.\,else]]
+
+[mac* do [] body
+  qq.[tf0 \,body]]
+
+[mac* when [test] body
+  qq.[if \,test [do \,body] nil]]
+
+[mac* unless [test] body
+  qq.[if \,test nil [do \,body]]]]]
+    
+    ]]
+
+[cdiv project
+  [cdiv project-name Kernelish]
+  [cdiv project-links
+      [out https://gist.github.com/rocketnia/778492 repo]]
+  
+  [cdiv project-description
+    On Arc Forum, the topic of first-class macros came up in discussion many times. For the sake of discussion, I put together Kernelish, a simple language interpreter that implemented fexprs in the Kernel style.]]
+
+[cdiv project
+  [rainbow-js-logo]
+  [cdiv project-name Rainbow.js]
+  [cdiv project-links
+    [out https://github.com/arclanguage/rainbow-js#readme repo]
+    | [out https://arclanguage.github.io/rainbow-js/test/#libs try Rainbow.js online]]
+  
+  [cdiv project-description
+    Another thing that came up on Arc Forum a lot was a desire to run Arc programs in the browser. So I made Rainbow.js, a JavaScript port of the [out https://arclanguage.github.io/ Arc programming language] (specifically a port of Conan Dalton's implementation of it, [out https://github.com/conanite/rainbow#readme Rainbow]).
+    
+    In the process of writing Rainbow.js, I learned that JavaScript was more capable of concurrency than I had imagined. I started to get the hang of continuation-passing style.]]
+
+[cdiv project
+  [cdiv project-name Lathe Comforts for JavaScript]
+  [cdiv project-links
+    [out https://github.com/lathe/lathe-comforts-for-js#readme repo]]
+  
+  [cdiv project-description
+    At this point, I was committed to writing most of my code in JavaScript so that it could run in the browser. Rainbow.js was a project that I took on to get the hang of JavaScript. I started porting a lot of my library code from Arc to JavaScript. I even put together a macro system of sorts, Chops, and a (very slow) garbage collector for weak tables, Cairntaker, to support my efforts in the places JavaScript was lacking.]]
+
+I was also learning about a lot of language design topics I'd never heard about before, like reactive programming and dependent type systems. I started exploring how to incorporate such ideas into my designs.
+
+[cdiv project
+  [cdiv project-name Underreact]
+  [cdiv project-links
+    [out https://github.com/rocketnia/underreact#readme repo]]
+
+  [cdiv project-description
+    Underreact is dataflow library for JavaScript that could form the underlying plumbing of a continuous-time functional reactive programming language.
+    
+    It makes for some rather snazzy demos, including a [out https://rocketnia.github.io/underreact/test/canvas-fancy.html demo of some state machines] and a [out https://rocketnia.github.io/underreact/test/platformer.html demo of a rudimentary platform game]. [<]Warning: Some flickering.[>]]]
+
+[cdiv project
+  [cdiv project-name Era]
+  [cdiv project-links
+    [out https://github.com/era-platform/era#readme repo]]
+
+  [cdiv project-description
+    Era is an project that serves as the seat of my most optimistic programming language ambitions. Era is the project that I pursue with the aim to simplify programming for everyone. I consider certain other languages I've worked on since then (Penknife Mk. II, Staccato, Cene Mk. I, and Cene Mk. II) to be components of the Era project.
+    
+    Besides collecting and organizing my abstract goals for general-purpose programming language design, Era represents two ambitious but concrete goals: A generalized syntax based on collaborative hypertext documents, and a module system with a sound type system capable of serving as a knowledge representation format. I haven't made much progress on either of these goals directly, though they have served as guiding long-term goals in my other designs.]]
+
+[cdiv project
+  [cdiv project-name Penknife Mk. II]
+  [cdiv project-links
+    [out https://github.com/era-platform/era#readme part of the Era repo]]
+
+  [cdiv project-description
+    Eager to perfect at least some kind of syntax I could use for Era, I made a new incarnation of Penknife. Penknife Mk. II has weak opening parens (an idea I'd eventually factor out into the [out https://github.com/lathe/parendown-for-racket#readme Parendown] library for Racket) and a nestable quasiquotation syntax for strings, features I'd carry on into Staccato and Cene Mk. I.
+    
+    Penknife Mk. II breaks from my usual habit from Jisp, Blade, and Penknife Mk. I of having macros take text as input. It embraces a more s-expression-based syntax, albeit one that has a sophisticated string literal syntax for situations where string-based syntax is needed.
+    
+    Penknife Mk. II also experiments with features that could come in handy for JavaScript programming. One is simply that it compiles to the kind of world-passing and continuation-passing style that I had arrived at for working with flexible control of side effects in JS. The other is that Penknife values can implement custom behaviors for aliasing, which allows them to do reference counting for reliably timed resource teardown. (This covers territory similar to Rust's [code Drop], [code Copy], and [code Clone] traits.)
+    
+    I was also hoping the customizable aliasing would allow Penknife values to be used to build up dataflow pipelines like those of Underreact. However, I didn't come up with a good way to make it work with conditionals, and I found that allowing this custom aliasing behavior on every single variable in the language made the language rather slow, so I don't consider this part of the experiment to have fully panned out.]]
+
+[cdiv project
+  [cdiv project-name Staccato]
+  [cdiv project-links
+    [out https://github.com/era-platform/era#readme part of the Era repo]]
+  
+  [cdiv project-description
+    With my mind on run-time debugging support and suspend/resume functionality, I put together Staccato, a language spun off of Penknife Mk. II that had a more fully specified format for call stacks.
+    
+    With Staccato, I also got more into the habit of pure functional programming. I had a plans for managing pure computations, computations that had merely monotonic read-only side effects, computations that had monotonic read-write side effects, and computations with arbitrary side effects.
+    
+    I also started to think in terms that were a bit more reflective. I wanted to support reactive programming, so I thought of variables not only as representing singular values but as representing whole communication channels. I started wanting to approach error-handlings in terms of communicating with an entity that represented the language runtime itself.
+    
+    And once I wrote an ahead-of-time compiler from Staccato to JavaScript, I started to think about Staccato programs as networks of code that would eventually be crawled once it came time to translate them to another language.
+    
+    At that point, predictable call stack representations were one of the least interesting parts of Staccato to me, so I spun off another language from it, Cene.]]
+
+[cdiv project
+  [cene-logo]
+  [cdiv project-name Cene Mk. I]
+  [cdiv project-links
+    [out https://era-platform.github.io/cene/ website]
+    | [out https://github.com/era-platform/cene#readme repo]
+    | [out https://cene.readthedocs.io/en/latest/ docs]]
+  
+  [cdiv project-description
+    Cene Mk. I is a pure functional language with concurrent macroexpansion and a JavaScript FFI. I've built a [out https://github.com/era-platform/cene-scaffold/blob/18056655dcc29c023fde6191567f425cbcedf72a/src/main.cene#L149 text generation DSL] in Cene, as well as a [out https://github.com/rocketnia/mise-en.cene/blob/bed693477bb96fbe6b3a2ca5a45fe49abf979fda/src/demo.cene#L103 little screenplay-like DSL].
+    
+    In many ways, Cene is a culmination of the languages before it. It directly carries on the syntax innovations of Penknife Mk. II and the approach to side effects and cross-compilation that Staccato arrived at. Cene's declarations are processed concurrently just like Blade's.
+    
+    [out https://github.com/era-platform/cene-for-racket#readme Cene Mk. II] is the latest experimental work on Cene, rebuilding it with better error messages, a module system, and a few other refinements. At certain points in the design of Cene Mk. II's module system, I've considered the ideals of Era's ambitious module system to be within reach.]]
+
+[cdiv project
+  [cdiv project-name Lathe libraries for Racket]
+  [cdiv project-description
+    Cene Mk. I collected a lot of ideas into one language. It got to be hard to talk about one feature without first explaining all the others. So I started separating out some of the ideas into individual libraries for the language as close to Cene as I knew to exist: Racket.
+    
+    First of all, I've separated out the weak opening parens from Penknife Mk. II into Parendown
+    ([out https://github.com/lathe/parendown-for-racket#readme repo]
+    | [out https://docs.racket-lang.org/parendown/index.html docs]).
+    Parendown has impacted the design of several other syntaxes I use in Racket, including the general-purpose utilities in Lathe Comforts for Racket
+    ([out https://github.com/lathe/lathe-comforts-for-racket#readme repo]
+    | [out https://docs.racket-lang.org/lathe-comforts/index.html docs])
+    and the debug tracing utilities in Lathe Debugging
+    ([out https://github.com/lathe/lathe-debugging-for-racket#readme repo]).
+    
+    I've done a deeper investigation of the quasiquotation syntax and separated some of that out into Punctaffy
+    ([out https://github.com/lathe/punctaffy-for-racket#readme repo]
+    | [out https://docs.racket-lang.org/punctaffy/index.html docs]).
+    Along the way toward Punctaffy, I built out some category theory abstractions in Lathe Morphisms
+    ([out https://github.com/lathe/lathe-morphisms-for-racket#readme repo]
+    | [out https://docs.racket-lang.org/lathe-morphisms/index.html docs])
+    and some ordinal arithmetic operations in Lathe Ordinals
+    ([out https://github.com/lathe/lathe-ordinals-for-racket#readme repo]
+    | [out https://docs.racket-lang.org/lathe-ordinals/index.html docs]).
+    
+    I've separated out some refinements of the Blade- and Staccato-style concurrency ideas into Interconfection
+    ([out https://github.com/lathe/interconfection-for-racket#readme repo]
+    | [out https://docs.racket-lang.org/interconfection/index.html partial docs]). It's still rather unstable, and it's a big system in its own right. A lot of the Cene Mk. II codebase is basically just a wrapper over Interconfection.]]
+  
+[cdiv project
+  [cdiv project-name Fexpress]
+  [cdiv project-links
+    [out https://github.com/rocketnia/fexpress#readme repo]
+    | [out https://docs.racket-lang.org/fexpress/index.html docs]]
+  
+  [cdiv project-description
+    Fexpress is a proof-of-concept language core in which fexprs and compiled functions can coexist.
+    
+    I originally tried to make Fexpress back when I was porting Rainbow.js, just to prove an fexpr-supporting language didn't have to be slow for programs that resembled lambda calculus programs. However, I didn't know enough to make progress on it at the time.
+    
+    Now, after a particularly insightful week or so of coding, Fexpress is working. I'm surprised myself, and it's a little ironic because I'm not all that inclined to use fexprs in practice. However, I do think it occupies a certain place in the language design space that's worth accounting for.]]
+
+[cdiv project
+  [cdiv project-name Cronut]
+  [cdiv project-links
+    [out https://github.com/rocketnia/cronut#readme repo]]
+  
+  [cdiv project-description
+    Although most of my serious attention to language design has been focused on Cene and the related Racket libraries, I have been considering approaches that are more casual or that do more to embrace and give back to the Racket ecosystem.
+    
+    There are also certain new ideas I've had about cyclic module dependencies, parameterizable modules, first-class modules, the Expression Problem, multiple front-end syntax layers, facilitated convergent evolution of libraries, and the reporting of source locations and errors through multiple abstraction layers. I don't think Cene Mk. II is quite stable enough yet to pursue all these ideas there, so I've been considering exploring some of them more casually as Racket libraries.]]
 
 
-[h3 More Than a Regular Expression Engine]
+[h2 Writing and other creative pursuits]
 
-During college, I found regexes inspiring. Whereas typical expression
-evaluation was good at assembling pieces into a whole, regexes were
-good for drilling down into existing structures and either replacing
-or extracting the pieces. I started making backtracking parser
-combinator libraries like this one so I could build regex-like systems
-for my own purposes.
+In no particular order:
 
-Traditional regex systems require every lookbehind expression to have
-a maximum length known in advance. This library lifts that limitation.
-Every combinator has an interpretation that goes backwards, applying
-its match from the end of the string to the beginning.
+[cdiv project
+  [cdiv project-name Writing prompt generators]
+  [cdiv project-links
+    [out https://github.com/rocketnia/monday-comics repo]]
+  
+  [cdiv project-description
+    Some creative tools I've made to inspire writing ideas: A very simple [out https://rocketnia.github.io/monday-comics/ prompt generator] for scenarios where characters get into tomfoolery related to their unique talents, and an [out https://rocketnia.github.io/monday-comics/episodic-adventure-generator.html interactive plot structure generator] based on graph rewriting.]]
 
-Traditional regex systems have a backreference operator, to assert
-that a certain matched substring appears again at another location in
-the overall match. The mechanism I implemented here is somewhat more
-expressive: The parser combinators can collect multiple substring
-matches under a single name, and another combinator can take a look at
-this set and force a backtrack if not all the substrings are
-identical.
+[cdiv project
+  [cdiv project-name Rinksprite]
+  [cdiv project-links
+    [out https://github.com/rocketnia/rinksprite#readme repo]]
+  
+  [cdiv project-description
+    A repo where I've tinkered with some animation code for sprites ([out http://rocketnia.github.io/rinksprite/sprite-elisa.html demo]) and visual novel conversation engine transitions ([out http://rocketnia.github.io/rinksprite/animated-text.html demo]).]]
 
-This code isn't very interactive; it's just a library. If you want to
-see it in action anyway, you can run
-"[code java com.rocketnia.hacks.myregex.MyRegexTest]", a rudimentary
-unit test which does a single match.
+[cdiv project
+  [cdiv project-name Symple Home Renovations]
+  [cdiv project-links
+    [out https://rocketnia.itch.io/symple-home-renovations play on Itch.io]]
+  
+  [cdiv project-description
+    [i Magic makes home renovations easier than ever. Almost too easy.]
+    
+    Inspired by [out https://seltani.net/ Seltani], I made a little text-based game engine ([out https://github.com/rocketnia/contrivertext#readme ContriverText]) to try out some different UI ideas for multiplayer interactive hypertext fiction. The interface could use a lot of work, especially for a single-player demo like this one. However, for the [out https://itch.io/jam/bring-out-your-dead Bring Out Your Dead] game jam, I put together this short work to showcase the engine. There are some more author's notes on the [out https://itch.io/jam/bring-out-your-dead/rate/73015 jam submission page].]]
+
+[cdiv project
+  [cdiv project-name The Shape of Our Container]
+  [cdiv project-links
+    [out https://www.rocketnia.com/if/shape-of-our-container/play/ play online]]
+  
+  [cdiv project-description
+    A little hypertext piece I made for a [out https://ifdb.org/viewcomp?id=w7c92kqrhij4kt8h game jam on the theme of "tiny utopias."]]]
+
+[cdiv project
+  [cdiv project-name Megalomaniac]
+  [cdiv project-links
+    [out https://www.rocketnia.com/megalomaniac/ read online]]
+  
+  [cdiv project-description
+    A short-lived Mega Man sprite comic I started while I was really into [out https://www.bobandgeorge.com/ Bob and George].]]
+
+[cdiv project
+  [cdiv project-name MyAI and Mikkamon]
+  
+  [cdiv project-description
+    I could talk all day about some of my original characters and settings. Telling their stories in full is a daunting prospect, one that I might even need better programming languages for. :-p But I've occasionally written up some notes about [out https://github.com/rocketnia/myai-franchise#readme MyAI] and [out https://github.com/rocketnia/mikkamon#readme Mikkamon] on GitHub to get the ideas out there somewhere.]]
+
+
+[h2 Game modding and investigation]
+
+[cdiv project
+  [cdiv project-name Mega Man IV and V password generators]
+  [cdiv project-links
+    [out https://www.rocketnia.com/password-cracks/ website]]
+  
+  [cdiv project-description
+    Some password generators for Mega Man IV and V for Game Boy.]]
+
+
+[h2 Other]
+
+[cdiv project
+  [cdiv project-name Rocketnia.com]
+  [cdiv project-links
+    [nav / view online]
+    | [out https://github.com/rocketnia/rocketnia-sites repo for the open-source subset of the site]]
+  
+  [cdiv project-description
+    The website you're looking at is written in a static site generator I made myself called [out https://github.com/rocketnia/chopsgen Chopsgen]. It uses the same kind of deterministic concurrency model that went into the Cene macroexpander.
+    
+    I wrote this static site generator at a time when I wanted to be able to run all my code in the browser, even the build tools themselves. In a clone of the repo, the file html-build.html shows a preview of the site in an iframe, and it offers a button to download the processed .html files in a .zip archive, ready to be unpacked and uploaded. In practice, I actually do a more sophisticated kind of deployment, but it's nice to have this as a fallback.]]
+
 
 
     ] ) )
