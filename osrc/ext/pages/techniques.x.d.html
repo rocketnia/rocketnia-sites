@@ -10,7 +10,7 @@ $cs.getOne( "$rc", "$cg", function ( $rc, $cg ) {
 return $cs.extend( "pages",
 
 $rc.rcPage( "/tech/", "Programming Techniques",
-    "3-Nov-2013", $cg.parseIn( [str 2012[en]2013] ), {},
+    "13-Feb-2022", $cg.parseIn( [str 2012[en]2013, 2022] ), {},
     $cg.parse( [str
 
 Sometimes in the middle of a forum discussion, I find an opportunity
@@ -290,13 +290,13 @@ An Inform 7 world is developed using broad-stroke declarations and
 some finer-grained amendments. Overlaps abound.
 
 With overlaps comes a need for precedence control. Andrew Plotkin from
-the IF community [out http://eblong.com/zarf/essays/rule-based-if/ has
-noted] that Inform 7's mechanisms for dealing with the precedence of
-these overlaps would be more expressive if story authors could define
-their own custom precedence rules. His presentation culminates in the
-observation that once the precedence algorithm itself is extensible
-this way, authors will want to resolve overlaps in precedence rules by
-defining more even precedence rules.
+the IF community [out https://eblong.com/zarf/essays/rule-based-if/
+has noted] that Inform 7's mechanisms for dealing with the precedence
+of these overlaps would be more expressive if story authors could
+define their own custom precedence rules. His presentation culminates
+in the observation that once the precedence algorithm itself is
+extensible this way, authors will want to resolve overlaps in
+precedence rules by defining more even precedence rules.
 
 After considering the corner cases, I've come up with a pretty
 reasonable way to build this turtles-all-the-way-down model: Each
@@ -458,7 +458,8 @@ or immutable ephemeron table (aka weak map). Much like lisps get away
 with representing many data structures using cons cells, Cairntaker
 does the same with tables. This gives ephemera a chance to be a
 seamless part of a language's reachability semantics, well-integrated
-with an [out http://home.pipeline.com/~hbaker1/ObjectIdentity.html
+with an [out
+https://web.archive.org/web/20200109080303/http://home.pipeline.com/~hbaker1/ObjectIdentity.html
 egal] notion of equality (for key lookup).
 
 Cairntaker lets programs manipulate simple JavaScript data chunks like
