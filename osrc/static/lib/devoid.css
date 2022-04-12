@@ -57,10 +57,10 @@ div.top-path
   padding-left: 255px;
   float: left;
 }
-div.top-path a:link { color: white; }
-div.top-path a:visited { color: #999; }
-div.top-path a:hover,
-div.top-path a:active { color: #99C; }
+div.top-path a[href]:link { color: white; }
+div.top-path a[href]:visited { color: #999; }
+div.top-path a[href]:hover,
+div.top-path a[href]:active { color: #99C; }
 div.top-path div.top-path-breadcrumbs,
 div.top-path div.top-path-breadcrumbs p,
 div.top-path div.top-path-breadcrumbs
@@ -118,10 +118,10 @@ dl.top-nav > dd > ul
 dl.top-nav > dd > ul > li { margin: 0 0 3px 16px; text-indent: -16px; }
 dl.top-nav > dd > ul > li > * { text-indent: 0; }
 dl.top-nav > dd > ul > li > ul { padding-left: 16px; }
-dl.top-nav a:link { color: black; }
-dl.top-nav a:visited { color: #666; }
-dl.top-nav a:hover,
-dl.top-nav a:active { color: #66C; }
+dl.top-nav a[href]:link { color: black; }
+dl.top-nav a[href]:visited { color: #666; }
+dl.top-nav a[href]:hover,
+dl.top-nav a[href]:active { color: #66C; }
 
 
 div.top-main-wrap { width: 100%; display: block; float: right; }
@@ -135,10 +135,10 @@ div.top-main
   margin-left: 250px;
 }
 
-div.top-main a:link { color: black; }
-div.top-main a:visited { color: #666; }
-div.top-main a:hover,
-div.top-main a:active { color: #66C; }
+div.top-main a[href]:link { color: black; }
+div.top-main a[href]:visited { color: #666; }
+div.top-main a[href]:hover,
+div.top-main a[href]:active { color: #66C; }
 
 
 

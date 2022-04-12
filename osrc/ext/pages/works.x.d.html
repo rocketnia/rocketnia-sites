@@ -10,7 +10,7 @@ $cs.getOne( "lathe", "$rc", "$cg", function ( _, $rc, $cg ) {
 return $cs.extend( "pages",
 
 $rc.rcPage( "/works/", "Things I've Made",
-    "13-Feb-2022", $cg.parseIn( [str 2005[en]2010, 2013, 2022] ), {},
+    "11-Apr-2022", $cg.parseIn( [str 2005[en]2010, 2013, 2022] ), {},
     $cg.parseLocal( _.objMap( {
         "cene-logo": $cg.blockSnippet( $cg.snippet( {
         }, { unstructuredHtml: [str
@@ -26,12 +26,79 @@ $rc.rcPage( "/works/", "Things I've Made",
         ] } ) )
     }, _.kfn ), [str
 
-On the [nav / front page], I go into several of my snazzier projects. For those interested in a more comprehensive look, this page elaborates on that with details about some of the weirder or less fully explored projects.
+On the [nav / front page], I highlight several of my snazziest projects. This page provides a more detailed look into some of the more obscure ones.
 
-For now, this page just describes my programming language pursuits.
+[ul [li [anchor-link creative Writing and other creative pursuits]]
+    [li [anchor-link game-modding Game modding and investigation]]
+    [li [anchor-link programming-languages Programming languages]]
+    [li [anchor-link other Other]]]
 
 
-[h2 Programming languages]
+[h2 [anchor creative Writing and other creative pursuits]]
+
+In no particular order:
+
+[cdiv project
+  [cdiv project-name Writing prompt generators]
+  [cdiv project-links
+    [out https://github.com/rocketnia/monday-comics repo]]
+  
+  [cdiv project-description
+    Some creative tools I've made to inspire writing ideas: A very simple [out https://rocketnia.github.io/monday-comics/ prompt generator] for scenarios where characters get into tomfoolery related to their unique talents, and an [out https://rocketnia.github.io/monday-comics/episodic-adventure-generator.html interactive plot structure generator] based on graph rewriting.]]
+
+[cdiv project
+  [cdiv project-name Rinksprite]
+  [cdiv project-links
+    [out https://github.com/rocketnia/rinksprite#readme repo]]
+  
+  [cdiv project-description
+    A repo where I've tinkered with some animation code for sprites ([out https://rocketnia.github.io/rinksprite/sprite-elisa.html demo]) and visual novel conversation engine transitions ([out https://rocketnia.github.io/rinksprite/animated-text.html demo]).]]
+
+[cdiv project
+  [cdiv project-name Symple Home Renovations]
+  [cdiv project-links
+    [out https://rocketnia.itch.io/symple-home-renovations play on Itch.io]]
+  
+  [cdiv project-description
+    [i Magic makes home renovations easier than ever. Almost too easy.]
+    
+    Inspired by [out https://seltani.net/ Seltani], I made a little text-based game engine ([out https://github.com/rocketnia/contrivertext#readme ContriverText]) to try out some different UI ideas for multiplayer interactive hypertext fiction. The interface could use a lot of work, especially for a single-player demo like this one. However, for the [out https://itch.io/jam/bring-out-your-dead Bring Out Your Dead] game jam, I put together this short work to showcase the engine. There are some more author's notes on the [out https://itch.io/jam/bring-out-your-dead/rate/73015 jam submission page].]]
+
+[cdiv project
+  [cdiv project-name The Shape of Our Container]
+  [cdiv project-links
+    [out https://www.rocketnia.com/if/shape-of-our-container/play/ play online]]
+  
+  [cdiv project-description
+    A little hypertext piece I made for a [out https://ifdb.org/viewcomp?id=w7c92kqrhij4kt8h game jam on the theme of "tiny utopias."]]]
+
+[cdiv project
+  [cdiv project-name Megalomaniac]
+  [cdiv project-links
+    [out https://www.rocketnia.com/megalomaniac/ read online]]
+  
+  [cdiv project-description
+    A short-lived Mega Man sprite comic I started while I was really into [out https://www.bobandgeorge.com/ Bob and George].]]
+
+[cdiv project
+  [cdiv project-name MyAI and Mikkamon]
+  
+  [cdiv project-description
+    I could talk all day about some of my original characters and settings. Telling their stories in full is a daunting prospect, one that I might even need better programming languages for. :-p But I've occasionally written up some notes about [out https://github.com/rocketnia/myai-franchise#readme MyAI] and [out https://github.com/rocketnia/mikkamon#readme Mikkamon] on GitHub to get the ideas out there somewhere.]]
+
+
+[h2 [anchor game-modding Game modding and investigation]]
+
+[cdiv project
+  [cdiv project-name Mega Man IV and V password generators]
+  [cdiv project-links
+    [out https://www.rocketnia.com/password-cracks/ website]]
+  
+  [cdiv project-description
+    Some password generators for Mega Man IV and V for Game Boy.]]
+
+
+[h2 [anchor programming-languages Programming languages]]
 
 My programming language ideas actually started long before I was able to bring them to fruition. I've basically been wanting to program in better languages as long as I've wanted to program at all. Here's a chronological account.
 
@@ -288,71 +355,7 @@ I was also learning about a lot of language design topics I'd never heard about 
     There are also certain new ideas I've had about cyclic module dependencies, parameterizable modules, first-class modules, the Expression Problem, multiple front-end syntax layers, facilitated convergent evolution of libraries, and the reporting of source locations and errors through multiple abstraction layers. I don't think Cene Mk. II is quite stable enough yet to pursue all these ideas there, so I've been considering exploring some of them more casually as Racket libraries.]]
 
 
-[h2 Writing and other creative pursuits]
-
-In no particular order:
-
-[cdiv project
-  [cdiv project-name Writing prompt generators]
-  [cdiv project-links
-    [out https://github.com/rocketnia/monday-comics repo]]
-  
-  [cdiv project-description
-    Some creative tools I've made to inspire writing ideas: A very simple [out https://rocketnia.github.io/monday-comics/ prompt generator] for scenarios where characters get into tomfoolery related to their unique talents, and an [out https://rocketnia.github.io/monday-comics/episodic-adventure-generator.html interactive plot structure generator] based on graph rewriting.]]
-
-[cdiv project
-  [cdiv project-name Rinksprite]
-  [cdiv project-links
-    [out https://github.com/rocketnia/rinksprite#readme repo]]
-  
-  [cdiv project-description
-    A repo where I've tinkered with some animation code for sprites ([out https://rocketnia.github.io/rinksprite/sprite-elisa.html demo]) and visual novel conversation engine transitions ([out https://rocketnia.github.io/rinksprite/animated-text.html demo]).]]
-
-[cdiv project
-  [cdiv project-name Symple Home Renovations]
-  [cdiv project-links
-    [out https://rocketnia.itch.io/symple-home-renovations play on Itch.io]]
-  
-  [cdiv project-description
-    [i Magic makes home renovations easier than ever. Almost too easy.]
-    
-    Inspired by [out https://seltani.net/ Seltani], I made a little text-based game engine ([out https://github.com/rocketnia/contrivertext#readme ContriverText]) to try out some different UI ideas for multiplayer interactive hypertext fiction. The interface could use a lot of work, especially for a single-player demo like this one. However, for the [out https://itch.io/jam/bring-out-your-dead Bring Out Your Dead] game jam, I put together this short work to showcase the engine. There are some more author's notes on the [out https://itch.io/jam/bring-out-your-dead/rate/73015 jam submission page].]]
-
-[cdiv project
-  [cdiv project-name The Shape of Our Container]
-  [cdiv project-links
-    [out https://www.rocketnia.com/if/shape-of-our-container/play/ play online]]
-  
-  [cdiv project-description
-    A little hypertext piece I made for a [out https://ifdb.org/viewcomp?id=w7c92kqrhij4kt8h game jam on the theme of "tiny utopias."]]]
-
-[cdiv project
-  [cdiv project-name Megalomaniac]
-  [cdiv project-links
-    [out https://www.rocketnia.com/megalomaniac/ read online]]
-  
-  [cdiv project-description
-    A short-lived Mega Man sprite comic I started while I was really into [out https://www.bobandgeorge.com/ Bob and George].]]
-
-[cdiv project
-  [cdiv project-name MyAI and Mikkamon]
-  
-  [cdiv project-description
-    I could talk all day about some of my original characters and settings. Telling their stories in full is a daunting prospect, one that I might even need better programming languages for. :-p But I've occasionally written up some notes about [out https://github.com/rocketnia/myai-franchise#readme MyAI] and [out https://github.com/rocketnia/mikkamon#readme Mikkamon] on GitHub to get the ideas out there somewhere.]]
-
-
-[h2 Game modding and investigation]
-
-[cdiv project
-  [cdiv project-name Mega Man IV and V password generators]
-  [cdiv project-links
-    [out https://www.rocketnia.com/password-cracks/ website]]
-  
-  [cdiv project-description
-    Some password generators for Mega Man IV and V for Game Boy.]]
-
-
-[h2 Other]
+[h2 [anchor other Other]]
 
 [cdiv project
   [cdiv project-name Rocketnia.com]

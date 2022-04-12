@@ -972,6 +972,24 @@ var snippetEnv = $c.env( {
             return new NavLink(
                 path, $c.parseInlineChops( env, apart[ 1 ] ) );
     },
+    "anchor": function ( chops, env ) {
+        var apart = $c.letChopWords( chops, 1 );
+        if ( !apart ) throw new Error( "anchor needs an arg" );
+        var path = my.toPath( $c.unchops( apart[ 0 ] ) );
+        return my.tag( "a", "id", apart[ 0 ] )(
+            $c.parseInlineChops( env, apart[ 1 ] )
+        );
+    },
+    "anchor-link": function ( chops, env ) {
+        var apart = $c.letChopWords( chops, 1 );
+        if ( !apart ) throw new Error( "anchor-link needs an arg" );
+        var path = my.toPath( $c.unchops( apart[ 0 ] ) );
+        if ( apart[ 1 ].length === 0 )
+            throw new Error( "anchor-link needs a body; inferring the link text isn't supported yet" );
+        return my.tag( "a",
+            "href", "#" + encodeURIComponent( apart[ 0 ] )
+        )( $c.parseInlineChops( env, apart[ 1 ] ) );
+    },
     "nochops": function ( chops, env ) {
         return $c.unchops( $c.letChopLtrimRegex(
             chops, /^(?:(?!\n)\s)*[\n|]?/ ).rest );
