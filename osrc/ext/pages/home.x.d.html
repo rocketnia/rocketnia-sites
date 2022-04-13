@@ -11,23 +11,100 @@ $cs.getOne( "lathe", "$rc", "$cg", "extutils",
 return $eu.extendOpenSource( "pages", "homeCandidates",
 
 $rc.rcPage( "/", "Rocketnia.com",
-    "11-Feb-2022",
+    "13-Apr-2022",
     $cg.parseIn( [str 2005[en]2010, 2012, 2017, 2021[en]2022] ),
     { "title": "Rocketnia.com, Virtual Index of Ross Angle",
         "breadcrumbs": $cg.parseIn(
             [str [h1 Rocketnia.com: Virtual Index of Ross Angle]] ) },
     $cg.parseLocal( _.objMap( {
-        "cene-logo": $cg.blockSnippet( $cg.snippet( {
+        "logo-cene": $cg.blockSnippet( $cg.snippet( {
         }, { unstructuredHtml: [str
             <img class="project-logo" width="90" height="48"
-                src="lib/cene-5-cropped-164.png"
+                src="lib/works/logos/cene-5-cropped-164.png"
                 alt="Cene logo" />
         ] } ) ),
-        "rainbow-js-logo": $cg.blockSnippet( $cg.snippet( {
+        "logo-rainbow-js": $cg.blockSnippet( $cg.snippet( {
         }, { unstructuredHtml: [str
             <img class="project-logo" width="48" height="48"
-                src="lib/rainbow-js-1-resized-162x162.png"
+                src="lib/works/logos/rainbow-js-1-resized-162x162.png"
                 alt="Rainbow.js logo" />
+        ] } ) ),
+        "thumbnail-cene": $cg.blockSnippet( $cg.snippet( {
+        }, { unstructuredHtml: [str
+            <div class="project-thumbnail"><a
+                href="https://era-platform.github.io/cene/"
+                ><img src="../lib/works/thumbnails/thumbnail-cene.png"
+                    width="296" height="227"
+                    alt="Screenshot of the Cene website" /><@/a><@/div>
+        ] } ) ),
+        "thumbnail-fexpress": $cg.blockSnippet( $cg.snippet( {
+        }, { unstructuredHtml: [str
+            <div class="project-thumbnail"><a
+                href="https://docs.racket-lang.org/fexpress/index.html"
+                ><img src="../lib/works/thumbnails/thumbnail-fexpress.png"
+                    width="296" height="198"
+                    alt="Screenshot of the Fexpress documentation" /><@/a><@/div>
+        ] } ) ),
+        "thumbnail-megalomaniac": $cg.blockSnippet( $cg.snippet( {
+        }, { unstructuredHtml: [str
+            <div class="project-thumbnail"><a
+                href="https://www.rocketnia.com/megalomaniac/"
+                ><img src="../lib/works/thumbnails/thumbnail-megalomaniac.png"
+                    width="296" height="193"
+                    alt="Screenshot of the Megalomaniac website" /><@/a><@/div>
+        ] } ) ),
+        "thumbnail-mm-password-cracks": $cg.blockSnippet( $cg.snippet( {
+        }, { unstructuredHtml: [str
+            <div class="project-thumbnail"><a
+                href="https://www.rocketnia.com/password-cracks/"
+                ><img src="../lib/works/thumbnails/thumbnail-mm-password-cracks.png"
+                    width="413" height="422"
+                    alt="Screenshot of the Mega Man IV and V for Game Boy password cracks page" /><@/a><@/div>
+        ] } ) ),
+        "thumbnail-monday-comics": $cg.blockSnippet( $cg.snippet( {
+        }, { unstructuredHtml: [str
+            <div class="project-thumbnail"><a
+                href="https://rocketnia.github.io/monday-comics/episodic-adventure-generator.html"
+                ><img src="../lib/works/thumbnails/thumbnail-monday-comics.png"
+                    width="646" height="792"
+                    alt="Screenshot of the interactive plot structure generator" /><@/a><@/div>
+        ] } ) ),
+        "thumbnail-rocketnia-dot-com": $cg.blockSnippet( $cg.snippet( {
+        }, { unstructuredHtml: [str
+            <div class="project-thumbnail"><a
+                href="https://www.rocketnia.com/"
+                ><img src="../lib/works/thumbnails/thumbnail-rocketnia-dot-com.png"
+                    width="296" height="185"
+                    alt="Screenshot of Rocketnia.com" /><@/a><@/div>
+        ] } ) ),
+        "thumbnail-shape-of-our-container": $cg.blockSnippet( $cg.snippet( {
+        }, { unstructuredHtml: [str
+            <div class="project-thumbnail"><a
+                href="https://www.rocketnia.com/if/shape-of-our-container/play/"
+                ><img src="../lib/works/thumbnails/thumbnail-shape-of-our-container.png"
+                    width="296" height="123"
+                    alt=
+                        "Screenshot of the hypertext game called
+                        The Shape of Our Container" /><@/a><@/div>
+        ] } ) ),
+        "thumbnail-symple-home-renovations": $cg.blockSnippet( $cg.snippet( {
+        }, { unstructuredHtml: [str
+            <div class="project-thumbnail"><a
+                href="https://rocketnia.itch.io/symple-home-renovations"
+                ><img src="../lib/works/thumbnails/thumbnail-symple-home-renovations.png"
+                    width="479" height="328"
+                    alt=
+                        "Screenshot of the hypertext game called
+                        Symple Home Renovations" /><@/a><@/div>
+        ] } ) ),
+        "thumbnail-underreact": $cg.blockSnippet( $cg.snippet( {
+        }, { unstructuredHtml: [str
+            <div class="project-thumbnail"><a
+                href="https://rocketnia.github.io/underreact/test/platformer.html"
+                ><img src="../lib/works/thumbnails/thumbnail-underreact.png"
+                    width="178" height="178"
+                    alt=
+                        "Screenshot of the Underreact platform game demo" /><@/a><@/div>
         ] } ) )
     }, _.kfn ), [str
 
@@ -38,7 +115,7 @@ Hi, I'm Ross Angle. I like to go by Rocketnia, or Nia for short. (Interested in 
 I'd like to simplify programming for everyone. My programming languages under the [out https://github.com/era-platform Era] umbrella are my efforts toward that goal. Some of the work involves utility libraries I refer to collectively as [out https://github.com/lathe Lathe], with which I aim to spruce up existing languages with the additional techniques I'm embracing for Era. And some of my tinkering takes place in one-off projects on [out https://github.com/rocketnia my own GitHub profile]. Here are a few examples:
 
 [cdiv project
-  [cene-logo]
+  [logo-cene]
   [cdiv project-name Cene Mk. I]
   [cdiv project-links
     [out https://era-platform.github.io/cene/ website]
@@ -48,7 +125,9 @@ I'd like to simplify programming for everyone. My programming languages under th
   [cdiv project-description
     A pure functional language with concurrent macroexpansion and a JavaScript FFI. I've built a [out https://github.com/era-platform/cene-scaffold/blob/18056655dcc29c023fde6191567f425cbcedf72a/src/main.cene#L149 text generation DSL] in Cene, as well as a [out https://github.com/rocketnia/mise-en.cene/blob/bed693477bb96fbe6b3a2ca5a45fe49abf979fda/src/demo.cene#L103 little screenplay-like DSL].
     
-    [out https://github.com/era-platform/cene-for-racket#readme Cene Mk. II] is the latest experimental work on Cene, rebuilding it with better error messages, a module system, and a few other refinements.]]
+    [out https://github.com/era-platform/cene-for-racket#readme Cene Mk. II] is the latest experimental work on Cene, rebuilding it with better error messages, a module system, and a few other refinements.
+    
+    [thumbnail-cene]]]
 
 [cdiv project
   [cdiv project-name Fexpress]
@@ -57,7 +136,9 @@ I'd like to simplify programming for everyone. My programming languages under th
     | [out https://docs.racket-lang.org/fexpress/index.html docs]]
   
   [cdiv project-description
-    A proof-of-concept language core in which fexprs and compiled functions can coexist.]]
+    A proof-of-concept language core in which fexprs and compiled functions can coexist.
+    
+    [thumbnail-fexpress]]]
 
 [cdiv project
   [cdiv project-name Underreact]
@@ -67,7 +148,9 @@ I'd like to simplify programming for everyone. My programming languages under th
   [cdiv project-description
     A dataflow library that could form the underlying plumbing of a continuous-time functional reactive programming language.
     
-    Underreact makes for some rather snazzy demos, including a [out https://rocketnia.github.io/underreact/test/canvas-fancy.html demo of some state machines] and a [out https://rocketnia.github.io/underreact/test/platformer.html demo of a rudimentary platform game]. [<]Warning: Some flickering.[>]]]
+    Underreact makes for some rather snazzy demos, including a [out https://rocketnia.github.io/underreact/test/canvas-fancy.html demo of some state machines] and a [out https://rocketnia.github.io/underreact/test/platformer.html demo of a rudimentary platform game]. [<]Warning: Some flickering.[>]
+    
+    [thumbnail-underreact]]]
 
 [cdiv project
   [cdiv project-name Punctaffy]
@@ -88,10 +171,12 @@ General-purpose programming language design isn't my only pursuit. Here are some
   [cdiv project-description
     The website you're looking at is written in a static site generator I made myself called [out https://github.com/rocketnia/chopsgen Chopsgen]. It uses the same kind of deterministic concurrency model that went into the Cene macroexpander.
     
-    I wrote this static site generator at a time when I wanted to be able to run all my code in the browser, even the build tools themselves. In a clone of the repo, the file html-build.html shows a preview of the site in an iframe, and it offers a button to download the processed .html files in a .zip archive, ready to be unpacked and uploaded. In practice, I actually do a more sophisticated kind of deployment, but it's nice to have this as a fallback.]]
+    I wrote this static site generator at a time when I wanted to be able to run all my code in the browser, even the build tools themselves. In a clone of the repo, the file html-build.html shows a preview of the site in an iframe, and it offers a button to download the processed .html files in a .zip archive, ready to be unpacked and uploaded. In practice, I actually do a more sophisticated kind of deployment, but it's nice to have this as a fallback.
+    
+    [thumbnail-rocketnia-dot-com]]]
 
 [cdiv project
-  [rainbow-js-logo]
+  [logo-rainbow-js]
   [cdiv project-name Rainbow.js]
   [cdiv project-links
     [out https://github.com/arclanguage/rainbow-js#readme repo]
@@ -106,7 +191,9 @@ General-purpose programming language design isn't my only pursuit. Here are some
     [out https://github.com/rocketnia/monday-comics repo]]
   
   [cdiv project-description
-    Some creative tools I've made to inspire writing ideas: A very simple [out https://rocketnia.github.io/monday-comics/ prompt generator] for scenarios where characters get into tomfoolery related to their unique talents, and an [out https://rocketnia.github.io/monday-comics/episodic-adventure-generator.html interactive plot structure generator] based on graph rewriting.]]
+    Some creative tools I've made to inspire writing ideas: A very simple [out https://rocketnia.github.io/monday-comics/ prompt generator] for scenarios where characters get into tomfoolery related to their unique talents, and an [out https://rocketnia.github.io/monday-comics/episodic-adventure-generator.html interactive plot structure generator] based on graph rewriting.
+    
+    [thumbnail-monday-comics]]]
 
 [cdiv project
   [cdiv project-name Mega Man IV and V password generators]
@@ -114,7 +201,9 @@ General-purpose programming language design isn't my only pursuit. Here are some
     [out https://www.rocketnia.com/password-cracks/ website]]
   
   [cdiv project-description
-    Some password generators for Mega Man IV and V for Game Boy.]]
+    Some password generators for Mega Man IV and V for Game Boy.
+    
+    [thumbnail-mm-password-cracks]]]
 
 I have some storytelling pursuits, too:
 
@@ -126,7 +215,9 @@ I have some storytelling pursuits, too:
   [cdiv project-description
     [i Magic makes home renovations easier than ever. Almost too easy.]
     
-    Inspired by [out https://seltani.net/ Seltani], I made a little text-based game engine ([out https://github.com/rocketnia/contrivertext#readme ContriverText]) to try out some different UI ideas for multiplayer interactive hypertext fiction. The interface could use a lot of work, especially for a single-player demo like this one. However, for the [out https://itch.io/jam/bring-out-your-dead Bring Out Your Dead] game jam, I put together this short work to showcase the engine. There are some more author's notes on the [out https://itch.io/jam/bring-out-your-dead/rate/73015 jam submission page].]]
+    Inspired by [out https://seltani.net/ Seltani], I made a little text-based game engine ([out https://github.com/rocketnia/contrivertext#readme ContriverText]) to try out some different UI ideas for multiplayer interactive hypertext fiction. The interface could use a lot of work, especially for a single-player demo like this one. However, for the [out https://itch.io/jam/bring-out-your-dead Bring Out Your Dead] game jam, I put together this short work to showcase the engine. There are some more author's notes on the [out https://itch.io/jam/bring-out-your-dead/rate/73015 jam submission page].
+    
+    [thumbnail-symple-home-renovations]]]
 
 [cdiv project
   [cdiv project-name The Shape of Our Container]
@@ -134,7 +225,9 @@ I have some storytelling pursuits, too:
     [out https://www.rocketnia.com/if/shape-of-our-container/play/ play online]]
   
   [cdiv project-description
-    A little hypertext piece I made for a [out https://ifdb.org/viewcomp?id=w7c92kqrhij4kt8h game jam on the theme of "tiny utopias."]]]
+    A little hypertext piece I made for a [out https://ifdb.org/viewcomp?id=w7c92kqrhij4kt8h game jam on the theme of "tiny utopias."]
+    
+    [thumbnail-shape-of-our-container]]]
 
 [cdiv project
   [cdiv project-name Megalomaniac]
@@ -142,7 +235,9 @@ I have some storytelling pursuits, too:
     [out https://www.rocketnia.com/megalomaniac/ read online]]
   
   [cdiv project-description
-    A short-lived Mega Man sprite comic I started while I was really into [out https://www.bobandgeorge.com/ Bob and George].]]
+    A short-lived Mega Man sprite comic I started while I was really into [out https://www.bobandgeorge.com/ Bob and George].
+    
+    [thumbnail-megalomaniac]]]
 
 [cdiv project
   [cdiv project-name MyAI and Mikkamon]

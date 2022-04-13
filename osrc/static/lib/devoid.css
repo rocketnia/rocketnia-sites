@@ -241,6 +241,16 @@ div.project p {
 div.project div.project-description p {
   margin-bottom: 0.5em;
 }
+div.project div.project-description div.project-thumbnail {
+  text-align: center;
+}
+div.project div.project-description div.project-thumbnail img {
+  vertical-align: middle;
+  max-width: 246px;
+  height: auto;
+  border: 8px solid darkgray;
+  border-radius: 12px;
+}
 
 
 /*
