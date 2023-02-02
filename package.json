@@ -18,6 +18,6 @@
   "bin": "./cli-build.js",
   "dependencies": {
     "argparse": "^2.0.1",
-    "jszip": "^3.7.1"
+    "jszip": "^3.8.0"
   }
 }
